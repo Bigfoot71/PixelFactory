@@ -33,4 +33,7 @@ pf_mat4_scale(pf_mat4_t dst, float sx, float sy, float sz);
 void
 pf_mat4_mul(pf_mat4_t dst, const pf_mat4_t left, const pf_mat4_t right);
 
+void
+pf_mat4_mul_r(float* restrict dst, const pf_mat4_t left, const pf_mat4_t right);
+
 #endif //PF_MATH_MAT4_H

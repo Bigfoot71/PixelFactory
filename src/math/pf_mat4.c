@@ -27,20 +27,23 @@ pf_mat4_is_identity(const pf_mat4_t mat) {
     return 1;
 }
 
-void pf_mat4_identity(pf_mat4_t dst)
+void
+pf_mat4_identity(pf_mat4_t dst)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
     dst[0] = dst[5] = dst[10] = dst[15] = 1;
 }
 
-void pf_mat4_translate(pf_mat4_t dst, float x, float y, float z)
+void
+pf_mat4_translate(pf_mat4_t dst, float x, float y, float z)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
     dst[3] = x, dst[7] = y, dst[11] = z;
     dst[0] = dst[5] = dst[10] = dst[15] = 1;
 }
 
-void pf_mat4_rotate_axis_angle(pf_mat4_t dst, float x, float y, float z, float angle)
+void
+pf_mat4_rotate_axis_angle(pf_mat4_t dst, float x, float y, float z, float angle)
 {
     float c = cosf(angle);
     float s = sinf(angle);
@@ -67,7 +70,8 @@ void pf_mat4_rotate_axis_angle(pf_mat4_t dst, float x, float y, float z, float a
     dst[15] = 1;
 }
 
-void pf_mat4_rotate_x(pf_mat4_t dst, float angle)
+void
+pf_mat4_rotate_x(pf_mat4_t dst, float angle)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
 
@@ -82,7 +86,8 @@ void pf_mat4_rotate_x(pf_mat4_t dst, float angle)
     dst[15] = 1;
 }
 
-void pf_mat4_rotate_y(pf_mat4_t dst, float angle)
+void
+pf_mat4_rotate_y(pf_mat4_t dst, float angle)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
 
@@ -97,7 +102,8 @@ void pf_mat4_rotate_y(pf_mat4_t dst, float angle)
     dst[15] = 1;
 }
 
-void pf_mat4_rotate_z(pf_mat4_t dst, float angle)
+void
+pf_mat4_rotate_z(pf_mat4_t dst, float angle)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
 
@@ -112,7 +118,8 @@ void pf_mat4_rotate_z(pf_mat4_t dst, float angle)
     dst[15] = 1;
 }
 
-void pf_mat4_scale(pf_mat4_t dst, float sx, float sy, float sz)
+void
+pf_mat4_scale(pf_mat4_t dst, float sx, float sy, float sz)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
 
@@ -122,7 +129,8 @@ void pf_mat4_scale(pf_mat4_t dst, float sx, float sy, float sz)
     dst[15] = 1;
 }
 
-void pf_mat4_mul(pf_mat4_t dst, const pf_mat4_t left, const pf_mat4_t right)
+void
+pf_mat4_mul(pf_mat4_t dst, const pf_mat4_t left, const pf_mat4_t right)
 {
     pf_mat4_t result;
 
@@ -137,4 +145,18 @@ void pf_mat4_mul(pf_mat4_t dst, const pf_mat4_t left, const pf_mat4_t right)
     }
 
     memcpy(dst, result, sizeof(pf_mat4_t));
+}
+
+void
+pf_mat4_mul_r(float* restrict dst, const pf_mat4_t left, const pf_mat4_t right)
+{
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            dst[i * 4 + j] = 
+                left[i * 4 + 0] * right[0 * 4 + j] +
+                left[i * 4 + 1] * right[1 * 4 + j] +
+                left[i * 4 + 2] * right[2 * 4 + j] +
+                left[i * 4 + 3] * right[3 * 4 + j];
+        }
+    }
 }
