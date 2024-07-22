@@ -28,6 +28,6 @@ void
 pf_mat3_mul_r(float* restrict dst, const pf_mat3_t left, const pf_mat3_t right);
 
 void
-pf_mat3_inverse(pf_mat3_t inv, const pf_mat3_t mat);
+pf_mat3_inverse(pf_mat3_t src, const pf_mat3_t dst);
 
 #endif //PF_MATH_MAT3_H

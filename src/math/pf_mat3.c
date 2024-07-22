@@ -90,25 +90,25 @@ pf_mat3_mul_r(float* restrict dst, const pf_mat3_t left, const pf_mat3_t right) 
 }
 
 void
-pf_mat3_inverse(pf_mat3_t inv, const pf_mat3_t mat) {
-    float det = mat[0] * (mat[4] * mat[8] - mat[5] * mat[7]) -
-                mat[1] * (mat[3] * mat[8] - mat[5] * mat[6]) +
-                mat[2] * (mat[3] * mat[7] - mat[4] * mat[6]);
+pf_mat3_inverse(pf_mat3_t dst, const pf_mat3_t src) {
+    float det = src[0] * (src[4] * src[8] - src[5] * src[7]) -
+                src[1] * (src[3] * src[8] - src[5] * src[6]) +
+                src[2] * (src[3] * src[7] - src[4] * src[6]);
 
     if (fabs(det) < 1e-6) {
-        pf_mat3_identity(inv); // Non-invertible matrix case
+        pf_mat3_identity(dst); // Non-invertible matrix case
         return;
     }
 
-    float invDet = 1.0f / det;
+    float inv_det = 1.0f / det;
 
-    inv[0] = (mat[4] * mat[8] - mat[5] * mat[7]) * invDet;
-    inv[1] = (mat[2] * mat[7] - mat[1] * mat[8]) * invDet;
-    inv[2] = (mat[1] * mat[5] - mat[2] * mat[4]) * invDet;
-    inv[3] = (mat[5] * mat[6] - mat[3] * mat[8]) * invDet;
-    inv[4] = (mat[0] * mat[8] - mat[2] * mat[6]) * invDet;
-    inv[5] = (mat[2] * mat[3] - mat[0] * mat[5]) * invDet;
-    inv[6] = (mat[3] * mat[7] - mat[4] * mat[6]) * invDet;
-    inv[7] = (mat[1] * mat[6] - mat[0] * mat[7]) * invDet;
-    inv[8] = (mat[0] * mat[4] - mat[1] * mat[3]) * invDet;
+    dst[0] = (src[4] * src[8] - src[5] * src[7]) * inv_det;
+    dst[1] = (src[2] * src[7] - src[1] * src[8]) * inv_det;
+    dst[2] = (src[1] * src[5] - src[2] * src[4]) * inv_det;
+    dst[3] = (src[5] * src[6] - src[3] * src[8]) * inv_det;
+    dst[4] = (src[0] * src[8] - src[2] * src[6]) * inv_det;
+    dst[5] = (src[2] * src[3] - src[0] * src[5]) * inv_det;
+    dst[6] = (src[3] * src[7] - src[4] * src[6]) * inv_det;
+    dst[7] = (src[1] * src[6] - src[0] * src[7]) * inv_det;
+    dst[8] = (src[0] * src[4] - src[1] * src[3]) * inv_det;
 }
