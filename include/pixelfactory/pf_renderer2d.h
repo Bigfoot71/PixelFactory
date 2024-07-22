@@ -1,5 +1,5 @@
-#ifndef PF_RENDER2D_H
-#define PF_RENDER2D_H
+#ifndef PF_RENDERER2D_H
+#define PF_RENDERER2D_H
 
 #include "pf_framebuffer.h"
 #include "pf_processors.h"
@@ -169,4 +169,4 @@ pf_renderer2d_texture2d_mat_tint(pf_renderer2d_t* rn, const pf_texture2d_t* tex,
 void
 pf_renderer2d_texture2d_mat_map(pf_renderer2d_t* rn, const pf_texture2d_t* tex, pf_mat3_t transform, pf_fragment_proc2d_fn frag_proc);
 
-#endif //PF_RENDER2D_H
+#endif //PF_RENDERER2D_H
