@@ -15,6 +15,12 @@ void
 pf_mat4_identity(pf_mat4_t dst);
 
 void
+pf_mat4_transpose(pf_mat4_t dst, const pf_mat4_t src);
+
+void
+pf_mat4_transpose_r(float* restrict dst, const pf_mat4_t src);
+
+void
 pf_mat4_translate(pf_mat4_t dst, float x, float y, float z);
 
 void

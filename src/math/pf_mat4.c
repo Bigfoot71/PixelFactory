@@ -34,6 +34,34 @@ pf_mat4_identity(pf_mat4_t dst)
     dst[0] = dst[5] = dst[10] = dst[15] = 1;
 }
 
+
+void
+pf_mat4_transpose(pf_mat4_t dst, const pf_mat4_t src)
+{
+    pf_mat4_t result;
+    for (int_fast8_t i = 0; i < 4; i++)
+    {
+        for (int_fast8_t j = 0; j < 4; j++)
+        {
+            result[i * 4 + j] = src[j * 4 + i];
+        }
+    }
+
+    memcpy(dst, result, sizeof(pf_mat4_t));
+}
+
+void
+pf_mat4_transpose_r(float* restrict dst, const pf_mat4_t src)
+{
+    for (int_fast8_t i = 0; i < 4; i++)
+    {
+        for (int_fast8_t j = 0; j < 4; j++)
+        {
+            dst[i * 4 + j] = src[j * 4 + i];
+        }
+    }
+}
+
 void
 pf_mat4_translate(pf_mat4_t dst, float x, float y, float z)
 {
