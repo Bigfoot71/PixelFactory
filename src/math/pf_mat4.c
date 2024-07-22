@@ -160,3 +160,46 @@ pf_mat4_mul_r(float* restrict dst, const pf_mat4_t left, const pf_mat4_t right)
         }
     }
 }
+
+void
+pf_mat4_inverse(pf_mat4_t dst, const pf_mat4_t src)
+{
+    // Cache the matrix values (speed optimization)
+    PF_MATH_FLOAT a00 = src[0],  a01 = src[1],  a02 = src[2],  a03 = src[3];
+    PF_MATH_FLOAT a10 = src[4],  a11 = src[5],  a12 = src[6],  a13 = src[7];
+    PF_MATH_FLOAT a20 = src[8],  a21 = src[9],  a22 = src[10], a23 = src[11];
+    PF_MATH_FLOAT a30 = src[12], a31 = src[13], a32 = src[14], a33 = src[15];
+
+    PF_MATH_FLOAT b00 = a00*a11 - a01*a10;
+    PF_MATH_FLOAT b01 = a00*a12 - a02*a10;
+    PF_MATH_FLOAT b02 = a00*a13 - a03*a10;
+    PF_MATH_FLOAT b03 = a01*a12 - a02*a11;
+    PF_MATH_FLOAT b04 = a01*a13 - a03*a11;
+    PF_MATH_FLOAT b05 = a02*a13 - a03*a12;
+    PF_MATH_FLOAT b06 = a20*a31 - a21*a30;
+    PF_MATH_FLOAT b07 = a20*a32 - a22*a30;
+    PF_MATH_FLOAT b08 = a20*a33 - a23*a30;
+    PF_MATH_FLOAT b09 = a21*a32 - a22*a31;
+    PF_MATH_FLOAT b10 = a21*a33 - a23*a31;
+    PF_MATH_FLOAT b11 = a22*a33 - a23*a32;
+
+    // Calculate the invert determinant (inlined to avoid double-caching)
+    PF_MATH_FLOAT inv_det = 1.0f/(b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06);
+
+    dst[0] = (a11*b11 - a12*b10 + a13*b09)*inv_det;
+    dst[1] = (-a01*b11 + a02*b10 - a03*b09)*inv_det;
+    dst[2] = (a31*b05 - a32*b04 + a33*b03)*inv_det;
+    dst[3] = (-a21*b05 + a22*b04 - a23*b03)*inv_det;
+    dst[4] = (-a10*b11 + a12*b08 - a13*b07)*inv_det;
+    dst[5] = (a00*b11 - a02*b08 + a03*b07)*inv_det;
+    dst[6] = (-a30*b05 + a32*b02 - a33*b01)*inv_det;
+    dst[7] = (a20*b05 - a22*b02 + a23*b01)*inv_det;
+    dst[8] = (a10*b10 - a11*b08 + a13*b06)*inv_det;
+    dst[9] = (-a00*b10 + a01*b08 - a03*b06)*inv_det;
+    dst[10] = (a30*b04 - a31*b02 + a33*b00)*inv_det;
+    dst[11] = (-a20*b04 + a21*b02 - a23*b00)*inv_det;
+    dst[12] = (-a10*b09 + a11*b07 - a12*b06)*inv_det;
+    dst[13] = (a00*b09 - a01*b07 + a02*b06)*inv_det;
+    dst[14] = (-a30*b03 + a31*b01 - a32*b00)*inv_det;
+    dst[15] = (a20*b03 - a21*b01 + a22*b00)*inv_det;
+}
