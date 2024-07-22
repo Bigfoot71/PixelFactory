@@ -249,7 +249,7 @@ pf_vec3_len(const pf_vec3_t v)
 }
 
 PF_MATH_FLOAT
-pf_vec3_len_r(const pf_vec3_t v)
+pf_vec3_len_sq(const pf_vec3_t v)
 {
     return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 }

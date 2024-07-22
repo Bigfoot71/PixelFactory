@@ -73,7 +73,7 @@ PF_MATH_FLOAT
 pf_vec3_len(const pf_vec3_t v);
 
 PF_MATH_FLOAT
-pf_vec3_len_r(const pf_vec3_t v);
+pf_vec3_len_sq(const pf_vec3_t v);
 
 PF_MATH_FLOAT
 pf_vec3_dot(const pf_vec3_t v1, const pf_vec3_t v2);
