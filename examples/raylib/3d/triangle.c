@@ -12,7 +12,9 @@ static float triangle_positions[] = {
 };
 
 static pf_color_t triangle_colors[] = {
-    PF_RED, PF_GREEN, PF_BLUE
+    { .c = { 255, 0, 0, 255 } },
+    { .c = { 0, 255, 0, 255 } },
+    { .c = { 0, 0, 255, 255 } }
 };
 
 int main()
