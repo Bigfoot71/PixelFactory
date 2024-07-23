@@ -46,6 +46,7 @@
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
                 if (rn->test(z, rn->zb.buffer[offset])) {                                       \
+                    rn->zb.buffer[offset] = z;                                                  \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
             }                                                                                   \
@@ -101,6 +102,7 @@
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
                 if (rn->test(z, rn->zb.buffer[offset])) {                                       \
+                    rn->zb.buffer[offset] = z;                                                  \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
             }                                                                                   \
@@ -114,9 +116,10 @@
 /* Triangle rasterization functions */
 
 void
-pf_renderer3d_triangle(pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-                       const pf_mat4_t transform, pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
-                       void* attr)
+pf_renderer3d_triangle(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
+    const pf_mat4_t transform, pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
+    void* attr)
 {
     pf_mat4_t model;
     if (transform == NULL) {
@@ -137,13 +140,14 @@ pf_renderer3d_triangle(pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_ve
 }
 
 void
-pf_renderer3d_triangle_ex(pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-                          const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
-                          pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-                          pf_proc3d_screen_projection_fn proj_proc,
-                          pf_proc3d_rasterizer_fn rast_proc,
-                          pf_proc3d_fragment_fn frag_proc,
-                          void* attr)
+pf_renderer3d_triangle_ex(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_rasterizer_fn rast_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr)
 {
     /* Preparation of matrices */
 
@@ -172,8 +176,8 @@ pf_renderer3d_triangle_ex(pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf
 
     if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
     if (clip_proc == NULL) clip_proc = pf_proc3d_clip_triangle;
-    if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_default;
-    if (rast_proc == NULL) rast_proc = pf_proc3d_rasterizer_default;
+    if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_perspective_correct;
+    if (rast_proc == NULL) rast_proc = pf_proc3d_rasterizer_perspective_correct;
     if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
 
     /* Copy vertices, the clipping step may result in more vertex than expected */
