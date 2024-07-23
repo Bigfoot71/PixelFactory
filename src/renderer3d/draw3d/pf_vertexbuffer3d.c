@@ -1,5 +1,20 @@
 #include "pixelfactory/pf_renderer3d.h"
 
+/* Internal Functions Declarations */
+
+void
+pf_renderer3d_triangle_INTERNAL(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_rasterizer_fn rast_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+
+/* Public API Functions */
+
 void
 pf_renderer3d_vertex_buffer(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
                             pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
@@ -24,6 +39,8 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
     uint32_t* indices = vb->indices;
     float* normals = vb->normals;
 
+    /* Preparation of matrices */
+
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
     if (transform == NULL) {
@@ -38,6 +55,16 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
     pf_mat4_t mat_mvp;
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
+
+    /* Set default processors if not set */
+
+    if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
+    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_triangle;
+    if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_perspective_correct;
+    if (rast_proc == NULL) rast_proc = pf_proc3d_rasterizer_perspective_correct;
+    if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
+
+    /* Iterates through all vertices in the vertex buffer */
 
     size_t num = (indices == NULL)
         ? vb->num_vertices
@@ -90,9 +117,10 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
         v2.index = index_2;
         v3.index = index_3;
 
-        pf_renderer3d_triangle_ex(rn, &v1, &v2, &v3,
-                                  mat_model, mat_normal, mat_mvp,
-                                  vert_proc, clip_proc, proj_proc,
-                                  rast_proc, frag_proc, attr);
+        pf_renderer3d_triangle_INTERNAL(
+            rn, &v1, &v2, &v3, mat_model, mat_normal, mat_mvp,
+            vert_proc, clip_proc, proj_proc,
+            rast_proc, frag_proc,
+            attr);
     }
 }

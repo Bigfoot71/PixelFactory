@@ -57,6 +57,7 @@ pf_renderer3d_viewport(
     int x, int y,
     int w, int h);
 
+
 /* Renderer 2D Buffer Drawing */
 
 void
@@ -119,10 +120,8 @@ pf_renderer3d_triangle(
 void
 pf_renderer3d_triangle_ex(
     pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc,
-    pf_proc3d_rasterizer_fn rast_proc,
+    const pf_mat4_t transform, pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc, pf_proc3d_rasterizer_fn rast_proc,
     pf_proc3d_fragment_fn frag_proc,
     void* attr);
 
