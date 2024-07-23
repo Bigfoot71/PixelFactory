@@ -1,4 +1,5 @@
 #include "pixelfactory/math/pf_mat4.h"
+#include "pixelfactory/math/pf_vec3.h"
 #include "pixelfactory/pf_stdinc.h"
 #include <string.h>
 #include <math.h>
@@ -230,4 +231,136 @@ pf_mat4_inverse(pf_mat4_t dst, const pf_mat4_t src)
     dst[13] = (a00*b09 - a01*b07 + a02*b06)*inv_det;
     dst[14] = (-a30*b03 + a31*b01 - a32*b00)*inv_det;
     dst[15] = (a20*b03 - a21*b01 + a22*b00)*inv_det;
+}
+
+void
+pf_mat4_frustum(pf_mat4_t dst, PF_MATH_FLOAT left, PF_MATH_FLOAT right, PF_MATH_FLOAT bottom, PF_MATH_FLOAT top, PF_MATH_FLOAT nearPlane, PF_MATH_FLOAT farPlane)
+{
+    memset(dst, 0, sizeof(pf_mat4_t));
+
+    PF_MATH_FLOAT rl = right - left;
+    PF_MATH_FLOAT tb = top - bottom;
+    PF_MATH_FLOAT fn = farPlane - nearPlane;
+
+    dst[0] = (nearPlane*2.0f)/rl;
+    dst[5] = (nearPlane*2.0f)/tb;
+
+    dst[8] = (right + left)/rl;
+    dst[9] = (top + bottom)/tb;
+    dst[10] = -(farPlane + nearPlane)/fn;
+    dst[11] = -1.0f;
+
+    dst[14] = -(farPlane*nearPlane*2.0f)/fn;
+}
+
+void
+pf_mat4_perspective(pf_mat4_t dst, PF_MATH_FLOAT fovY, PF_MATH_FLOAT aspect, PF_MATH_FLOAT nearPlane, PF_MATH_FLOAT farPlane)
+{
+    memset(dst, 0, sizeof(pf_mat4_t));
+
+    PF_MATH_FLOAT top = nearPlane*tan(fovY*0.5);
+    PF_MATH_FLOAT bottom = -top;
+    PF_MATH_FLOAT right = top*aspect;
+    PF_MATH_FLOAT left = -right;
+
+    // pf_mat4_frustum(-right, right, -top, top, near, far);
+    PF_MATH_FLOAT rl = right - left;
+    PF_MATH_FLOAT tb = top - bottom;
+    PF_MATH_FLOAT fn = farPlane - nearPlane;
+
+    dst[0] = (nearPlane*2.0f)/rl;
+    dst[5] = (nearPlane*2.0f)/tb;
+
+    dst[8] = (right + left)/rl;
+    dst[9] = (top + bottom)/tb;
+    dst[10] = -(farPlane + nearPlane)/fn;
+    dst[11] = -1.0f;
+
+    dst[14] = -(farPlane*nearPlane*2.0f)/fn;
+}
+
+void
+pf_mat4_ortho(pf_mat4_t dst, PF_MATH_FLOAT left, PF_MATH_FLOAT right, PF_MATH_FLOAT bottom, PF_MATH_FLOAT top, PF_MATH_FLOAT nearPlane, PF_MATH_FLOAT farPlane)
+{
+    memset(dst, 0, sizeof(pf_mat4_t));
+
+    PF_MATH_FLOAT rl = (right - left);
+    PF_MATH_FLOAT tb = (top - bottom);
+    PF_MATH_FLOAT fn = (farPlane - nearPlane);
+
+    dst[0] = 2.0f/rl;
+    dst[5] = 2.0f/tb;
+
+    dst[10] = -2.0f/fn;
+    dst[11] = 0.0f;
+    dst[12] = -(left + right)/rl;
+    dst[13] = -(top + bottom)/tb;
+
+    dst[14] = -(farPlane + nearPlane)/fn;
+    dst[15] = 1.0f;
+}
+
+void
+pf_mat4_look_at(pf_mat4_t dst, const pf_vec3_t eye, const pf_vec3_t target, const pf_vec3_t up)
+{
+    memset(dst, 0, sizeof(pf_mat4_t));
+
+    PF_MATH_FLOAT length = 0.0f;
+    PF_MATH_FLOAT invLenght = 0.0f;
+
+    // pf_vec3_sub(eye, target)
+    pf_vec3_t vz = {
+        eye[0] - target[0],
+        eye[1] - target[1],
+        eye[2] - target[2]
+    };
+
+    // pf_vec3_normalize(vz)
+    pf_vec3_t v = { vz[0], vz[1], vz[2] };
+    length = sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+    if (length == 0.0f) length = 1.0f;
+    invLenght = 1.0f/length;
+    vz[0] *= invLenght;
+    vz[1] *= invLenght;
+    vz[2] *= invLenght;
+
+    // pf_vec3_cross(up, vz)
+    pf_vec3_t vx = {
+        up[1]*vz[2] - up[2]*vz[1],
+        up[2]*vz[0] - up[0]*vz[2],
+        up[0]*vz[1] - up[1]*vz[0]
+    };
+
+    // pf_vec3_normalize(x)
+    for (int_fast8_t i = 0; i < 3; i++) v[i] = vx[i];
+    length = sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
+    if (length == 0.0f) length = 1.0f;
+    invLenght = 1.0f/length;
+    vx[0] *= invLenght;
+    vx[1] *= invLenght;
+    vx[2] *= invLenght;
+
+    // pf_vec3_cross(vz, vx)
+    pf_vec3_t vy = {
+        vz[1]*vx[2] - vz[2]*vx[1],
+        vz[2]*vx[0] - vz[0]*vx[2],
+        vz[0]*vx[1] - vz[1]*vx[0]
+    };
+
+    dst[0] = vx[0];
+    dst[1] = vy[0];
+    dst[2] = vz[0];
+
+    dst[4] = vx[1];
+    dst[5] = vy[1];
+    dst[6] = vz[1];
+
+    dst[8] = vx[2];
+    dst[9] = vy[2];
+    dst[10] = vz[2];
+
+    dst[12] = -(vx[0]*eye[0] + vx[1]*eye[1] + vx[2]*eye[2]);   // pf_vec3_dot(vx, eye)
+    dst[13] = -(vy[0]*eye[0] + vy[1]*eye[1] + vy[2]*eye[2]);   // pf_vec3_dot(vy, eye)
+    dst[14] = -(vz[0]*eye[0] + vz[1]*eye[1] + vz[2]*eye[2]);   // pf_vec3_dot(vz, eye)
+    dst[15] = 1.0f;
 }
