@@ -169,7 +169,8 @@ pf_renderer3d_triangle_ex(
     }
 
     if (mat_normal == NULL) {
-        pf_mat4_identity(normal);
+        pf_mat4_inverse(normal, model);
+        pf_mat4_transpose(normal, normal);
     } else {
         pf_mat4_copy(normal, mat_normal);
     }
