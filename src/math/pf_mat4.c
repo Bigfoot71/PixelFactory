@@ -35,6 +35,11 @@ pf_mat4_identity(pf_mat4_t dst)
     dst[0] = dst[5] = dst[10] = dst[15] = 1;
 }
 
+void
+pf_mat4_copy(float* restrict dst, const float* restrict src)
+{
+    memcpy(dst, src, sizeof(pf_mat4_t));
+}
 
 void
 pf_mat4_transpose(pf_mat4_t dst, const pf_mat4_t src)
@@ -234,31 +239,31 @@ pf_mat4_inverse(pf_mat4_t dst, const pf_mat4_t src)
 }
 
 void
-pf_mat4_frustum(pf_mat4_t dst, PF_MATH_FLOAT left, PF_MATH_FLOAT right, PF_MATH_FLOAT bottom, PF_MATH_FLOAT top, PF_MATH_FLOAT nearPlane, PF_MATH_FLOAT farPlane)
+pf_mat4_frustum(pf_mat4_t dst, PF_MATH_FLOAT left, PF_MATH_FLOAT right, PF_MATH_FLOAT bottom, PF_MATH_FLOAT top, PF_MATH_FLOAT near_plane, PF_MATH_FLOAT far_plane)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
 
     PF_MATH_FLOAT rl = right - left;
     PF_MATH_FLOAT tb = top - bottom;
-    PF_MATH_FLOAT fn = farPlane - nearPlane;
+    PF_MATH_FLOAT fn = far_plane - near_plane;
 
-    dst[0] = (nearPlane*2.0f)/rl;
-    dst[5] = (nearPlane*2.0f)/tb;
+    dst[0] = (near_plane*2.0f)/rl;
+    dst[5] = (near_plane*2.0f)/tb;
 
     dst[8] = (right + left)/rl;
     dst[9] = (top + bottom)/tb;
-    dst[10] = -(farPlane + nearPlane)/fn;
+    dst[10] = -(far_plane + near_plane)/fn;
     dst[11] = -1.0f;
 
-    dst[14] = -(farPlane*nearPlane*2.0f)/fn;
+    dst[14] = -(far_plane*near_plane*2.0f)/fn;
 }
 
 void
-pf_mat4_perspective(pf_mat4_t dst, PF_MATH_FLOAT fovY, PF_MATH_FLOAT aspect, PF_MATH_FLOAT nearPlane, PF_MATH_FLOAT farPlane)
+pf_mat4_perspective(pf_mat4_t dst, PF_MATH_FLOAT fovy, PF_MATH_FLOAT aspect, PF_MATH_FLOAT near_plane, PF_MATH_FLOAT far_plane)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
 
-    PF_MATH_FLOAT top = nearPlane*tan(fovY*0.5);
+    PF_MATH_FLOAT top = near_plane*tan(fovy*0.5);
     PF_MATH_FLOAT bottom = -top;
     PF_MATH_FLOAT right = top*aspect;
     PF_MATH_FLOAT left = -right;
@@ -266,27 +271,27 @@ pf_mat4_perspective(pf_mat4_t dst, PF_MATH_FLOAT fovY, PF_MATH_FLOAT aspect, PF_
     // pf_mat4_frustum(-right, right, -top, top, near, far);
     PF_MATH_FLOAT rl = right - left;
     PF_MATH_FLOAT tb = top - bottom;
-    PF_MATH_FLOAT fn = farPlane - nearPlane;
+    PF_MATH_FLOAT fn = far_plane - near_plane;
 
-    dst[0] = (nearPlane*2.0f)/rl;
-    dst[5] = (nearPlane*2.0f)/tb;
+    dst[0] = (near_plane*2.0f)/rl;
+    dst[5] = (near_plane*2.0f)/tb;
 
     dst[8] = (right + left)/rl;
     dst[9] = (top + bottom)/tb;
-    dst[10] = -(farPlane + nearPlane)/fn;
+    dst[10] = -(far_plane + near_plane)/fn;
     dst[11] = -1.0f;
 
-    dst[14] = -(farPlane*nearPlane*2.0f)/fn;
+    dst[14] = -(far_plane*near_plane*2.0f)/fn;
 }
 
 void
-pf_mat4_ortho(pf_mat4_t dst, PF_MATH_FLOAT left, PF_MATH_FLOAT right, PF_MATH_FLOAT bottom, PF_MATH_FLOAT top, PF_MATH_FLOAT nearPlane, PF_MATH_FLOAT farPlane)
+pf_mat4_ortho(pf_mat4_t dst, PF_MATH_FLOAT left, PF_MATH_FLOAT right, PF_MATH_FLOAT bottom, PF_MATH_FLOAT top, PF_MATH_FLOAT near_plane, PF_MATH_FLOAT far_plane)
 {
     memset(dst, 0, sizeof(pf_mat4_t));
 
     PF_MATH_FLOAT rl = (right - left);
     PF_MATH_FLOAT tb = (top - bottom);
-    PF_MATH_FLOAT fn = (farPlane - nearPlane);
+    PF_MATH_FLOAT fn = (far_plane - near_plane);
 
     dst[0] = 2.0f/rl;
     dst[5] = 2.0f/tb;
@@ -296,7 +301,7 @@ pf_mat4_ortho(pf_mat4_t dst, PF_MATH_FLOAT left, PF_MATH_FLOAT right, PF_MATH_FL
     dst[12] = -(left + right)/rl;
     dst[13] = -(top + bottom)/tb;
 
-    dst[14] = -(farPlane + nearPlane)/fn;
+    dst[14] = -(far_plane + near_plane)/fn;
     dst[15] = 1.0f;
 }
 

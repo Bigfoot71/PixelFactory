@@ -166,7 +166,7 @@ pf_renderer2d_rect_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2,
 }
 
 void
-pf_renderer2d_rect_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_rect_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     if (x1 > x2) PF_SWAP(x1, x2);
     if (y1 > y2) PF_SWAP(y1, y2);
@@ -239,7 +239,7 @@ pf_renderer2d_rect_lines_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2, i
 }
 
 void
-pf_renderer2d_rect_lines_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_rect_lines_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     pf_renderer2d_line_map(rn, x1, y1, x2, y1, frag_proc, attr);
     pf_renderer2d_line_map(rn, x2, y1, x2, y2, frag_proc, attr);
@@ -266,7 +266,7 @@ pf_renderer2d_rect_lines_thick_gradient(pf_renderer2d_t* rn, int x1, int y1, int
 }
 
 void
-pf_renderer2d_rect_lines_thick_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int thick, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_rect_lines_thick_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int thick, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     pf_renderer2d_line_thick_map(rn, x1, y1, x2, y1, thick, frag_proc, attr);
     pf_renderer2d_line_thick_map(rn, x2, y1, x2, y2, thick, frag_proc, attr);

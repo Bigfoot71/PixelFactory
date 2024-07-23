@@ -30,6 +30,6 @@ void
 pf_camera2d_to_screen(const pf_camera2d_t* cam, pf_vec2_t wolrd_pos);
 
 void
-pf_camera2d_get_view_matrix(const pf_camera2d_t* cam, pf_mat3_t out);
+pf_camera2d_get_view_matrix(const pf_camera2d_t* cam, pf_mat3_t dst);
 
 #endif //PF_CAMERA2D_H

@@ -36,6 +36,12 @@ pf_mat3_identity(pf_mat3_t dst) {
 }
 
 void
+pf_mat3_copy(float* restrict dst, const float* restrict src)
+{
+    memcpy(dst, src, sizeof(pf_mat3_t));
+}
+
+void
 pf_mat3_translate(pf_mat3_t dst, float x, float y) {
     pf_mat3_identity(dst);
     dst[2] = x;

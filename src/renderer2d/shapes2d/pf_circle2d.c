@@ -217,7 +217,7 @@ void pf_renderer2d_circle_gradient(pf_renderer2d_t* rn, int cx, int cy, int radi
 }
 
 void
-pf_renderer2d_circle_map(pf_renderer2d_t* rn, int cx, int cy, int radius, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_circle_map(pf_renderer2d_t* rn, int cx, int cy, int radius, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     if (pf_mat3_is_identity(rn->mat_view) != 0)
     {
@@ -270,7 +270,7 @@ pf_renderer2d_circle_lines(pf_renderer2d_t* rn, int cx, int cy, int radius, pf_c
 }
 
 void
-pf_renderer2d_circle_lines_map(pf_renderer2d_t* rn, int cx, int cy, int radius, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_circle_lines_map(pf_renderer2d_t* rn, int cx, int cy, int radius, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     if (pf_mat3_is_identity(rn->mat_view) != 0)
     {
@@ -304,7 +304,7 @@ pf_renderer2d_circle_lines_thick(pf_renderer2d_t* rn, int cx, int cy, int radius
 }
 
 void
-pf_renderer2d_circle_lines_thick_map(pf_renderer2d_t* rn, int cx, int cy, int radius, int thick, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_circle_lines_thick_map(pf_renderer2d_t* rn, int cx, int cy, int radius, int thick, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     int ht = thick/2;
     for (int i = -ht; i <= ht; i++) {

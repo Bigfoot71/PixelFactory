@@ -1,5 +1,6 @@
 #include "pixelfactory/pf_color.h"
 #include "pixelfactory/pf_stdinc.h"
+#include <stdint.h>
 
 /* General Functions */
 
@@ -117,6 +118,27 @@ __m256i pf_color_bary_avx(
 }
 
 #endif //__AVX2__
+
+pf_color_t
+pf_color_scale(pf_color_t col, float scale)
+{
+    int s = scale * 255;
+    col.c.r = (col.c.r * s) / 255;
+    col.c.g = (col.c.g * s) / 255;
+    col.c.b = (col.c.b * s) / 255;
+    col.c.a = (col.c.a * s) / 255;
+    return col;
+}
+
+pf_color_t
+pf_color_scale_u(pf_color_t col, uint8_t scale)
+{
+    col.c.r = (col.c.r * scale) / 255;
+    col.c.g = (col.c.g * scale) / 255;
+    col.c.b = (col.c.b * scale) / 255;
+    col.c.a = (col.c.a * scale) / 255;
+    return col;
+}
 
 void
 pf_color_from_hsv(pf_color_t* color, float h, float s, float v)

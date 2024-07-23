@@ -57,23 +57,29 @@
 #define PF_MESH_TRIANGLE_ITERATE(VERT_CODE, TRIANGLE_CODE)                              \
     size_t num = (indices != NULL)                                                      \
         ? vb->num_indices : vb->num_vertices;                                           \
-    for (size_t i = 0; i < num; i += 3) {                                               \
+    for (uint32_t i = 0; i < num; i += 3) {                                             \
+        /*
+            Calculating vertex and array indexes
+        */                                                                              \
+        uint32_t index_1 = (indices != NULL) ? indices[i + 0] : i + 0;                  \
+        uint32_t index_2 = (indices != NULL) ? indices[i + 1] : i + 1;                  \
+        uint32_t index_3 = (indices != NULL) ? indices[i + 2] : i + 2;                  \
+        size_t i1 = 2 * index_1;                                                        \
+        size_t i2 = 2 * index_2;                                                        \
+        size_t i3 = 2 * index_3;                                                        \
         /*
             Retrieving vertices and calling the vertex code
         */                                                                              \
-        size_t i1 = 2 * ((indices != NULL) ? indices[i] : i);                           \
-        size_t i2 = i1 + 2;                                                             \
-        size_t i3 = i2 + 2;                                                             \
         pf_vertex2d_t v1 = { 0 };                                                       \
         pf_vertex2d_t v2 = { 0 };                                                       \
         pf_vertex2d_t v3 = { 0 };                                                       \
-        memcpy(v1.position, positions + i1, sizeof(pf_vec2_t));                         \
-        memcpy(v2.position, positions + i2, sizeof(pf_vec2_t));                         \
-        memcpy(v3.position, positions + i3, sizeof(pf_vec2_t));                         \
+        pf_vec2_copy(v1.position, positions + i1);                                      \
+        pf_vec2_copy(v2.position, positions + i2);                                      \
+        pf_vec2_copy(v3.position, positions + i3);                                      \
         if (texcoords != NULL) {                                                        \
-            memcpy(v1.texcoord, texcoords + i1, sizeof(pf_vec2_t));                     \
-            memcpy(v2.texcoord, texcoords + i2, sizeof(pf_vec2_t));                     \
-            memcpy(v3.texcoord, texcoords + i3, sizeof(pf_vec2_t));                     \
+            pf_vec2_copy(v1.texcoord, texcoords + i1);                                  \
+            pf_vec2_copy(v2.texcoord, texcoords + i2);                                  \
+            pf_vec2_copy(v3.texcoord, texcoords + i3);                                  \
         }                                                                               \
         if (colors != NULL) {                                                           \
             v1.color = colors[i];                                                       \
@@ -84,6 +90,9 @@
             v2.color = PF_WHITE;                                                        \
             v3.color = PF_WHITE;                                                        \
         }                                                                               \
+        v1.index = index_1;                                                             \
+        v2.index = index_2;                                                             \
+        v3.index = index_3;                                                             \
         VERT_CODE                                                                       \
         /*
             Calculate the 2D bounding box of the triangle
@@ -142,13 +151,13 @@
 /* Public API Functions */
 
 void
-pf_renderer2d_vertex_buffer(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* vb, const pf_mat3_t transform, pf_vertex_proc2d_fn vert_proc, pf_fragment_proc2d_fn frag_proc, void* attr)
+pf_renderer2d_vertex_buffer(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* vb, const pf_mat3_t transform, pf_proc2d_vertex_fn vert_proc, pf_proc2d_fragment_fn frag_proc, void* attr)
 {
     pf_renderer2d_vertex_buffer_ex(rn, vb, transform, vert_proc, pf_proc2d_rasterizer_default, frag_proc, attr);
 }
 
 void
-pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* vb, const pf_mat3_t transform, pf_vertex_proc2d_fn vert_proc, pf_rasterizer_proc2d_fn rast_proc, pf_fragment_proc2d_fn frag_proc, void* attr)
+pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* vb, const pf_mat3_t transform, pf_proc2d_vertex_fn vert_proc, pf_proc2d_rasterizer_fn rast_proc, pf_proc2d_fragment_fn frag_proc, void* attr)
 {
     if (vert_proc == NULL) {
         vert_proc = pf_proc2d_vertex_default;
@@ -182,7 +191,7 @@ pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* v
     }, {
         PF_MESH_TRIANGLE_TRAVEL_OMP({
             pf_vertex2d_t vertex;
-            rast_proc(&vertex, &v1, &v2, &v3, i, i + 1, i + 2, bary, attr);
+            rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
             frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
         })
     })
@@ -194,7 +203,7 @@ pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* v
     }, {
         PF_MESH_TRIANGLE_TRAVEL({
             pf_vertex2d_t vertex;
-            rast_proc(&vertex, &v1, &v2, &v3, i, i + 1, i + 2, bary, attr);
+            rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
             frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
         })
     })

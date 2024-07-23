@@ -75,6 +75,12 @@ pf_color_bary_avx(
 
 #endif //__AVX2__
 
+pf_color_t
+pf_color_scale(pf_color_t col, float scale);
+
+pf_color_t
+pf_color_scale_u(pf_color_t col, uint8_t scale);
+
 void
 pf_color_from_hsv(pf_color_t* color, float h, float s, float v);
 

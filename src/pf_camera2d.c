@@ -54,10 +54,10 @@ pf_camera2d_to_screen(const pf_camera2d_t* cam, pf_vec2_t wolrd_pos)
 }
 
 void
-pf_camera2d_get_view_matrix(const pf_camera2d_t* cam, pf_mat3_t out)
+pf_camera2d_get_view_matrix(const pf_camera2d_t* cam, pf_mat3_t dst)
 {
     // Translation to the origin
-    pf_mat3_translate(out, -cam->target[0], -cam->target[1]);
+    pf_mat3_translate(dst, -cam->target[0], -cam->target[1]);
 
     // Rotation matrix
     pf_mat3_t rotation;
@@ -68,15 +68,15 @@ pf_camera2d_get_view_matrix(const pf_camera2d_t* cam, pf_mat3_t out)
     pf_mat3_scale(scale, cam->zoom, cam->zoom);
 
     // Multiplication of the zoom matrix and the rotation matrix
-    pf_mat3_mul(out, scale, rotation);
+    pf_mat3_mul(dst, scale, rotation);
 
     // Multiplication with the translation matrix to the origin
-    pf_mat3_mul(out, out, out);
+    pf_mat3_mul(dst, dst, dst);
 
     // Final translation matrix (offset)
     pf_mat3_t translation;
     pf_mat3_translate(translation, cam->offset[0], cam->offset[1]);
 
     // Final multiplication with the offset matrix
-    pf_mat3_mul(out, out, translation);
+    pf_mat3_mul(dst, dst, translation);
 }

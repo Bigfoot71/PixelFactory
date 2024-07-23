@@ -164,7 +164,7 @@ pf_renderer2d_texture2d_ex_tint(pf_renderer2d_t *rn, const pf_texture2d_t *tex, 
 }
 
 void
-pf_renderer2d_texture2d_ex_map(pf_renderer2d_t *rn, const pf_texture2d_t *tex, int x, int y, float sx, float sy, float r, int ox, int oy, pf_fragment_proc2d_fn frag_proc)
+pf_renderer2d_texture2d_ex_map(pf_renderer2d_t *rn, const pf_texture2d_t *tex, int x, int y, float sx, float sy, float r, int ox, int oy, pf_proc2d_fragment_fn frag_proc)
 {
     pf_mat3_t transform;
     pf_mat3_t temp;
@@ -231,7 +231,7 @@ pf_renderer2d_texture2d_mat_tint(pf_renderer2d_t* rn, const pf_texture2d_t* tex,
 }
 
 void
-pf_renderer2d_texture2d_mat_map(pf_renderer2d_t* rn, const pf_texture2d_t* tex, pf_mat3_t transform, pf_fragment_proc2d_fn frag_proc)
+pf_renderer2d_texture2d_mat_map(pf_renderer2d_t* rn, const pf_texture2d_t* tex, pf_mat3_t transform, pf_proc2d_fragment_fn frag_proc)
 {
     PF_TRAVEL_TEXTURE2D_MAT({
         pf_vertex2d_t vertex;

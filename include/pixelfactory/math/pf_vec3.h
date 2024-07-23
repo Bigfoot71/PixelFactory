@@ -132,4 +132,7 @@ pf_vec3_reflect(pf_vec3_t dst, const pf_vec3_t incident, const pf_vec3_t normal)
 void
 pf_vec3_reflect_r(float* restrict dst, const pf_vec3_t incident, const pf_vec3_t normal);
 
+float
+pf_vec3_angle(const pf_vec3_t v1, const pf_vec3_t v2);
+
 #endif //PF_MATH_VEC3_H

@@ -215,7 +215,7 @@ pf_renderer2d_line_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2,
 }
 
 void
-pf_renderer2d_line_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_line_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
@@ -266,7 +266,7 @@ pf_renderer2d_line_thick_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2, i
 }
 
 void
-pf_renderer2d_line_thick_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int thick, pf_fragment_proc2d_fn frag_proc, const void* attr)
+pf_renderer2d_line_thick_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int thick, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);

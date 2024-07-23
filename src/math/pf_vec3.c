@@ -537,3 +537,11 @@ pf_vec3_reflect_r(float* restrict dst, const pf_vec3_t incident, const pf_vec3_t
         dst[i] = incident[i] - dotProduct*normal[i];
     }
 }
+
+float
+pf_vec3_angle(const pf_vec3_t v1, const pf_vec3_t v2)
+{
+    pf_vec3_t crossed;
+    pf_vec3_cross_r(crossed, v1, v2);
+    return atan2(pf_vec3_len(crossed), pf_vec3_dot(v1, v2));
+}
