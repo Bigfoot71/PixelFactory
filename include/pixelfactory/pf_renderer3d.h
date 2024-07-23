@@ -36,47 +36,94 @@ typedef struct pf_renderer3d {
 /* Renderer Mangement Functions */
 
 pf_renderer3d_t
-pf_renderer3d_create(uint32_t w, uint32_t h, pf_color_blend_fn blend, pf_depth_test_fn test);
+pf_renderer3d_create(
+    uint32_t w, uint32_t h,
+    pf_color_blend_fn blend,
+    pf_depth_test_fn test);
 
 void
-pf_renderer3d_delete(pf_renderer3d_t* rn);
+pf_renderer3d_delete(
+    pf_renderer3d_t* rn);
 
 void
-pf_renderer3d_clear(pf_renderer3d_t* rn, pf_color_t clear_color, float clear_depth);
+pf_renderer3d_clear(
+    pf_renderer3d_t* rn,
+    pf_color_t clear_color,
+    float clear_depth);
 
 void
-pf_renderer3d_viewport(pf_renderer3d_t* rn, int x, int y, int w, int h);
+pf_renderer3d_viewport(
+    pf_renderer3d_t* rn,
+    int x, int y,
+    int w, int h);
 
 /* Renderer 2D Buffer Drawing */
 
 void
-pf_renderer3d_vertex_buffer(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
-                            pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
-                            void* attr);
+pf_renderer3d_vertex_buffer(
+    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
+    void* attr);
 
 void
-pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
-                               pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-                               pf_proc3d_screen_projection_fn proj_proc,
-                               pf_proc3d_rasterizer_fn rast_proc,
-                               pf_proc3d_fragment_fn frag_proc,
-                               void* attr);
+pf_renderer3d_vertex_buffer_ex(
+    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_rasterizer_fn rast_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+
+/* Renderer 3D Points */
+
+void
+pf_renderer3d_point(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* point, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+void
+pf_renderer3d_point_ex(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* point,
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+void
+pf_renderer3d_point_thick(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+void
+pf_renderer3d_point_thick_ex(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius,
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr);
 
 
 /* Renderer 3D Triangles */
 
 void
-pf_renderer3d_triangle(pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-                       const pf_mat4_t transform, pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
-                       void* attr);
+pf_renderer3d_triangle(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
+    const pf_mat4_t transform, pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
+    void* attr);
 
 void
-pf_renderer3d_triangle_ex(pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-                          const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
-                          pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-                          pf_proc3d_screen_projection_fn proj_proc,
-                          pf_proc3d_rasterizer_fn rast_proc,
-                          pf_proc3d_fragment_fn frag_proc,
-                          void* attr);
+pf_renderer3d_triangle_ex(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_rasterizer_fn rast_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr);
 
 #endif //PF_RENDERER3D_H

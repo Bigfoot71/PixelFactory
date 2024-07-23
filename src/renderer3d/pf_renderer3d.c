@@ -5,7 +5,10 @@
 /* Public API */
 
 pf_renderer3d_t
-pf_renderer3d_create(uint32_t w, uint32_t h, pf_color_blend_fn blend, pf_depth_test_fn test)
+pf_renderer3d_create(
+    uint32_t w, uint32_t h,
+    pf_color_blend_fn blend,
+    pf_depth_test_fn test)
 {
     pf_renderer3d_t rn = { 0 };
 
@@ -30,10 +33,12 @@ pf_renderer3d_create(uint32_t w, uint32_t h, pf_color_blend_fn blend, pf_depth_t
 }
 
 void
-pf_renderer3d_delete(pf_renderer3d_t* rn)
+pf_renderer3d_delete(
+    pf_renderer3d_t* rn)
 {
     pf_framebuffer_delete(&rn->fb);
-    rn->blend = NULL;
+    pf_depthbuffer_delete(&rn->zb);
+    *rn = (pf_renderer3d_t) { 0 };
 }
 
 void

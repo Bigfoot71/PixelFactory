@@ -1,4 +1,3 @@
-#include "pixelfactory/math/pf_vec2.h"
 #include "pixelfactory/pf_renderer3d.h"
 
 void

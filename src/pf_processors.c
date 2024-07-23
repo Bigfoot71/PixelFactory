@@ -19,9 +19,7 @@ pf_vertex3d_lerp(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t)
     uint8_t *resultCol = (uint8_t*)(&result.color);
     uint8_t uT = 255*t;
 
-#   ifdef PF_SUPPORT_OPENMP
-#       pragma omp simd
-#   endif
+#   pragma omp simd
     for (int_fast8_t i = 0; i < 4; i++)
     {
         resultCol[i] = startCol[i] + (uT*((int)endCol[i] - startCol[i]))/255;
@@ -43,7 +41,10 @@ pf_vertex3d_lerp(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t)
 /* Default Processor 2D Functions */
 
 void
-pf_proc2d_vertex_default(pf_vertex2d_t* out_vertex, const pf_mat3_t transform, const void* attr)
+pf_proc2d_vertex_default(
+    pf_vertex2d_t* out_vertex,
+    const pf_mat3_t transform,
+    const void* attr)
 {
     (void)attr;
 
@@ -51,7 +52,13 @@ pf_proc2d_vertex_default(pf_vertex2d_t* out_vertex, const pf_mat3_t transform, c
 }
 
 void
-pf_proc2d_rasterizer_default(pf_vertex2d_t* out_vertex, pf_vertex2d_t* vertex_1, pf_vertex2d_t* vertex_2, pf_vertex2d_t* vertex_3, pf_vec3_t bary, void* attr)
+pf_proc2d_rasterizer_default(
+    pf_vertex2d_t* out_vertex,
+    pf_vertex2d_t* vertex_1,
+    pf_vertex2d_t* vertex_2,
+    pf_vertex2d_t* vertex_3,
+    pf_vec3_t bary,
+    void* attr)
 {
     (void)attr;
 
@@ -61,7 +68,11 @@ pf_proc2d_rasterizer_default(pf_vertex2d_t* out_vertex, pf_vertex2d_t* vertex_1,
 }
 
 void
-pf_proc2d_fragment_default(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_color, const void* attr)
+pf_proc2d_fragment_default(
+    struct pf_renderer2d* rn,
+    pf_vertex2d_t* vertex,
+    pf_color_t* out_color,
+    const void* attr)
 {
     (void)rn;
     (void)attr;
@@ -72,7 +83,13 @@ pf_proc2d_fragment_default(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_c
 
 /* Default Processor 3D Functions */
 
-void pf_proc3d_vertex_default(pf_vertex3d_t* out_vertex, pf_vec4_t out_homogeneous, const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, const void* attr)
+void pf_proc3d_vertex_default(
+    pf_vertex3d_t* out_vertex,
+    pf_vec4_t out_homogeneous,
+    const pf_mat4_t mat_model,
+    const pf_mat4_t mat_normal,
+    const pf_mat4_t mat_mvp,
+    const void* attr)
 {
     (void)attr;
 
@@ -85,10 +102,33 @@ void pf_proc3d_vertex_default(pf_vertex3d_t* out_vertex, pf_vec4_t out_homogeneo
     pf_vec3_transform(out_vertex->normal, out_vertex->normal, mat_normal);
 }
 
+void
+pf_proc3d_clip_point(
+    const struct pf_renderer3d* rn,
+    pf_vertex3d_t* out_vertices,
+    pf_vec4_t out_homogeneous[],
+    size_t* out_vertices_count)
+{
+    (void)rn;
+    (void)out_vertices;
+
+    for (int_fast8_t i = 0; i < 3; i++)
+    {
+        if ((*out_homogeneous)[i] < -(*out_homogeneous)[3] || (*out_homogeneous)[i] > (*out_homogeneous)[3])
+        {
+            *out_vertices_count = 0;
+            return;
+        }
+    }
+}
 
 // TODO: Fix the issue related to the depth which appears following clipping in certain situations
 void
-pf_proc3d_clip_triangle(const pf_renderer3d_t* rn, pf_vertex3d_t* out_vertices, pf_vec4_t out_homogeneous[], size_t* out_vertices_count)
+pf_proc3d_clip_triangle(
+    const pf_renderer3d_t* rn,
+    pf_vertex3d_t* out_vertices,
+    pf_vec4_t out_homogeneous[],
+    size_t* out_vertices_count)
 {
     (void)rn;
 
@@ -212,7 +252,36 @@ pf_proc3d_clip_triangle(const pf_renderer3d_t* rn, pf_vertex3d_t* out_vertices, 
 }
 
 void
-pf_proc3d_screen_projection_default(const pf_renderer3d_t* rn, pf_vertex3d_t* vertices, pf_vec4_t homogeneous[], size_t vertices_count, int screen_pos[][2])
+pf_proc3d_screen_projection_default(
+    const pf_renderer3d_t* rn,
+    pf_vertex3d_t* vertices,
+    pf_vec4_t homogeneous[],
+    size_t vertices_count,
+    int screen_pos[][2])
+{
+    for (size_t i = 0; i < vertices_count; i++)
+    {
+        pf_vertex3d_t* v = &vertices[i];
+        pf_vec4_t* h = &homogeneous[i];
+
+        // Division of XY coordinates by weight
+        float invW = 1.0f / (*h)[3];
+        (*h)[0] *= invW;
+        (*h)[1] *= invW;
+
+        // Convert homogeneous coordinates to screen coordinates
+        screen_pos[i][0] = (rn->viewport_position[0] + ((*h)[0] + 1.0f) * 0.5f * rn->viewport_dimension[0]) + 0.5f;
+        screen_pos[i][1] = (rn->viewport_position[1] + (1.0f - (*h)[1]) * 0.5f * rn->viewport_dimension[1]) + 0.5f;
+    }
+}
+
+void
+pf_proc3d_screen_projection_perspective_correct(
+    const pf_renderer3d_t* rn,
+    pf_vertex3d_t* vertices,
+    pf_vec4_t homogeneous[],
+    size_t vertices_count,
+    int screen_pos[][2])
 {
     for (size_t i = 0; i < vertices_count; i++)
     {
@@ -240,7 +309,32 @@ pf_proc3d_screen_projection_default(const pf_renderer3d_t* rn, pf_vertex3d_t* ve
 }
 
 void
-pf_proc3d_rasterizer_default(pf_vertex3d_t* out_vertex, pf_vertex3d_t* v1, pf_vertex3d_t* v2, pf_vertex3d_t* v3, pf_vec3_t bary, float z_depth, void* attr)
+pf_proc3d_rasterizer_default(
+    pf_vertex3d_t* out_vertex,
+    pf_vertex3d_t* v1,
+    pf_vertex3d_t* v2,
+    pf_vertex3d_t* v3,
+    pf_vec3_t bary,
+    float z_depth,
+    void* attr)
+{
+    (void)attr;
+
+    pf_vec2_bary_v_r(out_vertex->texcoord, v1->texcoord, v2->texcoord, v3->texcoord, bary);
+    pf_vec3_bary_v(out_vertex->position, v1->position, v2->position, v3->position, bary);
+    pf_vec3_bary_v(out_vertex->normal, v1->normal, v2->normal, v3->normal, bary);
+    out_vertex->color = pf_color_bary_v(v1->color, v2->color, v3->color, bary);
+}
+
+void
+pf_proc3d_rasterizer_perspective_correct(
+    pf_vertex3d_t* out_vertex,
+    pf_vertex3d_t* v1,
+    pf_vertex3d_t* v2,
+    pf_vertex3d_t* v3,
+    pf_vec3_t bary,
+    float z_depth,
+    void* attr)
 {
     (void)attr;
 
@@ -257,7 +351,11 @@ pf_proc3d_rasterizer_default(pf_vertex3d_t* out_vertex, pf_vertex3d_t* v1, pf_ve
 }
 
 void
-pf_proc3d_fragment_default(struct pf_renderer3d* rn, pf_vertex3d_t* vertex, pf_color_t* out_color, const void* attr)
+pf_proc3d_fragment_default(
+    struct pf_renderer3d* rn,
+    pf_vertex3d_t* vertex,
+    pf_color_t* out_color,
+    const void* attr)
 {
     (void)rn;
     (void)attr;
