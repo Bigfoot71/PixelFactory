@@ -1,6 +1,4 @@
-#include "pixelfactory/pf_color.h"
 #include "pixelfactory/pf_renderer2d.h"
-#include "pixelfactory/pf_vertex.h"
 #include <string.h>
 
 
