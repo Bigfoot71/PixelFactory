@@ -446,14 +446,14 @@ pf_proc3d_rasterizer_perspective_correct(
     out_vertex->position[1] = u * v1->position[1] + v * v2->position[1] + w * v3->position[1];
     out_vertex->position[2] = u * v1->position[2] + v * v2->position[2] + w * v3->position[2];
 
+    // Interpolation of texture coordinates with perspective correction
+    out_vertex->texcoord[0] = z_depth * (u * v1->texcoord[0] + v * v2->texcoord[0] + w * v3->texcoord[0]);
+    out_vertex->texcoord[1] = z_depth * (u * v1->texcoord[1] + v * v2->texcoord[1] + w * v3->texcoord[1]);
+
     // Interpolation of normals
     out_vertex->normal[0] = u * v1->normal[0] + v * v2->normal[0] + w * v3->normal[0];
     out_vertex->normal[1] = u * v1->normal[1] + v * v2->normal[1] + w * v3->normal[1];
     out_vertex->normal[2] = u * v1->normal[2] + v * v2->normal[2] + w * v3->normal[2];
-
-    // Interpolation of texture coordinates with perspective correction
-    out_vertex->texcoord[0] = z_depth * (u * v1->texcoord[0] + v * v2->texcoord[0] + w * v3->texcoord[0]);
-    out_vertex->texcoord[1] = z_depth * (u * v1->texcoord[1] + v * v2->texcoord[1] + w * v3->texcoord[1]);
 
     // Interpolation of vertex colors
     out_vertex->color.c.r = u * v1->color.c.r + v * v2->color.c.r + w * v3->color.c.r;
