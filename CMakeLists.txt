@@ -56,6 +56,11 @@ if(PF_SUPPORT_OPENMP)
     endif()
 endif()
 
+# TEMP !!! Add the -pg flag for Debug mode (gprof)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+endif()
+
 # Installation if option is enabled
 if(PF_INSTALL)
     # Installing the library and headers
