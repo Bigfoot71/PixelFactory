@@ -36,7 +36,7 @@ int main()
         .mipmaps = 1
     });
 
-    Image image = LoadImage("../../examples/resources/bonhomme.png");
+    Image image = LoadImage(RESOURCES_PATH "images/bonhomme.png");
     pf_texture2d_t pfTex = pf_texture2d_create(image.data, image.width, image.height, image.format);
 
     while (!WindowShouldClose())
