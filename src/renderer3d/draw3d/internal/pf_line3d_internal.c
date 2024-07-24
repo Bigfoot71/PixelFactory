@@ -38,7 +38,7 @@
             If line is more vertical, iterate over y-axis
         */                                                                              \
         for (int i = 0, j = 0; i != end; i += sign, j += dec) {                         \
-            int x = screen_pos[0][0] + (j >> 16), y = screen_pos[0][1] + i;             \
+            int x = x1 + (j >> 16), y = y1 + i;             \
             size_t offset = y * rn->fb.w + x;                                           \
             float t = (float)i * inv_end;                                               \
             float z = z1 + t * (z2 - z1);                                               \
@@ -50,7 +50,7 @@
             If line is more horizontal, iterate over x-axis
         */                                                                              \
         for (int i = 0, j = 0; i != end; i += sign, j += dec) {                         \
-            int x = screen_pos[0][0] + i, y = screen_pos[0][1] + (j >> 16);             \
+            int x = x1 + i, y = y1 + (j >> 16);             \
             size_t offset = y * rn->fb.w + x;                                           \
             float t = (float)i * inv_end;                                               \
             float z = z1 + t * (z2 - z1);                                               \
@@ -120,47 +120,64 @@
         }                                                                               \
     }
 
-#define PF_LINE_THICK_TRAVEL(C_LINE_CODE, H_LINE_CODE, V_LINE_CODE)                     \
+#define PF_LINE_THICK_TRAVEL(LINE_CODE)                                                 \
     /*
         Calculate differences in x and y coordinates
     */                                                                                  \
-    int dx = screen_pos[1][0] - screen_pos[0][0];                                       \
-    int dy = screen_pos[1][1] - screen_pos[0][1];                                       \
+    int dx = x2 - x1;                                                                   \
+    int dy = y2 - y1;                                                                   \
     /*
         Draw the main line between (x1, y1) and (x2, y2)
     */                                                                                  \
-    C_LINE_CODE                                                                         \
+    LINE_CODE                                                                           \
     /*
         Determine if the line is more horizontal or vertical
     */                                                                                  \
-    if (dx != 0 && abs(dy/dx) < 1)                                                      \
-    {                                                                                   \
+    if (dx != 0 && abs(dy/dx) < 1) {                                                    \
+        int y1_copy = y1;                                                               \
+        int y2_copy = y2;                                                               \
         /*
             Line is more horizontal
             Calculate half the width of the line
         */                                                                              \
-        int wy = (thick - 1)*(int)sqrtf((float)(dx*dx + dy*dy))/(2*abs(dx));            \
+        int wy = (thick - 1) * sqrtf((float)(dx*dx + dy*dy)) / (2*abs(dx));             \
         /*
             Draw additional lines above and below the main line
         */                                                                              \
-        for (int i = 1; i <= wy; ++i)                                                   \
-        {                                                                               \
-            H_LINE_CODE                                                                 \
+        for (int i = 1; i <= wy; ++i) {                                                 \
+            y1 = y1_copy - i;                                                           \
+            y2 = y2_copy - i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
+            y1 = y1_copy + i;                                                           \
+            y2 = y2_copy + i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
         }                                                                               \
-    }                                                                                   \
-    else if (dy != 0)                                                                   \
-    {                                                                                   \
+    } else if (dy != 0) {                                                               \
+        int x1_copy = x1;                                                               \
+        int x2_copy = x2;                                                               \
         /*
             Line is more vertical or perfectly horizontal
             Calculate half the width of the line
         */                                                                              \
-        int wx = (thick - 1)*(int)sqrtf((float)(dx*dx + dy*dy))/(2*abs(dy));            \
+        int wx = (thick - 1) * sqrtf((float)(dx*dx + dy*dy)) / (2*abs(dy));             \
         /*
             Draw additional lines to the left and right of the main line
         */                                                                              \
-        for (int i = 1; i <= wx; ++i)                                                   \
-        {                                                                               \
-            V_LINE_CODE                                                                 \
+        for (int i = 1; i <= wx; ++i) {                                                 \
+            x1 = x1_copy - i;                                                           \
+            x2 = x2_copy - i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
+            x1 = x1_copy + i;                                                           \
+            x2 = x2_copy + i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
         }                                                                               \
     }
 
@@ -200,7 +217,7 @@ pf_renderer3d_line_INTERNAL(
     pf_vertex3d_t vertices[2] = { *v1, *v2 };
     pf_vec4_t homogens[2] = { 0 };
     int screen_pos[2][2] = { 0 };
-    size_t num = 1;
+    size_t num = 2;
 
     vert_proc(&vertices[0], homogens[0], mat_model, mat_normal, mat_mvp, attr);
     vert_proc(&vertices[1], homogens[1], mat_model, mat_normal, mat_mvp, attr);
@@ -224,72 +241,12 @@ pf_renderer3d_line_INTERNAL(
                     PF_LINE_TRAVEL_DEPTH({
                         PF_PIXEL_CODE_BLEND()
                     })
-                }, {
-                    int y1 = screen_pos[0][1] - i;
-                    int y2 = screen_pos[1][1] - i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
-                    y1 = screen_pos[0][1] + i;
-                    y2 = screen_pos[1][1] + i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
-                }, {
-                    int x1 = screen_pos[0][0] - i;
-                    int x2 = screen_pos[1][0] - i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
-                    x1 = screen_pos[0][0] + i;
-                    x2 = screen_pos[1][0] + i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
                 })
             } else {
                 PF_LINE_THICK_TRAVEL({
                     PF_LINE_TRAVEL_DEPTH({
                         PF_PIXEL_CODE_NOBLEND()
                     })
-                }, {
-                    int y1 = screen_pos[0][1] - i;
-                    int y2 = screen_pos[1][1] - i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
-                    y1 = screen_pos[0][1] + i;
-                    y2 = screen_pos[1][1] + i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
-                }, {
-                    int x1 = screen_pos[0][0] - i;
-                    int x2 = screen_pos[1][0] - i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
-                    x1 = screen_pos[0][0] + i;
-                    x2 = screen_pos[1][0] + i;
-                    {
-                        PF_LINE_TRAVEL_DEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
                 })
             }
         } else {
@@ -298,72 +255,12 @@ pf_renderer3d_line_INTERNAL(
                     PF_LINE_TRAVEL_NODEPTH({
                         PF_PIXEL_CODE_BLEND()
                     })
-                }, {
-                    int y1 = screen_pos[0][1] - i;
-                    int y2 = screen_pos[1][1] - i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
-                    y1 = screen_pos[0][1] + i;
-                    y2 = screen_pos[1][1] + i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
-                }, {
-                    int x1 = screen_pos[0][0] - i;
-                    int x2 = screen_pos[1][0] - i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
-                    x1 = screen_pos[0][0] + i;
-                    x2 = screen_pos[1][0] + i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_BLEND()
-                        })
-                    }
                 })
             } else {
                 PF_LINE_THICK_TRAVEL({
                     PF_LINE_TRAVEL_NODEPTH({
                         PF_PIXEL_CODE_NOBLEND()
                     })
-                }, {
-                    int y1 = screen_pos[0][1] - i;
-                    int y2 = screen_pos[1][1] - i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
-                    y1 = screen_pos[0][1] + i;
-                    y2 = screen_pos[1][1] + i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
-                }, {
-                    int x1 = screen_pos[0][0] - i;
-                    int x2 = screen_pos[1][0] - i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
-                    x1 = screen_pos[0][0] + i;
-                    x2 = screen_pos[1][0] + i;
-                    {
-                        PF_LINE_TRAVEL_NODEPTH({
-                            PF_PIXEL_CODE_NOBLEND()
-                        })
-                    }
                 })
             }
         }
