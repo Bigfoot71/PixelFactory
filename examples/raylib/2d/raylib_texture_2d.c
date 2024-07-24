@@ -6,6 +6,7 @@
 
 void frag_proc(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_color, const void* attr)
 {
+    (void)rn;
     (void)out_color;
 
     float u = 0.5f + (vertex->texcoord[0] - 0.5f) * 1.5f;
