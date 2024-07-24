@@ -283,8 +283,8 @@ pf_camera3d_set_aspect(
     const int viewport_dimension[2])
 {
     cam->aspect = (viewport_dimension[0] > viewport_dimension[1])
-        ? viewport_dimension[0] / viewport_dimension[1]
-        : viewport_dimension[1] / viewport_dimension[0];
+        ? (float)viewport_dimension[0] / viewport_dimension[1]
+        : (float)viewport_dimension[1] / viewport_dimension[0];
 }
 
 

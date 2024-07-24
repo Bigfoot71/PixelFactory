@@ -12,7 +12,7 @@ pf_renderer3d_create(
     pf_renderer3d_t rn = { 0 };
 
     pf_mat4_identity(rn.mat_view);
-    pf_mat4_perspective(rn.mat_proj, 45.0, (w > h) ? w / h : h / w, 0.01f, 1000.0f);
+    pf_mat4_perspective(rn.mat_proj, 45.0, (w > h) ? (float)w / h : (float)h / w, 0.01f, 1000.0f);
 
     rn.fb = pf_framebuffer_create(w, h, PF_BLANK);
     rn.zb = pf_depthbuffer_create(w, h, FLT_MAX);
