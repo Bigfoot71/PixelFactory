@@ -66,22 +66,25 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
 
     /* Iterates through all vertices in the vertex buffer */
 
-    size_t num = (indices == NULL)
-        ? vb->num_vertices
-        : vb->num_indices;
+    uint8_t has_indices = (indices != NULL);
+    size_t num = (has_indices) ? vb->num_vertices : vb->num_indices;
 
-    for (uint32_t i = 0; i < num; i += 3) {
+    for (size_t i = 0; i < num; i += 3) {
+        uint32_t index_1, index_2, index_3;
 
-        /* Calculating vertex and array indexes */
+        if (has_indices) {
+            index_1 = indices[i + 0];
+            index_2 = indices[i + 1];
+            index_3 = indices[i + 2];
+        } else {
+            index_1 = i + 0;
+            index_2 = i + 1;
+            index_3 = i + 2;
+        }
 
-        uint32_t index_1 = (indices != NULL) ? indices[i + 0] : i + 0;
-        uint32_t index_2 = (indices != NULL) ? indices[i + 1] : i + 1;
-        uint32_t index_3 = (indices != NULL) ? indices[i + 2] : i + 2;
         size_t i1 = 3 * index_1;
         size_t i2 = 3 * index_2;
         size_t i3 = 3 * index_3;
-
-        /* Retrieving vertices and calling the vertex code */
 
         pf_vertex3d_t v1 = { 0 };
         pf_vertex3d_t v2 = { 0 };
@@ -105,8 +108,8 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
 
         if (colors != NULL) {
             v1.color = colors[i];
-            v2.color = colors[i+1];
-            v3.color = colors[i+2];
+            v2.color = colors[i + 1];
+            v3.color = colors[i + 2];
         } else {
             v1.color = PF_WHITE;
             v2.color = PF_WHITE;
