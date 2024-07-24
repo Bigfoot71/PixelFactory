@@ -259,6 +259,8 @@ pf_proc3d_screen_projection_default(
     size_t vertices_count,
     int screen_pos[][2])
 {
+    (void)vertices;
+
     for (size_t i = 0; i < vertices_count; ++i)
     {
         pf_vec4_t* h = &homogeneous[i];
@@ -318,6 +320,7 @@ pf_proc3d_rasterizer_default(
     void* attr)
 {
     (void)attr;
+    (void)z_depth;
 
     pf_vec2_bary_v_r(out_vertex->texcoord, v1->texcoord, v2->texcoord, v3->texcoord, bary);
     pf_vec3_bary_v(out_vertex->position, v1->position, v2->position, v3->position, bary);

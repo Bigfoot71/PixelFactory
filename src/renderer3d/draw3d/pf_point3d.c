@@ -145,7 +145,7 @@ pf_renderer3d_point_thick_ex(
 
     /* Triangle rasterization */
 
-    pf_renderer3d_point_INTERNAL(rn, point, 0,
+    pf_renderer3d_point_INTERNAL(rn, point, radius,
         mat_model, mat_normal, mat_mvp, vert_proc,
         clip_proc, proj_proc, frag_proc, attr);
 }
