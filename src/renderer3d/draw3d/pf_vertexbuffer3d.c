@@ -67,7 +67,7 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
     /* Iterates through all vertices in the vertex buffer */
 
     uint8_t has_indices = (indices != NULL);
-    size_t num = (has_indices) ? vb->num_vertices : vb->num_indices;
+    size_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (size_t i = 0; i < num; i += 3) {
         uint32_t index_1, index_2, index_3;

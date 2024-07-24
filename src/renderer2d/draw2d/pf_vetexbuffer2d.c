@@ -92,7 +92,7 @@ pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* v
     pf_color_t* colors = vb->colors;
 
     uint8_t has_indices = (indices != NULL);
-    size_t num = (has_indices) ? vb->num_vertices : vb->num_indices;
+    size_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
 
