@@ -1,6 +1,7 @@
 #include "pixelfactory/pf_processors.h"
 #include "pixelfactory/pf_renderer2d.h"
 #include "pixelfactory/pf_renderer3d.h"
+#include "pixelfactory/pf_config.h"
 #include <string.h>
 
 /* Internal Helper Functions */
@@ -36,7 +37,7 @@ pf_vertex3d_lerp_INTERNAL(const pf_vertex3d_t* start, const pf_vertex3d_t* end, 
 static uint8_t
 pf_clip_coord_line_INTERNAL(float q, float p, float* t1, float* t2)
 {
-    if (fabsf(p) < 1e-5f && q < 0)
+    if (fabsf(p) < PF_EPSILON && q < 0)
     {
         return 0;
     }
@@ -208,8 +209,8 @@ pf_proc3d_clip_triangle(
 {
     (void)rn;
 
-    pf_vec4_t input_homogen[12];
-    pf_vertex3d_t input_vt[12];
+    pf_vec4_t input_homogen[PF_MAX_CLIPPED_POLYGON_VERTICES];
+    pf_vertex3d_t input_vt[PF_MAX_CLIPPED_POLYGON_VERTICES];
     int_fast8_t input_count;
 
     // CLIP W
@@ -221,13 +222,13 @@ pf_proc3d_clip_triangle(
     pf_vec4_t* prev_homogen = &input_homogen[input_count - 1];
     pf_vertex3d_t* prev_vt = &input_vt[input_count - 1];
 
-    int_fast8_t prevDot = ((*prev_homogen)[3] < 1e-5f) ? -1 : 1;
+    int_fast8_t prevDot = ((*prev_homogen)[3] < PF_EPSILON) ? -1 : 1;
 
     for (int_fast8_t i = 0; i < input_count; ++i) {
-        int_fast8_t currDot = (input_homogen[i][3] < 1e-5f) ? -1 : 1;
+        int_fast8_t currDot = (input_homogen[i][3] < PF_EPSILON) ? -1 : 1;
 
         if (prevDot * currDot < 0) {
-            float t = (1e-5f - (*prev_homogen)[3]) / (input_homogen[i][3] - (*prev_homogen)[3]);
+            float t = (PF_EPSILON - (*prev_homogen)[3]) / (input_homogen[i][3] - (*prev_homogen)[3]);
             pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
             out_vertices[*out_vertices_count] = pf_vertex3d_lerp_INTERNAL(prev_vt, &input_vt[i], t);
             (*out_vertices_count)++;
@@ -250,8 +251,8 @@ pf_proc3d_clip_triangle(
 
     // CLIP XYZ
     for (int_fast8_t iAxis = 0; iAxis < 3; iAxis++) {
-        pf_vec4_t input_homogen[12];
-        pf_vertex3d_t input_vt[12];
+        pf_vec4_t input_homogen[PF_MAX_CLIPPED_POLYGON_VERTICES];
+        pf_vertex3d_t input_vt[PF_MAX_CLIPPED_POLYGON_VERTICES];
         int_fast8_t input_count;
 
         memcpy(input_homogen, out_homogeneous, (*out_vertices_count) * sizeof(pf_vec4_t));

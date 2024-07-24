@@ -48,6 +48,7 @@ pf_renderer2d_clear(pf_renderer2d_t* rn, pf_color_t clear_color)
     pf_color_t* buffer = rn->fb.buffer;
     size_t size = rn->fb.w * rn->fb.h;
 
+#   pragma omp parallel for if (size >= PF_OMP_CLEAR_BUFFER_SIZE_THRESHOLD)
     for (size_t i = 0; i < size; ++i) {
         buffer[i] = clear_color;
     }

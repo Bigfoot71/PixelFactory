@@ -33,7 +33,8 @@
     }
 
 #define PF_TRIANGLE_TRAVEL_OMP(PIXEL_CODE)                                              \
-    _Pragma("omp parallel for")                                                         \
+    _Pragma("omp parallel for schedule(dynamic)                                         \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         int iy = y - ymin;                                                              \
@@ -280,7 +281,8 @@
     }
 
 #define PF_TRIANGLE_GRADIENT_TRAVEL_OMP(PIXEL_CODE)                                     \
-    _Pragma("omp parallel for")                                                         \
+    _Pragma("omp parallel for schedule(dynamic)                                         \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         int iy = y - ymin;                                                              \
@@ -380,7 +382,8 @@
     __m256i w1_x_step_v = _mm256_mullo_epi32(_mm256_set1_epi32(w1_x_step), offset);     \
     __m256i w2_x_step_v = _mm256_mullo_epi32(_mm256_set1_epi32(w2_x_step), offset);     \
     __m256i w3_x_step_v = _mm256_mullo_epi32(_mm256_set1_epi32(w3_x_step), offset);     \
-    _Pragma("omp parallel for")                                                         \
+    _Pragma("omp parallel for schedule(dynamic)                                         \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         int iy = y - ymin;                                                              \

@@ -1,4 +1,5 @@
 #include "pixelfactory/pf_renderer3d.h"
+#include "pixelfactory/pf_config.h"
 
 /* Internal Macros */
 
@@ -57,7 +58,8 @@
     }
 
 #define PF_TRIANGLE_TRAVEL_NODEPTH_OMP(PIXEL_CODE)                                              \
-    _Pragma("omp parallel for schedule(dynamic)")                                               \
+    _Pragma("omp parallel for schedule(dynamic)                                                 \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                  \
     for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
         int i = y - ymin;                                                                       \
         int w1 = w1_row + i*w1_y_step;                                                          \
@@ -83,7 +85,8 @@
     }
 
 #define PF_TRIANGLE_TRAVEL_DEPTH_OMP(PIXEL_CODE)                                                \
-    _Pragma("omp parallel for schedule(dynamic)")                                               \
+    _Pragma("omp parallel for schedule(dynamic)                                                 \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                  \
     for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
         int i = y - ymin;                                                                       \
         int w1 = w1_row + i*w1_y_step;                                                          \
@@ -125,8 +128,8 @@ pf_renderer3d_triangle_INTERNAL(
 {
     /* Copy vertices, the clipping step may result in more vertex than expected */
 
-    pf_vertex3d_t vertices[12] = { 0 };
-    pf_vec4_t homogens[12] = { 0 };
+    pf_vertex3d_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES] = { 0 };
+    pf_vec4_t homogens[PF_MAX_CLIPPED_POLYGON_VERTICES] = { 0 };
     size_t vertices_count = 3;
 
     vertices[0] = *v1;
@@ -149,7 +152,7 @@ pf_renderer3d_triangle_INTERNAL(
 
     /* Projection to screen */
 
-    int screen_pos[12][2] = { 0 };
+    int screen_pos[PF_MAX_CLIPPED_POLYGON_VERTICES][2] = { 0 };
     proj_proc(rn, vertices, homogens, vertices_count, screen_pos);
 
     /* Rasterize triangles */

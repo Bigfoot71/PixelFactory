@@ -13,6 +13,10 @@
 #   define M_PI 3.14159265358979323846
 #endif //M_PI
 
+#ifndef PF_EPSILON
+#   define PF_EPSILON 1e-5
+#endif //PF_EPSILON
+
 #ifndef DEG2RAD
 #   define DEG2RAD(deg) ((deg) * M_PI / 180.0)
 #endif //DEG2RAD
