@@ -8,16 +8,15 @@ void frag_proc(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_
 {
     (void)out_color;
 
-    int x = vertex->position[0];
-    int y = vertex->position[1];
+    float u = 0.5f + (vertex->texcoord[0] - 0.5f) * 1.5f;
+    float v = 0.5f + (vertex->texcoord[1] - 0.5f) * 1.5f;
+    u += sinf(v * 6.0f + GetTime() * 4.0f) * 0.1f;
 
-    x = (int)(x + sin(y * 0.1f + GetTime() * 10.0f) * 5.0f);
+    float dist = pf_vec2_distance(
+        (float[2]) { u, v }, (float[2]) { 0.5f, 0.5f });
 
-    if (x > 0 && x < (int)rn->fb.w)
-    {
-        pf_color_t* dst = rn->fb.buffer + y * rn->fb.w + x;
-        *dst = ((pf_texture2d_t*)attr)->sampler(attr,
-            vertex->texcoord[0], vertex->texcoord[1]);
+    if (dist < 0.5f) {
+        *out_color = ((pf_texture2d_t*)attr)->sampler(attr, u, v);
     }
 }
 
@@ -42,8 +41,8 @@ int main()
     while (!WindowShouldClose())
     {
         pf_renderer2d_clear(&rn, PF_WHITE);
-        pf_renderer2d_texture2d_ex_tint(&rn, &pfTex, 800/2, 600/2, 0.5f, 0.5f, GetTime(), 256, 256, PF_GREEN);
-        pf_renderer2d_texture2d_ex_map(&rn, &pfTex, GetMouseX(), GetMouseY(), 0.25f, 0.25f, 0, 256, 256, frag_proc);
+        pf_renderer2d_texture2d_ex_tint(&rn, &pfTex, 800/2, 600/2, 0.65f, 0.65f, GetTime(), 256, 256, PF_GREEN);
+        pf_renderer2d_texture2d_ex_map(&rn, &pfTex, GetMouseX(), GetMouseY(), 0.45f, 0.45f, 0, 256, 256, frag_proc);
 
         UpdateTexture(tex, rn.fb.buffer);
 
