@@ -137,3 +137,9 @@ This library is released under the [Zlib License](LICENSE).
 ## Contribution
 
 Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+
+## GIFs
+
+![lighting_3d](examples/resources/gifs/raylib_lighting_3d.gif)
+![lines_3d](examples/resources/gifs/raylib_lines_3d.gif)
+![texture_2d](examples/resources/gifs/raylib_texture_2d.gif)
