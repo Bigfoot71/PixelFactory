@@ -347,51 +347,58 @@ pf_renderer3d_vertex_buffer_line_ex(
     uint8_t has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
-    for (uint32_t i = 0; i < num; i += 2) {
-        uint32_t index_1, index_2;
+    for (uint32_t i = 0; i < num; i += 3) {
+        uint32_t indices[3];
 
         if (has_indices) {
-            index_1 = indices[i + 0];
-            index_2 = indices[i + 1];
+            indices[0] = indices[i + 0];
+            indices[1] = indices[i + 1];
+            indices[2] = indices[i + 2];
         } else {
-            index_1 = i + 0;
-            index_2 = i + 1;
+            indices[0] = i + 0;
+            indices[1] = i + 1;
+            indices[2] = i + 2;
         }
 
-        uint32_t i1 = 3 * index_1;
-        uint32_t i2 = 3 * index_2;
+        for (uint32_t j = 0; j < 3; ++j) {
+            uint32_t index_1 = indices[j];
+            uint32_t index_2 = indices[(j + 1) % 3];
 
-        pf_vertex3d_t v1 = { 0 };
-        pf_vertex3d_t v2 = { 0 };
+            uint32_t i1 = 3 * index_1;
+            uint32_t i2 = 3 * index_2;
 
-        pf_vec3_copy(v1.position, positions + i1);
-        pf_vec3_copy(v2.position, positions + i2);
+            pf_vertex3d_t v1 = { 0 };
+            pf_vertex3d_t v2 = { 0 };
 
-        if (texcoords != NULL) {
-            pf_vec2_copy(v1.texcoord, texcoords + i1);
-            pf_vec2_copy(v2.texcoord, texcoords + i2);
+            pf_vec3_copy(v1.position, positions + i1);
+            pf_vec3_copy(v2.position, positions + i2);
+
+            if (texcoords != NULL) {
+                pf_vec2_copy(v1.texcoord, texcoords + i1);
+                pf_vec2_copy(v2.texcoord, texcoords + i2);
+            }
+
+            if (normals != NULL) {
+                pf_vec3_copy(v1.normal, normals + i1);
+                pf_vec3_copy(v2.normal, normals + i2);
+            }
+
+            if (colors != NULL) {
+                v1.color = colors[index_1];
+                v2.color = colors[index_2];
+            } else {
+                v1.color = PF_WHITE;
+                v2.color = PF_WHITE;
+            }
+
+            v1.index = index_1;
+            v2.index = index_2;
+
+            pf_renderer3d_line_INTERNAL(
+                rn, &v1, &v2, 0, mat_model, mat_normal, mat_mvp,
+                vert_proc, clip_proc, proj_proc, frag_proc,
+                attr);
         }
-
-        if (normals != NULL) {
-            pf_vec3_copy(v1.normal, normals + i1);
-            pf_vec3_copy(v2.normal, normals + i2);
-        }
-
-        if (colors != NULL) {
-            v1.color = colors[i];
-            v2.color = colors[i + 1];
-        } else {
-            v1.color = PF_WHITE;
-            v2.color = PF_WHITE;
-        }
-
-        v1.index = index_1;
-        v2.index = index_2;
-
-        pf_renderer3d_line_INTERNAL(
-            rn, &v1, &v2, 0, mat_model, mat_normal, mat_mvp,
-            vert_proc, clip_proc, proj_proc, frag_proc,
-            attr);
     }
 }
 
@@ -449,50 +456,57 @@ pf_renderer3d_vertex_buffer_line_thick_ex(
     uint8_t has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
-    for (uint32_t i = 0; i < num; i += 2) {
-        uint32_t index_1, index_2;
+    for (uint32_t i = 0; i < num; i += 3) {
+        uint32_t indices[3];
 
         if (has_indices) {
-            index_1 = indices[i + 0];
-            index_2 = indices[i + 1];
+            indices[0] = indices[i + 0];
+            indices[1] = indices[i + 1];
+            indices[2] = indices[i + 2];
         } else {
-            index_1 = i + 0;
-            index_2 = i + 1;
+            indices[0] = i + 0;
+            indices[1] = i + 1;
+            indices[2] = i + 2;
         }
 
-        uint32_t i1 = 3 * index_1;
-        uint32_t i2 = 3 * index_2;
+        for (uint32_t j = 0; j < 3; ++j) {
+            uint32_t index_1 = indices[j];
+            uint32_t index_2 = indices[(j + 1) % 3];
 
-        pf_vertex3d_t v1 = { 0 };
-        pf_vertex3d_t v2 = { 0 };
+            uint32_t i1 = 3 * index_1;
+            uint32_t i2 = 3 * index_2;
 
-        pf_vec3_copy(v1.position, positions + i1);
-        pf_vec3_copy(v2.position, positions + i2);
+            pf_vertex3d_t v1 = { 0 };
+            pf_vertex3d_t v2 = { 0 };
 
-        if (texcoords != NULL) {
-            pf_vec2_copy(v1.texcoord, texcoords + i1);
-            pf_vec2_copy(v2.texcoord, texcoords + i2);
+            pf_vec3_copy(v1.position, positions + i1);
+            pf_vec3_copy(v2.position, positions + i2);
+
+            if (texcoords != NULL) {
+                pf_vec2_copy(v1.texcoord, texcoords + i1);
+                pf_vec2_copy(v2.texcoord, texcoords + i2);
+            }
+
+            if (normals != NULL) {
+                pf_vec3_copy(v1.normal, normals + i1);
+                pf_vec3_copy(v2.normal, normals + i2);
+            }
+
+            if (colors != NULL) {
+                v1.color = colors[index_1];
+                v2.color = colors[index_2];
+            } else {
+                v1.color = PF_WHITE;
+                v2.color = PF_WHITE;
+            }
+
+            v1.index = index_1;
+            v2.index = index_2;
+
+            pf_renderer3d_line_INTERNAL(
+                rn, &v1, &v2, thick, mat_model, mat_normal, mat_mvp,
+                vert_proc, clip_proc, proj_proc, frag_proc,
+                attr);
         }
-
-        if (normals != NULL) {
-            pf_vec3_copy(v1.normal, normals + i1);
-            pf_vec3_copy(v2.normal, normals + i2);
-        }
-
-        if (colors != NULL) {
-            v1.color = colors[i];
-            v2.color = colors[i + 1];
-        } else {
-            v1.color = PF_WHITE;
-            v2.color = PF_WHITE;
-        }
-
-        v1.index = index_1;
-        v2.index = index_2;
-
-        pf_renderer3d_line_INTERNAL(
-            rn, &v1, &v2, thick, mat_model, mat_normal, mat_mvp,
-            vert_proc, clip_proc, proj_proc, frag_proc,
-            attr);
     }
 }
