@@ -4,9 +4,9 @@
 
 #define PF_POINT_THICK_TRAVEL_NODEPTH(PIXEL_CODE)                               \
     float rSq = radius*radius;                                                  \
-    for (int y = -radius; y <= radius; y++) {                                   \
+    for (int y = -radius; y <= radius; ++y) {                                   \
         uint32_t py = screen_pos[1] + y;                                        \
-        for (int x = -radius; x <= radius; x++) {                               \
+        for (int x = -radius; x <= radius; ++x) {                               \
             if (y*y + x*x <= rSq){                                              \
                 uint32_t px = screen_pos[0] + x;                                \
                 size_t offset = py * rn->fb.w + px;                             \
@@ -20,9 +20,9 @@
 
 #define PF_POINT_THICK_TRAVEL_DEPTH(PIXEL_CODE)                                 \
     float rSq = radius*radius;                                                  \
-    for (int y = -radius; y <= radius; y++) {                                   \
+    for (int y = -radius; y <= radius; ++y) {                                   \
         uint32_t py = screen_pos[1] + y;                                        \
-        for (int x = -radius; x <= radius; x++) {                               \
+        for (int x = -radius; x <= radius; ++x) {                               \
             if (y*y + x*x <= rSq){                                              \
                 uint32_t px = screen_pos[0] + x;                                \
                 size_t offset = py * rn->fb.w + px;                             \

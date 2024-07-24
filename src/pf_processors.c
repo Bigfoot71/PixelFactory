@@ -20,7 +20,7 @@ pf_vertex3d_lerp(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t)
     uint8_t uT = 255*t;
 
 #   pragma omp simd
-    for (int_fast8_t i = 0; i < 4; i++)
+    for (int_fast8_t i = 0; i < 4; ++i)
     {
         resultCol[i] = startCol[i] + (uT*((int)endCol[i] - startCol[i]))/255;
 
@@ -112,7 +112,7 @@ pf_proc3d_clip_point(
     (void)rn;
     (void)out_vertices;
 
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         if ((*out_homogeneous)[i] < -(*out_homogeneous)[3] || (*out_homogeneous)[i] > (*out_homogeneous)[3])
         {
@@ -147,7 +147,7 @@ pf_proc3d_clip_triangle(
 
     int_fast8_t prevDot = ((*prev_homogen)[3] < 1e-5f) ? -1 : 1;
 
-    for (int_fast8_t i = 0; i < input_count; i++) {
+    for (int_fast8_t i = 0; i < input_count; ++i) {
         int_fast8_t currDot = (input_homogen[i][3] < 1e-5f) ? -1 : 1;
 
         if (prevDot * currDot < 0) {
@@ -188,7 +188,7 @@ pf_proc3d_clip_triangle(
 
         int_fast8_t prevDot = ((*prev_homogen)[iAxis] <= (*prev_homogen)[3]) ? 1 : -1;
 
-        for (int_fast8_t i = 0; i < input_count; i++) {
+        for (int_fast8_t i = 0; i < input_count; ++i) {
             int_fast8_t currDot = (input_homogen[i][iAxis] <= input_homogen[i][3]) ? 1 : -1;
 
             if (prevDot * currDot <= 0) {
@@ -223,7 +223,7 @@ pf_proc3d_clip_triangle(
         prev_vt = &input_vt[input_count - 1];
         prevDot = (-(*prev_homogen)[iAxis] <= (*prev_homogen)[3]) ? 1 : -1;
 
-        for (int_fast8_t i = 0; i < input_count; i++) {
+        for (int_fast8_t i = 0; i < input_count; ++i) {
             int_fast8_t currDot = (-input_homogen[i][iAxis] <= input_homogen[i][3]) ? 1 : -1;
 
             if (prevDot * currDot <= 0) {
@@ -259,7 +259,7 @@ pf_proc3d_screen_projection_default(
     size_t vertices_count,
     int screen_pos[][2])
 {
-    for (size_t i = 0; i < vertices_count; i++)
+    for (size_t i = 0; i < vertices_count; ++i)
     {
         pf_vec4_t* h = &homogeneous[i];
 
@@ -282,7 +282,7 @@ pf_proc3d_screen_projection_perspective_correct(
     size_t vertices_count,
     int screen_pos[][2])
 {
-    for (size_t i = 0; i < vertices_count; i++)
+    for (size_t i = 0; i < vertices_count; ++i)
     {
         pf_vertex3d_t* v = &vertices[i];
         pf_vec4_t* h = &homogeneous[i];

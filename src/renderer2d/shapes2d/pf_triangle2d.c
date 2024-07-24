@@ -89,7 +89,7 @@
                     the triangle and update framebuffer
                 */                                                                      \
                 int mask_bit = 1;                                                       \
-                for (int i = 0; i < 8; i++) {                                           \
+                for (int i = 0; i < 8; ++i) {                                           \
                     if (mask_int & mask_bit) {                                          \
                         int px = x + i;                                                 \
                         /*
@@ -180,7 +180,7 @@
                     the triangle and update framebuffer
                 */                                                                      \
                 int mask_bit = 1;                                                       \
-                for (int i = 0; i < 8; i++) {                                           \
+                for (int i = 0; i < 8; ++i) {                                           \
                     if (mask_int & mask_bit) {                                          \
                         int px = x + i;                                                 \
                         /*
@@ -341,7 +341,7 @@
                 c2_r, c2_g, c2_b, c2_a,                                                 \
                 c3_r, c3_g, c3_b, c3_a,                                                 \
                 w1_norm_v, w2_norm_v, w3_norm_v);                                       \
-            for (int i = 0; i < 8; i++) {                                               \
+            for (int i = 0; i < 8; ++i) {                                               \
                 if (mask_int & (1 << (i * 4))) {                                        \
                     int px = x + i;                                                     \
                     if (px <= xmax) {                                                   \
@@ -404,7 +404,7 @@
                 c2_r, c2_g, c2_b, c2_a,                                                 \
                 c3_r, c3_g, c3_b, c3_a,                                                 \
                 w1_norm_v, w2_norm_v, w3_norm_v);                                       \
-            for (int i = 0; i < 8; i++) {                                               \
+            for (int i = 0; i < 8; ++i) {                                               \
                 if (mask_int & (1 << (i * 4))) {                                        \
                     int px = x + i;                                                     \
                     if (px <= xmax) {                                                   \
@@ -763,7 +763,7 @@ void
 pf_renderer2d_triangle_fan(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
 {
     if (count >= 3) {
-        for (int i = 1; i < count - 1; i++) {
+        for (int i = 1; i < count - 1; ++i) {
             pf_renderer2d_triangle(rn,
                 points[0], points[1],
                 points[2 * i], points[2 * i + 1],
@@ -777,7 +777,7 @@ void
 pf_renderer2d_triangle_fan_map(pf_renderer2d_t* rn, int* points, int count, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     if (count >= 3) {
-        for (int i = 1; i < count - 1; i++) {
+        for (int i = 1; i < count - 1; ++i) {
             pf_renderer2d_triangle_map(rn,
                 points[0], points[1],
                 points[2 * i], points[2 * i + 1],
@@ -791,7 +791,7 @@ void
 pf_renderer2d_triangle_fan_lines(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
 {
     if (count >= 3) {
-        for (int i = 1; i < count - 1; i++) {
+        for (int i = 1; i < count - 1; ++i) {
             pf_renderer2d_triangle_lines(rn,
                 points[0], points[1],
                 points[2 * i], points[2 * i + 1],
@@ -805,7 +805,7 @@ void
 pf_renderer2d_triangle_strip(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
 {
     if (count >= 3) {
-        for (int i = 2; i < count; i++) {
+        for (int i = 2; i < count; ++i) {
             if (i % 2 == 0) {
                 pf_renderer2d_triangle(rn,
                     points[2 * i], points[2 * i + 1],
@@ -827,7 +827,7 @@ void
 pf_renderer2d_triangle_strip_map(pf_renderer2d_t* rn, int* points, int count, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     if (count >= 3) {
-        for (int i = 2; i < count; i++) {
+        for (int i = 2; i < count; ++i) {
             if (i % 2 == 0) {
                 pf_renderer2d_triangle_map(rn,
                     points[2 * i], points[2 * i + 1],
@@ -849,7 +849,7 @@ void
 pf_renderer2d_triangle_strip_lines(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
 {
     if (count >= 3) {
-        for (int i = 2; i < count; i++) {
+        for (int i = 2; i < count; ++i) {
             if (i % 2 == 0) {
                 pf_renderer2d_triangle_lines(rn,
                     points[2 * i], points[2 * i + 1],

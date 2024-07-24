@@ -340,7 +340,7 @@ void
 pf_renderer2d_circle_lines_thick(pf_renderer2d_t* rn, int cx, int cy, int radius, int thick, pf_color_t color)
 {
     int ht = thick/2;
-    for (int i = -ht; i <= ht; i++) {
+    for (int i = -ht; i <= ht; ++i) {
         pf_renderer2d_circle_lines(rn, cx, cy, radius + i, color);
     }
 }
@@ -349,7 +349,7 @@ void
 pf_renderer2d_circle_lines_thick_map(pf_renderer2d_t* rn, int cx, int cy, int radius, int thick, pf_proc2d_fragment_fn frag_proc, const void* attr)
 {
     int ht = thick/2;
-    for (int i = -ht; i <= ht; i++) {
+    for (int i = -ht; i <= ht; ++i) {
         pf_renderer2d_circle_lines_map(rn, cx, cy, radius + i, frag_proc, attr);
     }
 }

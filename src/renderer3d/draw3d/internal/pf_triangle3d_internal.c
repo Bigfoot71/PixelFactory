@@ -3,11 +3,11 @@
 /* Internal Macros */
 
 #define PF_TRIANGLE_TRAVEL_NODEPTH(PIXEL_CODE)                                                  \
-    for (uint32_t y = ymin, y_offset = ymin*rn->fb.w; y <= ymax; y++, y_offset += rn->fb.w) {   \
+    for (uint32_t y = ymin, y_offset = ymin*rn->fb.w; y <= ymax; ++y, y_offset += rn->fb.w) {   \
         int w1 = w1_row;                                                                        \
         int w2 = w2_row;                                                                        \
         int w3 = w3_row;                                                                        \
-        for (uint32_t x = xmin; x <= xmax; x++) {                                               \
+        for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y_offset + x;                                                 \
                 pf_vec3_t bary = {                                                              \
@@ -29,11 +29,11 @@
     }
 
 #define PF_TRIANGLE_TRAVEL_DEPTH(PIXEL_CODE)                                                    \
-    for (uint32_t y = ymin, y_offset = ymin*rn->fb.w; y <= ymax; y++, y_offset += rn->fb.w) {   \
+    for (uint32_t y = ymin, y_offset = ymin*rn->fb.w; y <= ymax; ++y, y_offset += rn->fb.w) {   \
         int w1 = w1_row;                                                                        \
         int w2 = w2_row;                                                                        \
         int w3 = w3_row;                                                                        \
-        for (uint32_t x = xmin; x <= xmax; x++) {                                               \
+        for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y_offset + x;                                                 \
                 pf_vec3_t bary = {                                                              \
@@ -58,13 +58,13 @@
 
 #define PF_TRIANGLE_TRAVEL_NODEPTH_OMP(PIXEL_CODE)                                              \
     _Pragma("omp parallel for schedule(dynamic)")                                               \
-    for (uint32_t y = ymin; y <= ymax; y++) {                                                   \
+    for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
         int i = y - ymin;                                                                       \
         int w1 = w1_row + i*w1_y_step;                                                          \
         int w2 = w2_row + i*w2_y_step;                                                          \
         int w3 = w3_row + i*w3_y_step;                                                          \
         const uint32_t y_offset = y*rn->fb.w;                                                   \
-        for (uint32_t x = xmin; x <= xmax; x++) {                                               \
+        for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y_offset + x;                                                 \
                 pf_vec3_t bary = {                                                              \
@@ -84,13 +84,13 @@
 
 #define PF_TRIANGLE_TRAVEL_DEPTH_OMP(PIXEL_CODE)                                                \
     _Pragma("omp parallel for schedule(dynamic)")                                               \
-    for (uint32_t y = ymin; y <= ymax; y++) {                                                   \
+    for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
         int i = y - ymin;                                                                       \
         int w1 = w1_row + i*w1_y_step;                                                          \
         int w2 = w2_row + i*w2_y_step;                                                          \
         int w3 = w3_row + i*w3_y_step;                                                          \
         const uint32_t y_offset = y*rn->fb.w;                                                   \
-        for (uint32_t x = xmin; x <= xmax; x++) {                                               \
+        for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y_offset + x;                                                 \
                 pf_vec3_t bary = {                                                              \
@@ -154,7 +154,7 @@ pf_renderer3d_triangle_INTERNAL(
 
     /* Rasterize triangles */
 
-    for (size_t i = 0; i < vertices_count - 2; i++)
+    for (size_t i = 0; i < vertices_count - 2; ++i)
     {
         pf_vertex3d_t* v1 = &vertices[0];
         pf_vertex3d_t* v2 = &vertices[i + 1];

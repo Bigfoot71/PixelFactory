@@ -29,7 +29,7 @@ pf_vec2_copy(float* restrict dst, const float* restrict src)
 void
 pf_vec2_swap(float* restrict a, float* restrict b)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         PF_MATH_FLOAT tmp = a[i];
         a[i] = b[i];
@@ -40,7 +40,7 @@ pf_vec2_swap(float* restrict a, float* restrict b)
 void
 pf_vec2_neg(pf_vec2_t dst, const pf_vec2_t v)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = -v[i];
     }
@@ -49,7 +49,7 @@ pf_vec2_neg(pf_vec2_t dst, const pf_vec2_t v)
 void
 pf_vec2_neg_r(float* restrict dst, const pf_vec2_t v)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = -v[i];
     }
@@ -58,7 +58,7 @@ pf_vec2_neg_r(float* restrict dst, const pf_vec2_t v)
 void
 pf_vec2_add(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i] + v2[i];
     }
@@ -67,7 +67,7 @@ pf_vec2_add(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_add_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i] + v2[i];
     }
@@ -76,7 +76,7 @@ pf_vec2_add_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_sub(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i] - v2[i];
     }
@@ -85,7 +85,7 @@ pf_vec2_sub(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_sub_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i] - v2[i];
     }
@@ -94,7 +94,7 @@ pf_vec2_sub_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_mul(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i]*v2[i];
     }
@@ -103,7 +103,7 @@ pf_vec2_mul(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_mul_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i]*v2[i];
     }
@@ -112,7 +112,7 @@ pf_vec2_mul_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_div(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i]/v2[i];
     }
@@ -121,7 +121,7 @@ pf_vec2_div(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_div_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i]/v2[i];
     }
@@ -130,7 +130,7 @@ pf_vec2_div_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_offset(pf_vec2_t dst, const pf_vec2_t v, PF_MATH_FLOAT scalar)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v[i] + scalar;
     }
@@ -139,7 +139,7 @@ pf_vec2_offset(pf_vec2_t dst, const pf_vec2_t v, PF_MATH_FLOAT scalar)
 void
 pf_vec2_offset_r(float* restrict dst, const pf_vec2_t v, PF_MATH_FLOAT scalar)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v[i] + scalar;
     }
@@ -148,7 +148,7 @@ pf_vec2_offset_r(float* restrict dst, const pf_vec2_t v, PF_MATH_FLOAT scalar)
 void
 pf_vec2_scale(pf_vec2_t dst, const pf_vec2_t v, PF_MATH_FLOAT scalar)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v[i]*scalar;
     }
@@ -157,7 +157,7 @@ pf_vec2_scale(pf_vec2_t dst, const pf_vec2_t v, PF_MATH_FLOAT scalar)
 void
 pf_vec2_scale_r(float* restrict dst, const pf_vec2_t v, PF_MATH_FLOAT scalar)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v[i]*scalar;
     }
@@ -170,7 +170,7 @@ pf_vec2_normalize(pf_vec2_t dst, const pf_vec2_t v)
     if (squaredLength == 0.0f) return;
 
     PF_MATH_FLOAT invLength = pf_rsqrt(squaredLength);
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v[i] * invLength;
     }
@@ -183,7 +183,7 @@ pf_vec2_normalize_r(float* restrict dst, const pf_vec2_t v)
     if (squaredLength == 0.0f) return;
 
     PF_MATH_FLOAT invLength = pf_rsqrt(squaredLength);
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v[i] * invLength;
     }
@@ -241,7 +241,7 @@ pf_vec2_direction(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         tmp[i] = v1[i] - v2[i];
         lengthSq += tmp[i]*tmp[i];
@@ -252,7 +252,7 @@ pf_vec2_direction(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = tmp[i]*invLength;
     }
@@ -266,7 +266,7 @@ pf_vec2_direction_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i] - v2[i];
         lengthSq += dst[i]*dst[i];
@@ -277,7 +277,7 @@ pf_vec2_direction_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = dst[i]*invLength;
     }
@@ -286,7 +286,7 @@ pf_vec2_direction_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2)
 void
 pf_vec2_lerp(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2, PF_MATH_FLOAT t)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i] + t*(v2[i]-v1[i]);
     }
@@ -295,7 +295,7 @@ pf_vec2_lerp(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2, PF_MATH_FLOA
 void
 pf_vec2_lerp_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2, PF_MATH_FLOAT t)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = v1[i] + t*(v2[i]-v1[i]);
     }
@@ -304,7 +304,7 @@ pf_vec2_lerp_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2, PF_M
 void
 pf_vec2_bary(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2, const pf_vec2_t v3, PF_MATH_FLOAT w1, PF_MATH_FLOAT w2, PF_MATH_FLOAT w3)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = w1*v1[i] + w2*v2[i] + w3*v3[i];
     }
@@ -313,7 +313,7 @@ pf_vec2_bary(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2, const pf_vec
 void
 pf_vec2_bary_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2, const pf_vec2_t v3, PF_MATH_FLOAT w1, PF_MATH_FLOAT w2, PF_MATH_FLOAT w3)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = w1*v1[i] + w2*v2[i] + w3*v3[i];
     }
@@ -322,7 +322,7 @@ pf_vec2_bary_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2, cons
 void
 pf_vec2_bary_v(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2, const pf_vec2_t v3, const pf_vec3_t w)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = w[0]*v1[i] + w[1]*v2[i] + w[2]*v3[i];
     }
@@ -331,7 +331,7 @@ pf_vec2_bary_v(pf_vec2_t dst, const pf_vec2_t v1, const pf_vec2_t v2, const pf_v
 void
 pf_vec2_bary_v_r(float* restrict dst, const pf_vec2_t v1, const pf_vec2_t v2, const pf_vec2_t v3, const pf_vec3_t w)
 {
-    for (int_fast8_t i = 0; i < 2; i++)
+    for (int_fast8_t i = 0; i < 2; ++i)
     {
         dst[i] = w[0]*v1[i] + w[1]*v2[i] + w[2]*v3[i];
     }

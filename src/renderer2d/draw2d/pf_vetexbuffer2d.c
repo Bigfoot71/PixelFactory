@@ -302,7 +302,7 @@ pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* v
                 w1_norm_v,                                                              \
                 w2_norm_v,                                                              \
                 w3_norm_v);                                                             \
-            for (int i = 0; i < 8; i++) {                                               \
+            for (int i = 0; i < 8; ++i) {                                               \
                 if (mask_int & (1 << (i * 4))) {                                        \
                     int x = x8 + i;                                                     \
                     if (x <= xmax) {                                                    \
@@ -372,7 +372,7 @@ pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* v
                 w1_norm_v,                                                              \
                 w2_norm_v,                                                              \
                 w3_norm_v);                                                             \
-            for (int i = 0; i < 8; i++) {                                               \
+            for (int i = 0; i < 8; ++i) {                                               \
                 if (mask_int & (1 << (i * 4))) {                                        \
                     int x = x8 + i;                                                     \
                     if (x <= xmax) {                                                    \

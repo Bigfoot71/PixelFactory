@@ -32,7 +32,7 @@ pf_vec3_swap(float* restrict a, float* restrict b)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         PF_MATH_FLOAT tmp = a[i];
         a[i] = b[i];
@@ -46,7 +46,7 @@ pf_vec3_neg(pf_vec3_t dst, const pf_vec3_t v)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = -v[i];
     }
@@ -58,7 +58,7 @@ pf_vec3_neg_r(float* restrict dst, const pf_vec3_t v)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = -v[i];
     }
@@ -70,7 +70,7 @@ pf_vec3_add(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i] + v2[i];
     }
@@ -82,7 +82,7 @@ pf_vec3_add_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i] + v2[i];
     }
@@ -94,7 +94,7 @@ pf_vec3_sub(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i] - v2[i];
     }
@@ -106,7 +106,7 @@ pf_vec3_sub_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i] - v2[i];
     }
@@ -118,7 +118,7 @@ pf_vec3_mul(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i]*v2[i];
     }
@@ -130,7 +130,7 @@ pf_vec3_mul_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i]*v2[i];
     }
@@ -142,7 +142,7 @@ pf_vec3_div(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i]/v2[i];
     }
@@ -154,7 +154,7 @@ pf_vec3_div_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i]/v2[i];
     }
@@ -166,7 +166,7 @@ pf_vec3_offset(pf_vec3_t dst, const pf_vec3_t v, PF_MATH_FLOAT scalar)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v[i] + scalar;
     }
@@ -178,7 +178,7 @@ pf_vec3_offset_r(float* restrict dst, const pf_vec3_t v, PF_MATH_FLOAT scalar)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v[i] + scalar;
     }
@@ -190,7 +190,7 @@ pf_vec3_scale(pf_vec3_t dst, const pf_vec3_t v, PF_MATH_FLOAT scalar)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v[i]*scalar;
     }
@@ -202,7 +202,7 @@ pf_vec3_scale_r(float* restrict dst, const pf_vec3_t v, PF_MATH_FLOAT scalar)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v[i]*scalar;
     }
@@ -219,7 +219,7 @@ pf_vec3_normalize(pf_vec3_t dst, const pf_vec3_t v)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v[i] * invLength;
     }
@@ -236,7 +236,7 @@ pf_vec3_normalize_r(float* restrict dst, const pf_vec3_t v)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v[i] * invLength;
     }
@@ -260,7 +260,7 @@ pf_vec3_dot(const pf_vec3_t v1, const pf_vec3_t v2)
 #ifdef _OPENMP
     PF_MATH_FLOAT dotProduct = 0.0f;
 #   pragma omp simd
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dotProduct += v1[i]*v2[i];
     }
@@ -319,7 +319,7 @@ pf_vec3_distance_sq(const pf_vec3_t v1, const pf_vec3_t v2)
     // NOTE 2: Still with GCC 13 in O3, the code generated with 'omp simd' is the same as without, but on GCC versions lower than 11.1 the code generated with 'omp simd' retains the loop...
 
     PF_MATH_FLOAT distanceSq = 0.0f;
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         PF_MATH_FLOAT dt = v1[i] - v2[i];
         distanceSq += dt*dt;
@@ -336,7 +336,7 @@ pf_vec3_direction(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         tmp[i] = v1[i] - v2[i];
         lengthSq += tmp[i]*tmp[i];
@@ -347,7 +347,7 @@ pf_vec3_direction(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = tmp[i]*invLength;
     }
@@ -361,7 +361,7 @@ pf_vec3_direction_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i] - v2[i];
         lengthSq += dst[i]*dst[i];
@@ -372,7 +372,7 @@ pf_vec3_direction_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = dst[i]*invLength;
     }
@@ -384,7 +384,7 @@ pf_vec3_lerp(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2, PF_MATH_FLOA
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i] + t*(v2[i]-v1[i]);
     }
@@ -396,7 +396,7 @@ pf_vec3_lerp_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2, PF_M
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = v1[i] + t*(v2[i]-v1[i]);
     }
@@ -408,7 +408,7 @@ pf_vec3_bary(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2, const pf_vec
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = w1*v1[i] + w2*v2[i] + w3*v3[i];
     }
@@ -420,7 +420,7 @@ pf_vec3_bary_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2, cons
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = w1*v1[i] + w2*v2[i] + w3*v3[i];
     }
@@ -432,7 +432,7 @@ pf_vec3_bary_v(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2, const pf_v
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = w[0]*v1[i] + w[1]*v2[i] + w[2]*v3[i];
     }
@@ -444,7 +444,7 @@ pf_vec3_bary_v_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2, co
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = w[0]*v1[i] + w[1]*v2[i] + w[2]*v3[i];
     }
@@ -498,7 +498,7 @@ pf_vec3_reflect(pf_vec3_t dst, const pf_vec3_t incident, const pf_vec3_t normal)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dotProduct += incident[i]*normal[i];
     }
@@ -508,7 +508,7 @@ pf_vec3_reflect(pf_vec3_t dst, const pf_vec3_t incident, const pf_vec3_t normal)
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = incident[i] - dotProduct*normal[i];
     }
@@ -522,7 +522,7 @@ pf_vec3_reflect_r(float* restrict dst, const pf_vec3_t incident, const pf_vec3_t
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dotProduct += incident[i]*normal[i];
     }
@@ -532,7 +532,7 @@ pf_vec3_reflect_r(float* restrict dst, const pf_vec3_t incident, const pf_vec3_t
 #   ifdef _OPENMP
 #       pragma omp simd
 #   endif
-    for (int_fast8_t i = 0; i < 3; i++)
+    for (int_fast8_t i = 0; i < 3; ++i)
     {
         dst[i] = incident[i] - dotProduct*normal[i];
     }

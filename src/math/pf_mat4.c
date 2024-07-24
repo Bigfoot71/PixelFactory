@@ -45,9 +45,9 @@ void
 pf_mat4_transpose(pf_mat4_t dst, const pf_mat4_t src)
 {
     pf_mat4_t result;
-    for (int_fast8_t i = 0; i < 4; i++)
+    for (int_fast8_t i = 0; i < 4; ++i)
     {
-        for (int_fast8_t j = 0; j < 4; j++)
+        for (int_fast8_t j = 0; j < 4; ++j)
         {
             result[i * 4 + j] = src[j * 4 + i];
         }
@@ -59,9 +59,9 @@ pf_mat4_transpose(pf_mat4_t dst, const pf_mat4_t src)
 void
 pf_mat4_transpose_r(float* restrict dst, const pf_mat4_t src)
 {
-    for (int_fast8_t i = 0; i < 4; i++)
+    for (int_fast8_t i = 0; i < 4; ++i)
     {
-        for (int_fast8_t j = 0; j < 4; j++)
+        for (int_fast8_t j = 0; j < 4; ++j)
         {
             dst[i * 4 + j] = src[j * 4 + i];
         }
@@ -337,7 +337,7 @@ pf_mat4_look_at(pf_mat4_t dst, const pf_vec3_t eye, const pf_vec3_t target, cons
     };
 
     // pf_vec3_normalize(x)
-    for (int_fast8_t i = 0; i < 3; i++) v[i] = vx[i];
+    for (int_fast8_t i = 0; i < 3; ++i) v[i] = vx[i];
     length = sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     if (length == 0.0f) length = 1.0f;
     invLenght = 1.0f/length;
