@@ -23,7 +23,7 @@ model_frag_proc(
 int main(void)
 {
     // Init raylib window and set target FPS
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelForge - Animated Model");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Points 3D");
 
     // Create a rendering buffer in RAM
     pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
@@ -86,9 +86,9 @@ int main(void)
         // Clear the destination buffer (RAM)
         pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
 
-        // Rendering vertex buffers
+        // Rendering vertex buffers (points)
         for (int i = 0; i < model.meshCount; i++) {
-            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, NULL, model_frag_proc,
+            pf_renderer3d_vertex_buffer_points(&rn, &pfMeshes[i], NULL, NULL, model_frag_proc,
                 &model.materials[model.meshMaterial[i]]);
         }
 

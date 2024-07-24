@@ -4,61 +4,61 @@ cmake_minimum_required(VERSION 3.21)
 add_definitions(-DRESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../resources/")
 
 # 2D - Circle example
-add_executable(circle_2d ${PF_ROOT_PATH}/examples/raylib/2d/circle.c)
-target_link_libraries(circle_2d PRIVATE pixelfactory raylib m)
-target_include_directories(circle_2d PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_circle_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_circle_2d.c)
+target_link_libraries(raylib_circle_2d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_circle_2d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 2D - Framebuffer example
-add_executable(framebuffer ${PF_ROOT_PATH}/examples/raylib/2d/framebuffer.c)
-target_link_libraries(framebuffer PRIVATE pixelfactory raylib m)
-target_include_directories(framebuffer PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_framebuffer_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_framebuffer_2d.c)
+target_link_libraries(raylib_framebuffer_2d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_framebuffer_2d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 2D - Lines example
-add_executable(lines_2d ${PF_ROOT_PATH}/examples/raylib/2d/lines.c)
-target_link_libraries(lines_2d PRIVATE pixelfactory raylib m)
-target_include_directories(lines_2d PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_lines_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_lines_2d.c)
+target_link_libraries(raylib_lines_2d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_lines_2d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 2D - Mesh2D example
-add_executable(mesh_2d ${PF_ROOT_PATH}/examples/raylib/2d/mesh2d.c)
-target_link_libraries(mesh_2d PRIVATE pixelfactory raylib m)
-target_include_directories(mesh_2d PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_mesh_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_mesh_2d.c)
+target_link_libraries(raylib_mesh_2d PRIVATE pixelfactory raylib m)
+target_include_directories(meshraylib_mesh_2d_2d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 2D - Rectangle example
-add_executable(rect_2d ${PF_ROOT_PATH}/examples/raylib/2d/rect.c)
-target_link_libraries(rect_2d PRIVATE pixelfactory raylib m)
-target_include_directories(rect_2d PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_rect_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_rect_2d.c)
+target_link_libraries(raylib_rect_2d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_rect_2d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 2D - Texture2D example
-add_executable(texture_2d ${PF_ROOT_PATH}/examples/raylib/2d/texture2d.c)
-target_link_libraries(texture_2d PRIVATE pixelfactory raylib m)
-target_include_directories(texture_2d PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_texture_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_texture_2d.c)
+target_link_libraries(raylib_texture_2d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_texture_2d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 2D - Triangle example
-add_executable(triangle_2d ${PF_ROOT_PATH}/examples/raylib/2d/triangle.c)
-target_link_libraries(triangle_2d PRIVATE pixelfactory raylib m)
-target_include_directories(triangle_2d PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_triangle_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_triangle_2d.c)
+target_link_libraries(raylib_triangle_2d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_triangle_2d PRIVATE ${PF_ROOT_PATH}/src)
 
-# 3D - Points example
-add_executable(points_3d ${PF_ROOT_PATH}/examples/raylib/3d/points.c)
-target_link_libraries(points_3d PRIVATE pixelfactory raylib m)
-target_include_directories(points_3d PRIVATE ${PF_ROOT_PATH}/src)
+# 3D - Lighting example
+add_executable(raylib_lighting_3d ${PF_ROOT_PATH}/examples/raylib/3d/raylib_lighting_3d.c)
+target_link_libraries(raylib_lighting_3d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_lighting_3d PRIVATE ${PF_ROOT_PATH}/src)
 
-# 3D - Line example
-add_executable(lines_3d ${PF_ROOT_PATH}/examples/raylib/3d/lines.c)
-target_link_libraries(lines_3d PRIVATE pixelfactory raylib m)
-target_include_directories(lines_3d PRIVATE ${PF_ROOT_PATH}/src)
-
-# 3D - Triangle example
-add_executable(triangle_3d ${PF_ROOT_PATH}/examples/raylib/3d/triangle.c)
-target_link_libraries(triangle_3d PRIVATE pixelfactory raylib m)
-target_include_directories(triangle_3d PRIVATE ${PF_ROOT_PATH}/src)
+# 3D - Lines example
+add_executable(raylib_lines_3d ${PF_ROOT_PATH}/examples/raylib/3d/raylib_lines_3d.c)
+target_link_libraries(raylib_lines_3d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_lines_3d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 3D - Model example
-add_executable(model_3d ${PF_ROOT_PATH}/examples/raylib/3d/model.c)
-target_link_libraries(model_3d PRIVATE pixelfactory raylib m)
-target_include_directories(model_3d PRIVATE ${PF_ROOT_PATH}/src)
+add_executable(raylib_model_3d ${PF_ROOT_PATH}/examples/raylib/3d/raylib_model_3d.c)
+target_link_libraries(raylib_model_3d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_model_3d PRIVATE ${PF_ROOT_PATH}/src)
 
-# 3D - Light example
-add_executable(light_3d ${PF_ROOT_PATH}/examples/raylib/3d/light.c)
-target_link_libraries(light_3d PRIVATE pixelfactory raylib m)
-target_include_directories(light_3d PRIVATE ${PF_ROOT_PATH}/src)
+# 3D - Points example
+add_executable(raylib_points_3d ${PF_ROOT_PATH}/examples/raylib/3d/raylib_points_3d.c)
+target_link_libraries(raylib_points_3d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_points_3d PRIVATE ${PF_ROOT_PATH}/src)
+
+# 3D - Triangle example
+add_executable(raylib_triangle_3d ${PF_ROOT_PATH}/examples/raylib/3d/raylib_triangle_3d.c)
+target_link_libraries(raylib_triangle_3d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_triangle_3d PRIVATE ${PF_ROOT_PATH}/src)

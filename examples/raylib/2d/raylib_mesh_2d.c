@@ -1,10 +1,8 @@
 #include "pixelfactory/pf.h"
-#include "pixelfactory/pf_texture2d.h"
 #include <raylib.h>
-#include <string.h>
 
-#define SCREEN_W 800
-#define SCREEN_H 600
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 static float positions[] = {
 
@@ -48,17 +46,17 @@ void frag_proc(
 
 int main()
 {
-    InitWindow(SCREEN_W, SCREEN_H, "mesh2d");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Mesh 2D");
 
-    pf_renderer2d_t rn = pf_renderer2d_create(800, 600, NULL);
+    pf_renderer2d_t rn = pf_renderer2d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
 
-    Image im = {
+    Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
-        .width = rn.fb.w,
-        .height = rn.fb.h,
+        .width = SCREEN_WIDTH,
+        .height = SCREEN_HEIGHT,
         .format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
         .mipmaps = 1
-    };
+    });
 
     pf_vertexbuffer2d_t mesh = { 0 };
     mesh.positions = positions;
@@ -71,14 +69,12 @@ int main()
     material.texture = pf_texture2d_create(image.data, image.width, image.height, image.format);
     material.tint = PF_BLUE;
 
-    Texture tex = LoadTextureFromImage(im);
-
     while (!WindowShouldClose())
     {
         pf_renderer2d_clear(&rn, PF_BLACK);
         pf_renderer2d_vertex_buffer(&rn, &mesh, NULL, NULL, frag_proc, &material);
 
-        UpdateTexture(tex, im.data);
+        UpdateTexture(tex, rn.fb.buffer);
 
         BeginDrawing();
             ClearBackground(BLACK);
@@ -87,8 +83,8 @@ int main()
         EndDrawing();
     }
 
-    UnloadTexture(tex);
     pf_renderer2d_delete(&rn);
+    UnloadTexture(tex);
 
     CloseWindow();
 }

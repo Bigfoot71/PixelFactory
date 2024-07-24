@@ -23,7 +23,7 @@ model_frag_proc(
 int main(void)
 {
     // Init raylib window and set target FPS
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelForge - Animated Model");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Lines 3D");
     SetTargetFPS(60);
 
     // Create a rendering buffer in RAM

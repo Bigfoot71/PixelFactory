@@ -1,11 +1,6 @@
-#include "pixelfactory/math/pf_vec3.h"
 #include "pixelfactory/pf.h"
-#include "pixelfactory/pf_color.h"
-
-#include <float.h>
 #include <raylib.h>
-#include <raymath.h>
-#include <stdint.h>
+#include <float.h>
 
 #define SCREEN_WIDTH    800
 #define SCREEN_HEIGHT   600
@@ -77,7 +72,8 @@ model_frag_proc(
 int main(void)
 {
     // Init raylib window and set target FPS
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelForge - Animated Model");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Lighting 3D");
+    SetTargetFPS(60);
 
     // Create a rendering buffer in RAM
     pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
@@ -136,9 +132,9 @@ int main(void)
         UpdateModelAnimation(model, anim, animCurrentFrame);
 
         // Update camera position/diraction
-        uniforms.cam_pos[0] = 10.0f*cosf(GetTime());
-        uniforms.cam_pos[1] = 5;
-        uniforms.cam_pos[2] = 10.0f*sinf(GetTime());
+        uniforms.cam_pos[0] = 8.0f*cosf(GetTime());
+        uniforms.cam_pos[1] = 5.0f;
+        uniforms.cam_pos[2] = 8.0f*sinf(GetTime());
         pf_mat4_look_at(rn.mat_view, uniforms.cam_pos,
             (float[3]) { 0, 2.5f, 0 }, (float[3]) { 0, 1, 0 });
 

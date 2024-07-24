@@ -2,8 +2,8 @@
 #include <raylib.h>
 #include <float.h>
 
-#define SCREEN_W 800
-#define SCREEN_H 600
+#define SCREEN_WIDTH    800
+#define SCREEN_HEIGHT   600
 
 static float triangle_positions[] = {
      0,  1, 0,
@@ -19,19 +19,17 @@ static pf_color_t triangle_colors[] = {
 
 int main()
 {
-    InitWindow(SCREEN_W, SCREEN_H, "triangle");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Triangle 3D");
 
-    pf_renderer3d_t rn = pf_renderer3d_create(800, 600, NULL, NULL);
+    pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL);
 
-    Image im = {
+    Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
-        .width = rn.fb.w,
-        .height = rn.fb.h,
+        .width = SCREEN_WIDTH,
+        .height = SCREEN_HEIGHT,
         .format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
         .mipmaps = 1
-    };
-
-    Texture tex = LoadTextureFromImage(im);
+    });
 
     pf_vertexbuffer3d_t triangle = { 0 };
     triangle.positions = triangle_positions;
@@ -40,12 +38,14 @@ int main()
 
     while (!WindowShouldClose())
     {
-        pf_mat4_look_at(rn.mat_view, (float[3]) { 3.0f*cosf(GetTime()), 0, 3.0f*sinf(GetTime()) }, (float[3]) { 0, 0, 0 }, (float[3]) { 0, 1, 0 });
+        pf_mat4_look_at(rn.mat_view,
+            (float[3]) { 3.0f*cosf(GetTime()), 0, 3.0f*sinf(GetTime()) },
+            (float[3]) { 0, 0, 0 }, (float[3]) { 0, 1, 0 });
 
         pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
         pf_renderer3d_vertex_buffer(&rn, &triangle, NULL, NULL, NULL, NULL);
 
-        UpdateTexture(tex, im.data);
+        UpdateTexture(tex, rn.fb.buffer);
 
         BeginDrawing();
             ClearBackground(BLACK);
@@ -54,8 +54,8 @@ int main()
         EndDrawing();
     }
 
-    UnloadTexture(tex);
     pf_renderer3d_delete(&rn);
+    UnloadTexture(tex);
 
     CloseWindow();
 }

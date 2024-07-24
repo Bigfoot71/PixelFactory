@@ -1,24 +1,22 @@
 #include "pixelfactory/pf.h"
 #include <raylib.h>
 
-#define SCREEN_W 800
-#define SCREEN_H 600
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
 
 int main()
 {
-    InitWindow(SCREEN_W, SCREEN_H, "lines");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Lines 2D");
 
-    pf_renderer2d_t rn = pf_renderer2d_create(800, 600, NULL);
+    pf_renderer2d_t rn = pf_renderer2d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
 
-    Image im = {
+    Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
-        .width = rn.fb.w,
-        .height = rn.fb.h,
+        .width = SCREEN_WIDTH,
+        .height = SCREEN_HEIGHT,
         .format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
         .mipmaps = 1
-    };
-
-    Texture tex = LoadTextureFromImage(im);
+    });
 
     while (!WindowShouldClose())
     {
@@ -39,7 +37,7 @@ int main()
         pf_renderer2d_line_thick_gradient(&rn, -800, -600, 800, 600, 32, PF_RED, PF_BLUE);
         pf_renderer2d_line_thick_gradient(&rn, 800, 0, 0, 600, 32, PF_RED, PF_BLUE);
 
-        UpdateTexture(tex, im.data);
+        UpdateTexture(tex, rn.fb.buffer);
 
         BeginDrawing();
             ClearBackground(BLACK);
@@ -47,8 +45,8 @@ int main()
         EndDrawing();
     }
 
-    UnloadTexture(tex);
     pf_renderer2d_delete(&rn);
+    UnloadTexture(tex);
 
     CloseWindow();
 }
