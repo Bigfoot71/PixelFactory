@@ -38,6 +38,11 @@ add_executable(triangle_2d ${PF_ROOT_PATH}/examples/raylib/2d/triangle.c)
 target_link_libraries(triangle_2d PRIVATE pixelfactory raylib m)
 target_include_directories(triangle_2d PRIVATE ${PF_ROOT_PATH}/src)
 
+# 3D - Line example
+add_executable(lines_3d ${PF_ROOT_PATH}/examples/raylib/3d/lines.c)
+target_link_libraries(lines_3d PRIVATE pixelfactory raylib m)
+target_include_directories(lines_3d PRIVATE ${PF_ROOT_PATH}/src)
+
 # 3D - Triangle example
 add_executable(triangle_3d ${PF_ROOT_PATH}/examples/raylib/3d/triangle.c)
 target_link_libraries(triangle_3d PRIVATE pixelfactory raylib m)
