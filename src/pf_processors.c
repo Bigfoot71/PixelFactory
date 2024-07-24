@@ -294,8 +294,8 @@ pf_proc3d_screen_projection_perspective_correct(
         // Division of texture coordinates by the Z axis (perspective correct)
         pf_vec2_scale(v->texcoord, v->texcoord, (*h)[2]);
 
-        // Division of vertex colors by the Z axis (perspective correct)
-        v->color = pf_color_scale(v->color, (*h)[2]);
+        // REVIEW: Division of vertex colors by the Z axis (perspective correct)
+        //v->color = pf_color_scale(v->color, (*h)[2]);
 
         // Division of XY coordinates by weight
         float invW = 1.0f / (*h)[3];
@@ -342,9 +342,9 @@ pf_proc3d_rasterizer_perspective_correct(
     pf_vec2_bary_v_r(out_vertex->texcoord, v1->texcoord, v2->texcoord, v3->texcoord, bary);
     pf_vec2_scale(out_vertex->texcoord, out_vertex->texcoord, z_depth);
 
-    // Interpolation of vertex colors with correct perspective
+    // REVIEW: Interpolation of vertex colors with correct perspective
     out_vertex->color = pf_color_bary_v(v1->color, v2->color, v3->color, bary);
-    out_vertex->color = pf_color_scale(out_vertex->color, z_depth);
+    //out_vertex->color = pf_color_scale(out_vertex->color, z_depth);
 
     pf_vec3_bary_v(out_vertex->position, v1->position, v2->position, v3->position, bary);
     pf_vec3_bary_v(out_vertex->normal, v1->normal, v2->normal, v3->normal, bary);
