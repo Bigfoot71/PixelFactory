@@ -20,6 +20,8 @@
 #ifndef PF_DEPTH_H
 #define PF_DEPTH_H
 
+#include "pf_config.h"
+
 /* Functions Types */
 
 typedef int (*pf_depth_test_fn)(
@@ -27,27 +29,27 @@ typedef int (*pf_depth_test_fn)(
 
 /* Default Depth Test Functions */
 
-int
+PFAPI int
 pf_depth_equal(
     float dst, float src);
 
-int
+PFAPI int
 pf_depth_not_equal(
     float dst, float src);
 
-int
+PFAPI int
 pf_depth_less(
     float dst, float src);
 
-int
+PFAPI int
 pf_depth_less_equal(
     float dst, float src);
 
-int
+PFAPI int
 pf_depth_greater(
     float dst, float src);
 
-int
+PFAPI int
 pf_depth_greater_equal(
     float dst, float src);
 

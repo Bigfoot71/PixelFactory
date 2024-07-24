@@ -87,13 +87,13 @@ typedef void (*pf_proc3d_fragment_fn)(
 
 /* Default Processor 2D Functions */
 
-void
+PFAPI void
 pf_proc2d_vertex_default(
     pf_vertex2d_t* out_vertex,
     const pf_mat3_t transform,
     const void* attr);
 
-void
+PFAPI void
 pf_proc2d_rasterizer_default(
     pf_vertex2d_t* out_vertex,
     pf_vertex2d_t* v1,
@@ -102,7 +102,7 @@ pf_proc2d_rasterizer_default(
     pf_vec3_t bary,
     void* attr);
 
-void
+PFAPI void
 pf_proc2d_fragment_default(
     struct pf_renderer2d* rn,
     pf_vertex2d_t* vertex,
@@ -111,7 +111,8 @@ pf_proc2d_fragment_default(
 
 /* Default Processor 3D Functions */
 
-void pf_proc3d_vertex_default(
+PFAPI void
+pf_proc3d_vertex_default(
     pf_vertex3d_t* out_vertex,
     pf_vec4_t out_homogeneous,
     const pf_mat4_t mat_model,
@@ -120,28 +121,28 @@ void pf_proc3d_vertex_default(
     const void* attr
 );
 
-void
+PFAPI void
 pf_proc3d_clip_point(
     const struct pf_renderer3d* rn,
     pf_vertex3d_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count);
 
-void
+PFAPI void
 pf_proc3d_clip_line(
     const struct pf_renderer3d* rn,
     pf_vertex3d_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count);
 
-void
+PFAPI void
 pf_proc3d_clip_triangle(
     const struct pf_renderer3d* rn,
     pf_vertex3d_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count);
 
-void
+PFAPI void
 pf_proc3d_screen_projection_default(
     const struct pf_renderer3d* rn,
     pf_vertex3d_t* vertices,
@@ -149,7 +150,7 @@ pf_proc3d_screen_projection_default(
     size_t vertices_count,
     int screen_pos[][2]);
 
-void
+PFAPI void
 pf_proc3d_screen_projection_perspective_correct(
     const struct pf_renderer3d* rn,
     pf_vertex3d_t* vertices,
@@ -157,7 +158,7 @@ pf_proc3d_screen_projection_perspective_correct(
     size_t vertices_count,
     int screen_pos[][2]);
 
-void
+PFAPI void
 pf_proc3d_rasterizer_default(
     pf_vertex3d_t* out_vertex,
     pf_vertex3d_t* v1,
@@ -167,7 +168,7 @@ pf_proc3d_rasterizer_default(
     float z_depth,
     void* attr);
 
-void
+PFAPI void
 pf_proc3d_rasterizer_perspective_correct(
     pf_vertex3d_t* out_vertex,
     pf_vertex3d_t* v1,
@@ -177,7 +178,7 @@ pf_proc3d_rasterizer_perspective_correct(
     float z_depth,
     void* attr);
 
-void
+PFAPI void
 pf_proc3d_fragment_default(
     struct pf_renderer3d* rn,
     pf_vertex3d_t* vertex,

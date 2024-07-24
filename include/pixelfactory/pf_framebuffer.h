@@ -40,45 +40,45 @@ pf_framebuffer_create(
     uint32_t w, uint32_t h,
     pf_color_t def);
 
-void
+PFAPI void
 pf_framebuffer_delete(
     pf_framebuffer_t* fb);
 
-int
+PFAPI int
 pf_framebuffer_is_valid(
     const pf_framebuffer_t* fb);
 
-void
+PFAPI void
 pf_framebuffer_copy(
     pf_framebuffer_t * restrict dst_fb,
     const uint32_t dst_rect[4],
     const pf_framebuffer_t * restrict src_fb,
     const uint32_t src_rect[4]);
 
-void
+PFAPI void
 pf_framebuffer_copy_pixels(
     void * restrict dst,
     const pf_framebuffer_t * restrict src_fb,
     const uint32_t src_rect[4]);
 
-pf_color_t
+PFAPI pf_color_t
 pf_framebuffer_get(
     const pf_framebuffer_t* fb,
     uint32_t x, uint32_t y);
 
-void
+PFAPI void
 pf_framebuffer_put(
     pf_framebuffer_t* fb,
     uint32_t x, uint32_t y,
     pf_color_t color);
 
-void
+PFAPI void
 pf_framebuffer_fill(
     pf_framebuffer_t* fb,
     const uint32_t rect[4],
     pf_color_t color);
 
-void
+PFAPI void
 pf_framebuffer_map(
     pf_framebuffer_t* fb,
     const uint32_t rect[4],

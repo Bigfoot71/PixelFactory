@@ -46,31 +46,31 @@ typedef struct pf_texture2d {
 } pf_texture2d_t;
 
 
-pf_texture2d_t
+PFAPI pf_texture2d_t
 pf_texture2d_create(
     void* pixels, uint32_t w, uint32_t h,
     pf_pixelformat_t format);
 
-void
+PFAPI void
 pf_texture2d_destroy(
     pf_texture2d_t* tex);
 
 
 /* Map Functions */
 
-void
+PFAPI void
 pf_texture2d_uv_map_wrap_pot(
     const pf_texture2d_t* tex,
     uint32_t* x, uint32_t* y,
     float u, float v);
 
-void
+PFAPI void
 pf_texture2d_uv_map_wrap(
     const pf_texture2d_t* tex,
     uint32_t* x, uint32_t* y,
     float u, float v);
 
-void
+PFAPI void
 pf_texture2d_uv_map_clamp(
     const pf_texture2d_t* tex,
     uint32_t* x, uint32_t* y,
@@ -78,12 +78,12 @@ pf_texture2d_uv_map_clamp(
 
 /* Sampler Functions */
 
-pf_color_t
+PFAPI pf_color_t
 pf_texture2d_sample_nearest(
     const pf_texture2d_t* tex,
     float u, float v);
 
-pf_color_t
+PFAPI pf_color_t
 pf_texture2d_sample_bilinear(
     const pf_texture2d_t* tex,
     float u, float v);

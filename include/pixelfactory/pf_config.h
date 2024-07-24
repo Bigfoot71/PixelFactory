@@ -20,6 +20,22 @@
 #ifndef PF_CONFIG_H
 #define PF_CONFIG_H
 
+#if defined(_WIN32)
+#   if defined(PF_BUILD_SHARED)
+#       define PFAPI __declspec(dllexport)
+#   elif defined(PF_USE_BUILD_SHARED)
+#       define PFAPI __declspec(dllimport)
+#   endif
+#else
+#   if defined(PF_BUILD_SHARED)
+#       define PFAPI __attribute__((visibility("default")))
+#   endif
+#endif
+
+#ifndef PFAPI
+#   define PFAPI
+#endif
+
 #ifndef PF_MAX_CLIPPED_TRIANGLE_VERTICES
 #   define PF_MAX_CLIPPED_POLYGON_VERTICES 12
 #endif //PF_MAX_CLIPPED_POLYGON_VERTICES

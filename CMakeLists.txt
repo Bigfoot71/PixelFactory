@@ -36,6 +36,11 @@ else()
     target_compile_definitions(${PROJECT_NAME} PUBLIC PF_BUILD_STATIC)
 endif()
 
+# Define PF_USE_BUILD_SHARED if the option is enabled
+if(PF_BUILD_SHARED AND NOT PF_IS_MAIN)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PF_USE_BUILD_SHARED)
+endif()
+
 # Specify the include directory
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
@@ -56,7 +61,7 @@ if(PF_SUPPORT_OPENMP)
     endif()
 endif()
 
-# TEMP: Add the -pg flag for Debug mode (gprof)
+# Add the -pg flag for Debug mode (gprof)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 endif()

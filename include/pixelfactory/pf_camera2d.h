@@ -22,6 +22,7 @@
 
 #include "math/pf_vec2.h"
 #include "pf_helper.h"
+#include "pf_config.h"
 
 typedef struct {
     pf_vec2_t target;
@@ -30,41 +31,41 @@ typedef struct {
     float zoom;
 } pf_camera2d_t;
 
-void
+PFAPI void
 pf_camera2d_translate(
     pf_camera2d_t* cam,
     float dx, float dy,
     int zoom_dependent);
 
-void
+PFAPI void
 pf_camera2d_zoom(
     pf_camera2d_t* cam, float inc,
     float min, float max,
     int zoom_dependent);
 
-void
+PFAPI void
 pf_camera2d_zoom_to_world_pos(
     pf_camera2d_t* cam, const pf_vec2_t world_pos,
     float inc, float min, float max,
     int zoom_dependent);
 
-void
+PFAPI void
 pf_camera2d_zoom_to_screen_pos(
     pf_camera2d_t* cam, const pf_vec2_t screen_pos,
     float inc, float min, float max,
     int zoom_dependent);
 
-void
+PFAPI void
 pf_camera2d_to_world(
     const pf_camera2d_t* cam,
     pf_vec2_t screen_pos);
 
-void
+PFAPI void
 pf_camera2d_to_screen(
     const pf_camera2d_t* cam,
     pf_vec2_t wolrd_pos);
 
-void
+PFAPI void
 pf_camera2d_get_view_matrix(
     const pf_camera2d_t* cam,
     pf_mat3_t dst);

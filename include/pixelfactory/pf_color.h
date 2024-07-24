@@ -23,6 +23,7 @@
 #include "math/pf_vec3.h"
 #include "pf_stdinc.h"
 #include "pf_helper.h"
+#include "pf_config.h"
 #include <math.h>
 
 typedef union {
@@ -71,19 +72,19 @@ typedef pf_color_t(*pf_color_blend_fn)(pf_color_t, pf_color_t);
 
 /* General Functions */
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_lerpf(
     pf_color_t a,
     pf_color_t b,
     float t);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_lerpi(
     pf_color_t a,
     pf_color_t b,
     int i, int max);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_bary(
     pf_color_t c1,
     pf_color_t c2,
@@ -92,7 +93,7 @@ pf_color_bary(
     float w2,
     float w3);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_bary_v(
     pf_color_t c1,
     pf_color_t c2,
@@ -101,7 +102,7 @@ pf_color_bary_v(
 
 #ifdef __AVX2__
 
-__m256i
+PFAPI __m256i
 pf_color_bary_avx(
     __m256i c1_r, __m256i c1_g, __m256i c1_b, __m256i c1_a,
     __m256i c2_r, __m256i c2_g, __m256i c2_b, __m256i c2_a,
@@ -110,64 +111,64 @@ pf_color_bary_avx(
 
 #endif //__AVX2__
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_scale(
     pf_color_t col,
     float scale);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_scale_u8(
     pf_color_t col,
     uint8_t scale);
 
-void
+PFAPI void
 pf_color_from_hsv(
     pf_color_t* color,
     float h, float s, float v);
 
-void
+PFAPI void
 pf_color_to_hsv(
     pf_color_t color,
     float* h, float* s, float* v);
 
 /* Blending Functions */
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_avg(
     pf_color_t dst,
     pf_color_t src);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_add(
     pf_color_t dst,
     pf_color_t src);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_sub(
     pf_color_t dst,
     pf_color_t src);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_mul(
     pf_color_t dst,
     pf_color_t src);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_alpha(
     pf_color_t dst,
     pf_color_t src);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_screen(
     pf_color_t dst,
     pf_color_t src);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_lighten(
     pf_color_t dst,
     pf_color_t src);
 
-pf_color_t
+PFAPI pf_color_t
 pf_color_blend_darken(
     pf_color_t dst,
     pf_color_t src);

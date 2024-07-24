@@ -45,67 +45,67 @@ typedef enum {
 
 /* Pixel Getters */
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_gray(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_gray_alpha(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgb565(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgb888(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgba5551(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgba4444(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgba8888(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_r32(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgb323232(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgba32323232(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_r16(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgb161616(
     const void* pixels,
     size_t offset);
 
-pf_color_t
+PFAPI pf_color_t
 pf_pixel_get_rgba16161616(
     const void* pixels,
     size_t offset);
