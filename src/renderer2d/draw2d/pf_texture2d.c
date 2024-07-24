@@ -1,7 +1,4 @@
-#include "pixelfactory/pf_color.h"
 #include "pixelfactory/pf_renderer2d.h"
-#include "pixelfactory/math/pf_mat3.h"
-#include "pixelfactory/math/pf_vec2.h"
 #include <float.h>
 
 #define PF_TRAVEL_TEXTURE2D(PIXEL_CODE)                                             \
@@ -233,13 +230,35 @@ pf_renderer2d_texture2d_mat_tint(pf_renderer2d_t* rn, const pf_texture2d_t* tex,
 void
 pf_renderer2d_texture2d_mat_map(pf_renderer2d_t* rn, const pf_texture2d_t* tex, pf_mat3_t transform, pf_proc2d_fragment_fn frag_proc)
 {
-    PF_TRAVEL_TEXTURE2D_MAT({
-        pf_vertex2d_t vertex;
-        vertex.position[0] = x;
-        vertex.position[1] = y;
-        vertex.texcoord[0] = u;
-        vertex.texcoord[1] = v;
-        vertex.color = PF_WHITE;
-        frag_proc(rn, &vertex, fb->buffer + y * fb->w + x, tex);
-    })
+    if (rn->blend != NULL) {
+        PF_TRAVEL_TEXTURE2D_MAT({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = 0;
+            vertex.texcoord[1] = 0;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, tex);
+            *ptr = rn->blend(*ptr, final_color);
+        })
+    } else {
+        PF_TRAVEL_TEXTURE2D_MAT({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = 0;
+            vertex.texcoord[1] = 0;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, tex);
+            *ptr = final_color;
+        })
+    }
 }

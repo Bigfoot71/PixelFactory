@@ -60,20 +60,49 @@ pf_renderer3d_point_INTERNAL(
     if (radius == 0) {
         size_t offset = screen_pos[1] * rn->fb.w + screen_pos[0];
         if (rn->test != NULL && rn->test(rn->zb.buffer[offset], homogen[2])) {
-            frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-            rn->zb.buffer[offset] = homogen[2];
+            pf_color_t* ptr = rn->fb.buffer + offset;
+            pf_color_t final_color = *ptr;
+            frag_proc(rn, &vertex, &final_color, attr);
+            *ptr = (rn->blend != NULL) ? rn->blend(*ptr, final_color) : final_color;
         } else {
-            frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
+            pf_color_t* ptr = rn->fb.buffer + offset;
+            pf_color_t final_color = *ptr;
+            frag_proc(rn, &vertex, &final_color, attr);
+            *ptr = (rn->blend != NULL) ? rn->blend(*ptr, final_color) : final_color;
         }
     } else {
         if (rn->test != NULL) {
-            PF_POINT_THICK_TRAVEL_DEPTH({
-                frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-            })
+            if (rn->blend != NULL) {
+                PF_POINT_THICK_TRAVEL_DEPTH({
+                    pf_color_t* ptr = rn->fb.buffer + offset;
+                    pf_color_t final_color = *ptr;
+                    frag_proc(rn, &vertex, &final_color, attr);
+                    *ptr = rn->blend(*ptr, final_color);
+                })
+            } else {
+                PF_POINT_THICK_TRAVEL_DEPTH({
+                    pf_color_t* ptr = rn->fb.buffer + offset;
+                    pf_color_t final_color = *ptr;
+                    frag_proc(rn, &vertex, &final_color, attr);
+                    *ptr = final_color;
+                })
+            }
         } else {
-            PF_POINT_THICK_TRAVEL_NODEPTH({
-                frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-            })
+            if (rn->blend != NULL) {
+                PF_POINT_THICK_TRAVEL_NODEPTH({
+                    pf_color_t* ptr = rn->fb.buffer + offset;
+                    pf_color_t final_color = *ptr;
+                    frag_proc(rn, &vertex, &final_color, attr);
+                    *ptr = rn->blend(*ptr, final_color);
+                })
+            } else {
+                PF_POINT_THICK_TRAVEL_NODEPTH({
+                    pf_color_t* ptr = rn->fb.buffer + offset;
+                    pf_color_t final_color = *ptr;
+                    frag_proc(rn, &vertex, &final_color, attr);
+                    *ptr = final_color;
+                })
+            }
         }
     }
 }

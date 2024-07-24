@@ -1,6 +1,4 @@
 #include "pixelfactory/pf_renderer2d.h"
-#include "pixelfactory/math/pf_vec2.h"
-#include "pixelfactory/pf_stdinc.h"
 
 /* Macros */
 
@@ -176,15 +174,37 @@ pf_renderer2d_rect_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_p
         int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
         int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
         int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
-        PF_RECT_TRAVEL({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
-            vertex.color = PF_WHITE;
-            frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-        })
+        if (rn->blend != NULL) {
+            PF_RECT_TRAVEL({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = rn->blend(*ptr, final_color);
+            })
+        } else {
+            PF_RECT_TRAVEL({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = final_color;
+            })
+        }
     } else {
         pf_vec2_t p1 = { x1, y1 };
         pf_vec2_t p2 = { x2, y1 };
@@ -208,15 +228,37 @@ pf_renderer2d_rect_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, pf_p
         pf_mat3_inverse(mat_view_inv, rn->mat_view);
 
         // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
-        PF_RECT_TRANSFORM_TRAVEL({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
-            vertex.color = PF_WHITE;
-            frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-        })
+        if (rn->blend != NULL) {
+            PF_RECT_TRAVEL({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = rn->blend(*ptr, final_color);
+            })
+        } else {
+            PF_RECT_TRAVEL({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = final_color;
+            })
+        }
     }
 }
 

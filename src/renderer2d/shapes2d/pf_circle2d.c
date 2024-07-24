@@ -1,6 +1,4 @@
 #include "pixelfactory/pf_renderer2d.h"
-#include "pixelfactory/math/pf_vec2.h"
-#include "pixelfactory/pf_stdinc.h"
 
 /* Macros */
 
@@ -230,15 +228,37 @@ pf_renderer2d_circle_map(pf_renderer2d_t* rn, int cx, int cy, int radius, pf_pro
         radius = (int)(radius * scale + 0.5f);
     }
 
-    PF_CIRCLE_TRAVEL({
-        pf_vertex2d_t vertex;
-        vertex.position[0] = x;
-        vertex.position[1] = y;
-        vertex.texcoord[0] = 0;
-        vertex.texcoord[1] = 0;
-        vertex.color = PF_WHITE;
-        frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-    })
+    if (rn->blend != NULL) {
+        PF_CIRCLE_TRAVEL({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = 0;
+            vertex.texcoord[1] = 0;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + offset;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, attr);
+            *ptr = rn->blend(*ptr, final_color);
+        })
+    } else {
+        PF_CIRCLE_TRAVEL({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = 0;
+            vertex.texcoord[1] = 0;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + offset;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, attr);
+            *ptr = final_color;
+        })
+    }
 }
 
 void
@@ -283,15 +303,37 @@ pf_renderer2d_circle_lines_map(pf_renderer2d_t* rn, int cx, int cy, int radius, 
         radius = (int)(radius * scale + 0.5f);
     }
 
-    PF_CIRCLE_LINE_TRAVEL({
-        pf_vertex2d_t vertex;
-        vertex.position[0] = x;
-        vertex.position[1] = y;
-        vertex.texcoord[0] = 0;
-        vertex.texcoord[1] = 0;
-        vertex.color = PF_WHITE;
-        frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-    })
+    if (rn->blend != NULL) {
+        PF_CIRCLE_LINE_TRAVEL({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = 0;
+            vertex.texcoord[1] = 0;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + offset;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, attr);
+            *ptr = rn->blend(*ptr, final_color);
+        })
+    } else {
+        PF_CIRCLE_LINE_TRAVEL({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = 0;
+            vertex.texcoord[1] = 0;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + offset;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, attr);
+            *ptr = final_color;
+        })
+    }
 }
 
 void

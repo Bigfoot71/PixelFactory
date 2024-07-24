@@ -43,8 +43,7 @@ void frag_proc(
 {
     (void)rn;
     const PF_Material* material = attr;
-    pf_color_t tex = material->texture.sampler(attr, vertex->texcoord[0], vertex->texcoord[1]);
-    *out_color = pf_color_blend_mul(tex, material->tint);
+    *out_color = material->texture.sampler(attr, vertex->texcoord[0], vertex->texcoord[1]);
 }
 
 int main()

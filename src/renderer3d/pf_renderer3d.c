@@ -1,5 +1,4 @@
 #include "pixelfactory/pf_renderer3d.h"
-#include "pixelfactory/pf_stdinc.h"
 #include <float.h>
 
 /* Public API */

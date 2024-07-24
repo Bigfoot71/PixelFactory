@@ -1,3 +1,4 @@
+#include "pixelfactory/pf_color.h"
 #include "pixelfactory/pf_renderer2d.h"
 #include "pixelfactory/pf_vertex.h"
 #include <string.h>
@@ -54,99 +55,6 @@
         }                                                                               \
     }
 
-#define PF_MESH_TRIANGLE_ITERATE(VERT_CODE, TRIANGLE_CODE)                              \
-    size_t num = (indices != NULL)                                                      \
-        ? vb->num_indices : vb->num_vertices;                                           \
-    for (uint32_t i = 0; i < num; i += 3) {                                             \
-        /*
-            Calculating vertex and array indexes
-        */                                                                              \
-        uint32_t index_1 = (indices != NULL) ? indices[i + 0] : i + 0;                  \
-        uint32_t index_2 = (indices != NULL) ? indices[i + 1] : i + 1;                  \
-        uint32_t index_3 = (indices != NULL) ? indices[i + 2] : i + 2;                  \
-        size_t i1 = 2 * index_1;                                                        \
-        size_t i2 = 2 * index_2;                                                        \
-        size_t i3 = 2 * index_3;                                                        \
-        /*
-            Retrieving vertices and calling the vertex code
-        */                                                                              \
-        pf_vertex2d_t v1 = { 0 };                                                       \
-        pf_vertex2d_t v2 = { 0 };                                                       \
-        pf_vertex2d_t v3 = { 0 };                                                       \
-        pf_vec2_copy(v1.position, positions + i1);                                      \
-        pf_vec2_copy(v2.position, positions + i2);                                      \
-        pf_vec2_copy(v3.position, positions + i3);                                      \
-        if (texcoords != NULL) {                                                        \
-            pf_vec2_copy(v1.texcoord, texcoords + i1);                                  \
-            pf_vec2_copy(v2.texcoord, texcoords + i2);                                  \
-            pf_vec2_copy(v3.texcoord, texcoords + i3);                                  \
-        }                                                                               \
-        if (colors != NULL) {                                                           \
-            v1.color = colors[i];                                                       \
-            v2.color = colors[i+1];                                                     \
-            v3.color = colors[i+2];                                                     \
-        } else {                                                                        \
-            v1.color = PF_WHITE;                                                        \
-            v2.color = PF_WHITE;                                                        \
-            v3.color = PF_WHITE;                                                        \
-        }                                                                               \
-        v1.index = index_1;                                                             \
-        v2.index = index_2;                                                             \
-        v3.index = index_3;                                                             \
-        VERT_CODE                                                                       \
-        /*
-            Calculate the 2D bounding box of the triangle
-            Determine the minimum and maximum x and y coordinates of the triangle vertices
-        */                                                                                                          \
-        int xmin = (int)PF_MAX(PF_MIN(v1.position[0], PF_MIN(v2.position[0], v3.position[0])), 0);                  \
-        int ymin = (int)PF_MAX(PF_MIN(v1.position[1], PF_MIN(v2.position[1], v3.position[1])), 0);                  \
-        int xmax = (int)PF_MIN(PF_MAX(v1.position[0], PF_MAX(v2.position[0], v3.position[0])), (int)rn->fb.w - 1);  \
-        int ymax = (int)PF_MIN(PF_MAX(v1.position[1], PF_MAX(v2.position[1], v3.position[1])), (int)rn->fb.h - 1);  \
-        /*
-            Check the order of the vertices to determine if it's a front or back face
-            NOTE: if signed_area is equal to 0, the face is degenerate
-        */                                                                              \
-        float signed_area = (v2.position[0] - v1.position[0]) *                         \
-                            (v3.position[1] - v1.position[1]) -                         \
-                            (v3.position[0] - v1.position[0]) *                         \
-                            (v2.position[1] - v1.position[1]);                          \
-        int_fast8_t is_back_face = (signed_area > 0);                                   \
-        /*
-            Barycentric interpolation setup
-            Calculate the step increments for the barycentric coordinates
-        */                                                                              \
-        int w1_x_step = v3.position[1] - v2.position[1];                                \
-        int w1_y_step = v2.position[0] - v3.position[0];                                \
-        int w2_x_step = v1.position[1] - v3.position[1];                                \
-        int w2_y_step = v3.position[0] - v1.position[0];                                \
-        int w3_x_step = v2.position[1] - v1.position[1];                                \
-        int w3_y_step = v1.position[0] - v2.position[0];                                \
-        /*
-            If the triangle is a back face, invert the steps
-        */                                                                              \
-        if (is_back_face) {                                                             \
-            w1_x_step = -w1_x_step, w1_y_step = -w1_y_step;                             \
-            w2_x_step = -w2_x_step, w2_y_step = -w2_y_step;                             \
-            w3_x_step = -w3_x_step, w3_y_step = -w3_y_step;                             \
-        }                                                                               \
-        /*
-            Calculate the initial barycentric coordinates
-            for the top-left point of the bounding box
-        */                                                                                              \
-        int w1_row = (xmin - v2.position[0]) * w1_x_step + w1_y_step * (ymin - v2.position[1]);         \
-        int w2_row = (xmin - v3.position[0]) * w2_x_step + w2_y_step * (ymin - v3.position[1]);         \
-        int w3_row = (xmin - v1.position[0]) * w3_x_step + w3_y_step * (ymin - v1.position[1]);         \
-        /*
-            Calculate the inverse of the sum of the barycentric coordinates for normalization
-            NOTE: This sum remains constant throughout the triangle
-        */                                                                              \
-        float inv_w_sum = 1.0f / (float)(w1_row + w2_row + w3_row);                     \
-        /*
-            Rendering of the triangle
-        */                                                                              \
-        TRIANGLE_CODE                                                                   \
-    }
-
 
 /* Public API Functions */
 
@@ -183,31 +91,169 @@ pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* v
     uint32_t* indices = vb->indices;
     pf_color_t* colors = vb->colors;
 
+    uint8_t has_indices = (indices != NULL);
+    size_t num = (has_indices) ? vb->num_vertices : vb->num_indices;
+
+    for (uint32_t i = 0; i < num; i += 3) {
+
+        /* Calculating vertex and array indexes */
+
+        uint32_t index_1 = (indices != NULL) ? indices[i + 0] : i + 0;
+        uint32_t index_2 = (indices != NULL) ? indices[i + 1] : i + 1;
+        uint32_t index_3 = (indices != NULL) ? indices[i + 2] : i + 2;
+
+        size_t i1 = 2 * index_1;
+        size_t i2 = 2 * index_2;
+        size_t i3 = 2 * index_3;
+
+        /* Retrieving vertices and calling the vertex code */
+
+        pf_vertex2d_t v1 = { 0 };
+        pf_vertex2d_t v2 = { 0 };
+        pf_vertex2d_t v3 = { 0 };
+
+        pf_vec2_copy(v1.position, positions + i1);
+        pf_vec2_copy(v2.position, positions + i2);
+        pf_vec2_copy(v3.position, positions + i3);
+
+        if (texcoords != NULL) {
+            pf_vec2_copy(v1.texcoord, texcoords + i1);
+            pf_vec2_copy(v2.texcoord, texcoords + i2);
+            pf_vec2_copy(v3.texcoord, texcoords + i3);
+        }
+
+        if (colors != NULL) {
+            v1.color = colors[i];
+            v2.color = colors[i+1];
+            v3.color = colors[i+2];
+        } else {
+            v1.color = PF_WHITE;
+            v2.color = PF_WHITE;
+            v3.color = PF_WHITE;
+        }
+
+        v1.index = index_1;
+        v2.index = index_2;
+        v3.index = index_3;
+
+        /* Transform Vertices */
+
+        vert_proc(&v1, mat, attr);
+        vert_proc(&v2, mat, attr);
+        vert_proc(&v3, mat, attr);
+
+        /*
+            Calculate the 2D bounding box of the triangle
+            Determine the minimum and maximum x and y coordinates of the triangle vertices
+        */
+
+        int xmin = (int)PF_MAX(PF_MIN(v1.position[0], PF_MIN(v2.position[0], v3.position[0])), 0);
+        int ymin = (int)PF_MAX(PF_MIN(v1.position[1], PF_MIN(v2.position[1], v3.position[1])), 0);
+        int xmax = (int)PF_MIN(PF_MAX(v1.position[0], PF_MAX(v2.position[0], v3.position[0])), (int)rn->fb.w - 1);
+        int ymax = (int)PF_MIN(PF_MAX(v1.position[1], PF_MAX(v2.position[1], v3.position[1])), (int)rn->fb.h - 1);
+
+        /*
+            Check the order of the vertices to determine if it's a front or back face
+            NOTE: if signed_area is equal to 0, the face is degenerate
+        */
+
+        float signed_area = (v2.position[0] - v1.position[0]) *
+                            (v3.position[1] - v1.position[1]) -
+                            (v3.position[0] - v1.position[0]) *
+                            (v2.position[1] - v1.position[1]);
+
+        int_fast8_t is_back_face = (signed_area > 0);
+
+        /*
+            Barycentric interpolation setup
+            Calculate the step increments for the barycentric coordinates
+        */
+
+        int w1_x_step = v3.position[1] - v2.position[1];
+        int w1_y_step = v2.position[0] - v3.position[0];
+        int w2_x_step = v1.position[1] - v3.position[1];
+        int w2_y_step = v3.position[0] - v1.position[0];
+        int w3_x_step = v2.position[1] - v1.position[1];
+        int w3_y_step = v1.position[0] - v2.position[0];
+
+        /*
+            If the triangle is a back face, invert the steps
+        */
+
+        if (is_back_face) {
+            w1_x_step = -w1_x_step, w1_y_step = -w1_y_step;
+            w2_x_step = -w2_x_step, w2_y_step = -w2_y_step;
+            w3_x_step = -w3_x_step, w3_y_step = -w3_y_step;
+        }
+
+        /*
+            Calculate the initial barycentric coordinates
+            for the top-left point of the bounding box
+        */
+
+        int w1_row = (xmin - v2.position[0]) * w1_x_step + w1_y_step * (ymin - v2.position[1]);
+        int w2_row = (xmin - v3.position[0]) * w2_x_step + w2_y_step * (ymin - v3.position[1]);
+        int w3_row = (xmin - v1.position[0]) * w3_x_step + w3_y_step * (ymin - v1.position[1]);
+
+        /*
+            Calculate the inverse of the sum of the barycentric coordinates for normalization
+            NOTE: This sum remains constant throughout the triangle
+        */
+
+        float inv_w_sum = 1.0f / (float)(w1_row + w2_row + w3_row);
+
+        /* Rendering of the triangle */
+
 #if defined(_OPENMP)
-    PF_MESH_TRIANGLE_ITERATE({
-        vert_proc(&v1, mat, attr);
-        vert_proc(&v2, mat, attr);
-        vert_proc(&v3, mat, attr);
-    }, {
-        PF_MESH_TRIANGLE_TRAVEL_OMP({
-            pf_vertex2d_t vertex;
-            rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
-            frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-        })
-    })
+        if (rn->blend != NULL) {
+            PF_MESH_TRIANGLE_TRAVEL_OMP({
+                pf_vertex2d_t vertex;
+                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = rn->blend(*ptr, final_color);
+            })
+        } else {
+            PF_MESH_TRIANGLE_TRAVEL_OMP({
+                pf_vertex2d_t vertex;
+                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = final_color;
+            })
+        }
 #else
-    PF_MESH_TRIANGLE_ITERATE({
-        vert_proc(&v1, mat, attr);
-        vert_proc(&v2, mat, attr);
-        vert_proc(&v3, mat, attr);
-    }, {
-        PF_MESH_TRIANGLE_TRAVEL({
-            pf_vertex2d_t vertex;
-            rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
-            frag_proc(rn, &vertex, rn->fb.buffer + offset, attr);
-        })
-    })
+        if (rn->blend != NULL) {
+            PF_MESH_TRIANGLE_TRAVEL({
+                pf_vertex2d_t vertex;
+                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = rn->blend(*ptr, final_color);
+            })
+        } else {
+            PF_MESH_TRIANGLE_TRAVEL({
+                pf_vertex2d_t vertex;
+                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = final_color;
+            })
+        }
 #endif
+    }
 }
 
 

@@ -18,8 +18,8 @@ void frag_proc(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_
     if (x > 0 && x < (int)rn->fb.w)
     {
         pf_color_t* dst = rn->fb.buffer + y * rn->fb.w + x;
-        *dst = rn->blend(*dst, ((pf_texture2d_t*)attr)->sampler(
-            attr, vertex->texcoord[0], vertex->texcoord[1]));
+        *dst = ((pf_texture2d_t*)attr)->sampler(attr,
+            vertex->texcoord[0], vertex->texcoord[1]);
     }
 }
 
