@@ -55,6 +55,8 @@ pf_renderer3d_point_INTERNAL(
 
     vert_proc(&vertex, homogen, mat_model, mat_normal, mat_mvp, attr);
     clip_proc(rn, &vertex, &homogen, &num);
+    if (num == 0) return;
+
     proj_proc(rn, &vertex, &homogen, num, &screen_pos);
 
     if (radius == 0) {
