@@ -348,21 +348,21 @@ pf_renderer3d_vertex_buffer_lines_ex(
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
-        uint32_t indices[3];
+        uint32_t tri_indices[3];
 
         if (has_indices) {
-            indices[0] = indices[i + 0];
-            indices[1] = indices[i + 1];
-            indices[2] = indices[i + 2];
+            tri_indices[0] = indices[i + 0];
+            tri_indices[1] = indices[i + 1];
+            tri_indices[2] = indices[i + 2];
         } else {
-            indices[0] = i + 0;
-            indices[1] = i + 1;
-            indices[2] = i + 2;
+            tri_indices[0] = i + 0;
+            tri_indices[1] = i + 1;
+            tri_indices[2] = i + 2;
         }
 
         for (uint32_t j = 0; j < 3; ++j) {
-            uint32_t index_1 = indices[j];
-            uint32_t index_2 = indices[(j + 1) % 3];
+            uint32_t index_1 = tri_indices[j];
+            uint32_t index_2 = tri_indices[(j + 1) % 3];
 
             uint32_t i1 = 3 * index_1;
             uint32_t i2 = 3 * index_2;
@@ -457,21 +457,21 @@ pf_renderer3d_vertex_buffer_lines_thick_ex(
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
-        uint32_t indices[3];
+        uint32_t tri_indices[3];
 
         if (has_indices) {
-            indices[0] = indices[i + 0];
-            indices[1] = indices[i + 1];
-            indices[2] = indices[i + 2];
+            tri_indices[0] = indices[i + 0];
+            tri_indices[1] = indices[i + 1];
+            tri_indices[2] = indices[i + 2];
         } else {
-            indices[0] = i + 0;
-            indices[1] = i + 1;
-            indices[2] = i + 2;
+            tri_indices[0] = i + 0;
+            tri_indices[1] = i + 1;
+            tri_indices[2] = i + 2;
         }
 
         for (uint32_t j = 0; j < 3; ++j) {
-            uint32_t index_1 = indices[j];
-            uint32_t index_2 = indices[(j + 1) % 3];
+            uint32_t index_1 = tri_indices[j];
+            uint32_t index_2 = tri_indices[(j + 1) % 3];
 
             uint32_t i1 = 3 * index_1;
             uint32_t i2 = 3 * index_2;
