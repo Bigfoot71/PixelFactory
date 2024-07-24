@@ -55,7 +55,7 @@
         }                                                                               \
     }
 
-#define PF_LINE_THICK_TRAVEL(C_LINE_CODE, H_LINE_CODE, V_LINE_CODE)                     \
+#define PF_LINE_THICK_TRAVEL(LINE_CODE)                                                 \
     /*
         Calculate differences in x and y coordinates
     */                                                                                  \
@@ -64,38 +64,55 @@
     /*
         Draw the main line between (x1, y1) and (x2, y2)
     */                                                                                  \
-    C_LINE_CODE                                                                         \
+    LINE_CODE                                                                           \
     /*
         Determine if the line is more horizontal or vertical
     */                                                                                  \
-    if (dx != 0 && abs(dy/dx) < 1)                                                      \
-    {                                                                                   \
+    if (dx != 0 && abs(dy/dx) < 1) {                                                    \
+        int y1_copy = y1;                                                               \
+        int y2_copy = y2;                                                               \
         /*
             Line is more horizontal
             Calculate half the width of the line
         */                                                                              \
-        int wy = (thick - 1)*(int)sqrtf((float)(dx*dx + dy*dy))/(2*abs(dx));            \
+        int wy = (thick - 1) * sqrtf((float)(dx*dx + dy*dy)) / (2*abs(dx));             \
         /*
             Draw additional lines above and below the main line
         */                                                                              \
-        for (int i = 1; i <= wy; ++i)                                                   \
-        {                                                                               \
-            H_LINE_CODE                                                                 \
+        for (int i = 1; i <= wy; ++i) {                                                 \
+            y1 = y1_copy - i;                                                           \
+            y2 = y2_copy - i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
+            y1 = y1_copy + i;                                                           \
+            y2 = y2_copy + i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
         }                                                                               \
-    }                                                                                   \
-    else if (dy != 0)                                                                   \
-    {                                                                                   \
+    } else if (dy != 0) {                                                               \
+        int x1_copy = x1;                                                               \
+        int x2_copy = x2;                                                               \
         /*
             Line is more vertical or perfectly horizontal
             Calculate half the width of the line
         */                                                                              \
-        int wx = (thick - 1)*(int)sqrtf((float)(dx*dx + dy*dy))/(2*abs(dy));            \
+        int wx = (thick - 1) * sqrtf((float)(dx*dx + dy*dy)) / (2*abs(dy));             \
         /*
             Draw additional lines to the left and right of the main line
         */                                                                              \
-        for (int i = 1; i <= wx; ++i)                                                   \
-        {                                                                               \
-            V_LINE_CODE                                                                 \
+        for (int i = 1; i <= wx; ++i) {                                                 \
+            x1 = x1_copy - i;                                                           \
+            x2 = x2_copy - i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
+            x1 = x1_copy + i;                                                           \
+            x2 = x2_copy + i;                                                           \
+            {                                                                           \
+                LINE_CODE                                                               \
+            }                                                                           \
         }                                                                               \
     }
 
@@ -261,12 +278,6 @@ pf_renderer2d_line_thick(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, in
 
     PF_LINE_THICK_TRAVEL({
         pf_renderer2d_line(rn, x1, y1, x2, y2, color);
-    }, {
-        pf_renderer2d_line(rn, x1, y1 - i, x2, y2 - i, color);
-        pf_renderer2d_line(rn, x1, y1 + i, x2, y2 + i, color);
-    }, {
-        pf_renderer2d_line(rn, x1 - i, y1, x2 - i, y2, color);
-        pf_renderer2d_line(rn, x1 + i, y1, x2 + i, y2, color);
     })
 }
 
@@ -278,12 +289,6 @@ pf_renderer2d_line_thick_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2, i
 
     PF_LINE_THICK_TRAVEL({
         pf_renderer2d_line_gradient(rn, x1, y1, x2, y2, c1, c2);
-    }, {
-        pf_renderer2d_line_gradient(rn, x1, y1 - i, x2, y2 - i, c1, c2);
-        pf_renderer2d_line_gradient(rn, x1, y1 + i, x2, y2 + i, c1, c2);
-    }, {
-        pf_renderer2d_line_gradient(rn, x1 - i, y1, x2 - i, y2, c1, c2);
-        pf_renderer2d_line_gradient(rn, x1 + i, y1, x2 + i, y2, c1, c2);
     })
 }
 
@@ -295,11 +300,5 @@ pf_renderer2d_line_thick_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2
 
     PF_LINE_THICK_TRAVEL({
         pf_renderer2d_line_map(rn, x1, y1, x2, y2, frag_proc, attr);
-    }, {
-        pf_renderer2d_line_map(rn, x1, y1 - i, x2, y2 - i, frag_proc, attr);
-        pf_renderer2d_line_map(rn, x1, y1 + i, x2, y2 + i, frag_proc, attr);
-    }, {
-        pf_renderer2d_line_map(rn, x1 - i, y1, x2 - i, y2, frag_proc, attr);
-        pf_renderer2d_line_map(rn, x1 + i, y1, x2 + i, y2, frag_proc, attr);
     })
 }
