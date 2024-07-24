@@ -24,19 +24,111 @@ Previously, I worked on another software rendering library with an OpenGL-style 
 
 ## Usage
 
-1. Clone the repository:
+### Prerequisites
+
+Before you start, make sure you have [CMake](https://cmake.org/install/) and a C99-compatible compiler installed on your system.
+
+### Installing PixelFactory
+
+1. **Clone the repository:**
 
    ```bash
    git clone https://github.com/Bigfoot71/PixelFactory.git
    ```
 
-2. Include the PixelFactory header file in your project:
+2. **Navigate to the project directory:**
+
+   ```bash
+   cd PixelFactory
+   ```
+
+3. **Create a build directory:**
+
+   ```bash
+   mkdir build
+   cd build
+   ```
+
+4. **Configure the project with CMake:**
+
+   By default, CMake will generate the files needed to compile PixelFactory as a static library. You can customize the configuration by enabling or disabling certain options (such as OpenMP or AVX2) using CMake configuration options.
+
+   For a basic (static) configuration, run:
+
+   ```bash
+   cmake ..
+   ```
+
+   To enable building a shared library, use:
+
+   ```bash
+   cmake -DPF_BUILD_SHARED=ON ..
+   ```
+
+   To enable support for OpenMP and AVX2, use:
+
+   ```bash
+   cmake -DPF_SUPPORT_OPENMP=ON -DPF_SUPPORT_AVX2=ON ..
+   ```
+
+5. **Build the project:**
+
+   ```bash
+   cmake --build .
+   ```
+
+   If you enabled installation, you can also install PixelFactory on your system:
+
+   ```bash
+   cmake --build . --target install
+   ```
+
+### Integrating into Your Project
+
+1. **Include the PixelFactory header file in your source code:**
 
    ```c
    #include "pixelfactory/pf.h"
    ```
 
-3. Compile and link your project with the PixelFactory library.
+2. **Compile and link your project with the PixelFactory library.**
+
+   Here is an example `CMakeLists.txt` file to integrate PixelFactory into your own project:
+
+   ```cmake
+   cmake_minimum_required(VERSION 3.21)
+   project(myproject C)
+
+   # Add the directory containing PixelFactory
+   set(PIXELFACTORY_ROOT_PATH /path/to/PixelFactory)
+
+   # Add the PixelFactory subdirectory
+   add_subdirectory(${PIXELFACTORY_ROOT_PATH} ${CMAKE_BINARY_DIR}/pixelfactory)
+
+   # Define your project's source files
+   set(SOURCES
+       src/main.c
+       # Add other source files here
+   )
+
+   # Create the executable
+   add_executable(myproject ${SOURCES})
+
+   # Link your project with PixelFactory
+   target_link_libraries(myproject PRIVATE PixelFactory)
+   ```
+
+   Replace `/path/to/PixelFactory` with the path to the directory where PixelFactory is located on your system.
+
+### Examples
+
+If you want to build the examples provided with PixelFactory, enable the corresponding option in CMake:
+
+```bash
+cmake -DPF_BUILD_EXAMPLES_RAYLIB=ON ..
+```
+
+Then build the examples as described above.
 
 ## License
 
