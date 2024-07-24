@@ -60,7 +60,7 @@ int main(void)
 
         if (mesh->indices) {
             pfMeshes[i].num_indices = mesh->triangleCount * 3;
-            pfMeshes[i].indices = pfMeshes[i].indices;
+            pfMeshes[i].indices = mesh->indices;
         }
 
         pfMeshes[i].num_vertices = mesh->vertexCount;
