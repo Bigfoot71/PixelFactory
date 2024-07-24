@@ -1,6 +1,4 @@
-#include "pixelfactory/pf_processors.h"
 #include "pixelfactory/pf_renderer3d.h"
-#include "pixelfactory/pf_vertex.h"
 
 /* Internal Functions Defintions */
 
