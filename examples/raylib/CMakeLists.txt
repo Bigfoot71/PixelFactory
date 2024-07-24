@@ -38,6 +38,11 @@ add_executable(triangle_2d ${PF_ROOT_PATH}/examples/raylib/2d/triangle.c)
 target_link_libraries(triangle_2d PRIVATE pixelfactory raylib m)
 target_include_directories(triangle_2d PRIVATE ${PF_ROOT_PATH}/src)
 
+# 3D - Points example
+add_executable(points_3d ${PF_ROOT_PATH}/examples/raylib/3d/points.c)
+target_link_libraries(points_3d PRIVATE pixelfactory raylib m)
+target_include_directories(points_3d PRIVATE ${PF_ROOT_PATH}/src)
+
 # 3D - Line example
 add_executable(lines_3d ${PF_ROOT_PATH}/examples/raylib/3d/lines.c)
 target_link_libraries(lines_3d PRIVATE pixelfactory raylib m)
@@ -53,7 +58,7 @@ add_executable(model_3d ${PF_ROOT_PATH}/examples/raylib/3d/model.c)
 target_link_libraries(model_3d PRIVATE pixelfactory raylib m)
 target_include_directories(model_3d PRIVATE ${PF_ROOT_PATH}/src)
 
-# 3D - Points example
-add_executable(points_3d ${PF_ROOT_PATH}/examples/raylib/3d/points.c)
-target_link_libraries(points_3d PRIVATE pixelfactory raylib m)
-target_include_directories(points_3d PRIVATE ${PF_ROOT_PATH}/src)
+# 3D - Light example
+add_executable(light_3d ${PF_ROOT_PATH}/examples/raylib/3d/light.c)
+target_link_libraries(light_3d PRIVATE pixelfactory raylib m)
+target_include_directories(light_3d PRIVATE ${PF_ROOT_PATH}/src)
