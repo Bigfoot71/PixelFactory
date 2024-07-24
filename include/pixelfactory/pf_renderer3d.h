@@ -107,6 +107,37 @@ pf_renderer3d_point_thick_ex(
     void* attr);
 
 
+/* Renderer 3D Lines */
+
+void
+pf_renderer3d_line(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+void
+pf_renderer3d_line_ex(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+void
+pf_renderer3d_line_thick(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+void
+pf_renderer3d_line_thick_ex(
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick, const pf_mat4_t transform,
+    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
+    pf_proc3d_screen_projection_fn proj_proc,
+    pf_proc3d_fragment_fn frag_proc,
+    void* attr);
+
+
 /* Renderer 3D Triangles */
 
 void
@@ -122,5 +153,6 @@ pf_renderer3d_triangle_ex(
     pf_proc3d_screen_projection_fn proj_proc, pf_proc3d_rasterizer_fn rast_proc,
     pf_proc3d_fragment_fn frag_proc,
     void* attr);
+
 
 #endif //PF_RENDERER3D_H
