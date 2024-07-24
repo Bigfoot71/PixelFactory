@@ -1,11 +1,7 @@
 #include "pixelfactory/pf_processors.h"
-#include "pixelfactory/math/pf_vec4.h"
-#include "pixelfactory/pf_color.h"
 #include "pixelfactory/pf_renderer2d.h"
 #include "pixelfactory/pf_renderer3d.h"
-#include <stdint.h>
 #include <string.h>
-#include <sys/types.h>
 
 /* Internal Helper Functions */
 
