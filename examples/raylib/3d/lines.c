@@ -43,7 +43,7 @@ int main()
         pf_mat4_look_at(rn.mat_view, (float[3]) { 3.0f*cosf(GetTime()), 0, 3.0f*sinf(GetTime()) }, (float[3]) { 0, 0, 0 }, (float[3]) { 0, 1, 0 });
 
         pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
-        pf_renderer3d_vertex_buffer_line_thick(&rn, &triangle, 4, NULL, NULL, NULL, NULL);
+        pf_renderer3d_vertex_buffer_lines_thick(&rn, &triangle, 4, NULL, NULL, NULL, NULL);
 
         UpdateTexture(tex, im.data);
 
