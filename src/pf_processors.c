@@ -35,7 +35,9 @@ pf_vertex3d_lerp_INTERNAL(const pf_vertex3d_t* start, const pf_vertex3d_t* end, 
     uint8_t *resultCol = (uint8_t*)(&result.color);
     uint8_t uT = 255*t;
 
+#ifdef _OPENMP
 #   pragma omp simd
+#endif //_OPENMP
     for (int_fast8_t i = 0; i < 4; ++i)
     {
         resultCol[i] = startCol[i] + (uT*((int)endCol[i] - startCol[i]))/255;

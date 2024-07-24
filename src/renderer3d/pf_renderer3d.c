@@ -91,7 +91,10 @@ pf_renderer3d_clear(pf_renderer3d_t* rn, pf_color_t clear_color, float clear_dep
     pf_color_t* fb = rn->fb.buffer;
     float* zb = rn->zb.buffer;
 
-#   pragma omp parallel for if (size >= PF_OMP_CLEAR_BUFFER_SIZE_THRESHOLD)
+#ifdef _OPENMP
+#   pragma omp parallel for \
+        if (size >= PF_OMP_CLEAR_BUFFER_SIZE_THRESHOLD)
+#endif //_OPENMP
     for (size_t i = 0; i < size; ++i) {
         fb[i] = clear_color;
         zb[i] = depth_color;
