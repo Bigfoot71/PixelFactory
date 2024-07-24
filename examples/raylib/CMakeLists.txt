@@ -52,3 +52,8 @@ target_include_directories(triangle_3d PRIVATE ${PF_ROOT_PATH}/src)
 add_executable(model_3d ${PF_ROOT_PATH}/examples/raylib/3d/model.c)
 target_link_libraries(model_3d PRIVATE pixelfactory raylib m)
 target_include_directories(model_3d PRIVATE ${PF_ROOT_PATH}/src)
+
+# 3D - Points example
+add_executable(points_3d ${PF_ROOT_PATH}/examples/raylib/3d/points.c)
+target_link_libraries(points_3d PRIVATE pixelfactory raylib m)
+target_include_directories(points_3d PRIVATE ${PF_ROOT_PATH}/src)
