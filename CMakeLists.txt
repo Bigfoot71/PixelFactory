@@ -13,15 +13,15 @@ option(PF_INSTALL "Install PixelFactory library and headers" OFF)
 option(PF_BUILD_SHARED "Build PixelFactory as a shared library" OFF)
 
 # Set optional supports
-option(PF_SUPPORT_AVX2 "Enable support for AVX2" OFF)
 option(PF_SUPPORT_OPENMP "Enable support for OpenMP parallelization" OFF)
+option(PF_SUPPORT_AVX2 "Enable support for AVX2" OFF)
 
 # Set example builds
 option(PF_BUILD_EXAMPLES_RAYLIB "Build PixelFactory examples for raylib" OFF)
 
 # Defining source files
 file(GLOB_RECURSE SRCS ${PF_ROOT_PATH}/src/*.c)
-file(GLOB HDRS ${PF_ROOT_PATH}/src/*.h)
+file(GLOB HDRS ${PF_ROOT_PATH}/include/*.h)
 
 # Common compilation options
 add_compile_options(-Wall -Wextra -pedantic)
@@ -56,7 +56,7 @@ if(PF_SUPPORT_OPENMP)
     endif()
 endif()
 
-# TEMP !!! Add the -pg flag for Debug mode (gprof)
+# TEMP: Add the -pg flag for Debug mode (gprof)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 endif()
@@ -67,7 +67,6 @@ if(PF_INSTALL)
     install(TARGETS ${PROJECT_NAME}
             ARCHIVE DESTINATION /usr/local/lib
             LIBRARY DESTINATION /usr/local/lib
-            RUNTIME DESTINATION /usr/local/bin
     )
     install(FILES ${HDRS} DESTINATION /usr/local/include)
 endif()
