@@ -37,7 +37,7 @@
     }
 
 
-/* Public API Functions */
+/* Internal Rendering Functions */
 
 void
 pf_renderer3d_point_INTERNAL(

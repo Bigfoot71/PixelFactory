@@ -214,7 +214,7 @@ pf_vec3_normalize(pf_vec3_t dst, const pf_vec3_t v)
     PF_MATH_FLOAT squaredLength = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
     if (squaredLength == 0.0f) return;
 
-    PF_MATH_FLOAT invLength = pf_rsqrt(squaredLength);
+    PF_MATH_FLOAT invLength = pf_math_rsqrt(squaredLength);
 
 #   ifdef _OPENMP
 #       pragma omp simd
@@ -231,7 +231,7 @@ pf_vec3_normalize_r(float* restrict dst, const pf_vec3_t v)
     PF_MATH_FLOAT squaredLength = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
     if (squaredLength == 0.0f) return;
 
-    PF_MATH_FLOAT invLength = pf_rsqrt(squaredLength);
+    PF_MATH_FLOAT invLength = pf_math_rsqrt(squaredLength);
 
 #   ifdef _OPENMP
 #       pragma omp simd
@@ -306,7 +306,7 @@ pf_vec3_distance(const pf_vec3_t v1, const pf_vec3_t v2)
                            dt[2]*dt[2];
 
 #ifdef PFM_FISR
-    return distanceSq*pf_rsqrt(distanceSq);
+    return distanceSq*pf_math_rsqrt(distanceSq);
 #else
     return sqrtf(distanceSq);
 #endif
@@ -342,7 +342,7 @@ pf_vec3_direction(pf_vec3_t dst, const pf_vec3_t v1, const pf_vec3_t v2)
         lengthSq += tmp[i]*tmp[i];
     }
 
-    PF_MATH_FLOAT invLength = pf_rsqrt(lengthSq);
+    PF_MATH_FLOAT invLength = pf_math_rsqrt(lengthSq);
 
 #   ifdef _OPENMP
 #       pragma omp simd
@@ -367,7 +367,7 @@ pf_vec3_direction_r(float* restrict dst, const pf_vec3_t v1, const pf_vec3_t v2)
         lengthSq += dst[i]*dst[i];
     }
 
-    PF_MATH_FLOAT invLength = pf_rsqrt(lengthSq);
+    PF_MATH_FLOAT invLength = pf_math_rsqrt(lengthSq);
 
 #   ifdef _OPENMP
 #       pragma omp simd

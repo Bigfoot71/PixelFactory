@@ -214,7 +214,7 @@ pf_vec4_normalize(pf_vec4_t dst, const pf_vec4_t v)
     PF_MATH_FLOAT squaredLength = v[0]*v[0] + v[1]*v[1] + v[2]*v[2] + v[3]*v[3];
     if (squaredLength == 0.0f) return;
 
-    PF_MATH_FLOAT invLength = pf_rsqrt(squaredLength);
+    PF_MATH_FLOAT invLength = pf_math_rsqrt(squaredLength);
 
 #   ifdef _OPENMP
 #       pragma omp simd
@@ -231,7 +231,7 @@ pf_vec4_normalize_r(float* restrict dst, const pf_vec4_t v)
     PF_MATH_FLOAT squaredLength = v[0]*v[0] + v[1]*v[1] + v[2]*v[2] + v[3]*v[3];
     if (squaredLength == 0.0f) return;
 
-    PF_MATH_FLOAT invLength = pf_rsqrt(squaredLength);
+    PF_MATH_FLOAT invLength = pf_math_rsqrt(squaredLength);
 
 #   ifdef _OPENMP
 #       pragma omp simd

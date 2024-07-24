@@ -23,15 +23,15 @@
 
 #ifndef PFM_FISR
 #   ifdef PF_MATH_USE_DOUBLE
-#       define pf_rsqrt(x) (1.0/sqrt(x))
+#       define pf_math_rsqrt(x) (1.0/sqrt(x))
 #   else
-#       define pf_rsqrt(x) (1.0f/sqrtf(x))
+#       define pf_math_rsqrt(x) (1.0f/sqrtf(x))
 #   endif //PF_MATH_USE_DOUBLE
 #else
 // NOTE: More useful on older platforms.
 // SEE: http://www.lomont.org/papers/2003/InvSqrt.pdf
 static inline PF_MATH_FLOAT
-pf_rsqrt(PF_MATH_FLOAT x)
+pf_math_rsqrt(PF_MATH_FLOAT x)
 {
     float xhalf = 0.5f*x;
     int i = *(int*)&x;              // get bits for floating value
@@ -41,5 +41,12 @@ pf_rsqrt(PF_MATH_FLOAT x)
     return x;
 }
 #endif //PFM_FISR
+
+/* Helper Functions */
+
+static inline float pf_math_lerp(float x, float y, float t)
+{
+    return x + t * (y - x);
+}
 
 #endif //PFM_H

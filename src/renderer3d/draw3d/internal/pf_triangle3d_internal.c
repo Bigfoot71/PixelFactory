@@ -111,7 +111,7 @@
     }
 
 
-/* Triangle rasterization functions */
+/* Internal Rendering Functions */
 
 void
 pf_renderer3d_triangle_INTERNAL(

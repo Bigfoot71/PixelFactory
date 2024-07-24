@@ -109,6 +109,13 @@ pf_proc3d_clip_point(
     size_t* out_vertices_count);
 
 void
+pf_proc3d_clip_line(
+    const struct pf_renderer3d* rn,
+    pf_vertex3d_t* out_vertices,
+    pf_vec4_t out_homogeneous[],
+    size_t* out_vertices_count);
+
+void
 pf_proc3d_clip_triangle(
     const struct pf_renderer3d* rn,
     pf_vertex3d_t* out_vertices,

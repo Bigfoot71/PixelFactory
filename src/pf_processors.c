@@ -9,8 +9,8 @@
 
 /* Internal Helper Functions */
 
-static pf_vertex3d_t
-pf_vertex3d_lerp(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t)
+pf_vertex3d_t
+pf_vertex3d_lerp_INTERNAL(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t)
 {
     pf_vertex3d_t result = { 0 };
 
@@ -37,6 +37,29 @@ pf_vertex3d_lerp(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t)
     return result;
 }
 
+static uint8_t
+pf_clip_coord_line_INTERNAL(float q, float p, float* t1, float* t2)
+{
+    if (fabsf(p) < 1e-5f && q < 0)
+    {
+        return 0;
+    }
+
+    const float r = q / p;
+
+    if (p < 0)
+    {
+        if (r > *t2) return 0;
+        if (r > *t1) *t1 = r;
+    }
+    else
+    {
+        if (r < *t1) return 0;
+        if (r < *t2) *t2 = r;
+    }
+
+    return 1;
+}
 
 /* Default Processor 2D Functions */
 
@@ -122,6 +145,63 @@ pf_proc3d_clip_point(
     }
 }
 
+void
+pf_proc3d_clip_line(
+    const struct pf_renderer3d* rn,
+    pf_vertex3d_t* out_vertices,
+    pf_vec4_t out_homogeneous[],
+    size_t* out_vertices_count)
+{
+    (void)rn;
+    (void)out_vertices;
+
+    float t1 = 0, t2 = 1;
+
+    pf_vec4_t delta;
+    pf_vec4_sub_r(delta, out_homogeneous[1], out_homogeneous[0]);
+
+    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][0], -delta[3] + delta[0], &t1, &t2)) {
+        *out_vertices_count = 0;
+        return;
+    }
+    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][0], -delta[3] - delta[0], &t1, &t2)) {
+        *out_vertices_count = 0;
+        return;
+    }
+
+    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][1], -delta[3] + delta[1], &t1, &t2)) {
+        *out_vertices_count = 0;
+        return;
+    }
+    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][1], -delta[3] - delta[1], &t1, &t2)) {
+        *out_vertices_count = 0;
+        return;
+    }
+
+    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][2], -delta[3] + delta[2], &t1, &t2)) {
+        *out_vertices_count = 0;
+        return;
+    }
+    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][2], -delta[3] - delta[2], &t1, &t2)) {
+        *out_vertices_count = 0;
+        return;
+    }
+
+    if (t2 < 1)
+    {
+        pf_vec4_t d;
+        pf_vec4_scale_r(d, delta, t2);
+        pf_vec4_add_r(out_homogeneous[1], out_homogeneous[0], d);
+    }
+
+    if (t1 > 0)
+    {
+        pf_vec4_t d;
+        pf_vec4_scale_r(d, delta, t1);
+        pf_vec4_add(out_homogeneous[0], out_homogeneous[0], d);
+    }
+}
+
 // TODO: Fix the issue related to the depth which appears following clipping in certain situations
 void
 pf_proc3d_clip_triangle(
@@ -153,7 +233,7 @@ pf_proc3d_clip_triangle(
         if (prevDot * currDot < 0) {
             float t = (1e-5f - (*prev_homogen)[3]) / (input_homogen[i][3] - (*prev_homogen)[3]);
             pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
-            out_vertices[*out_vertices_count] = pf_vertex3d_lerp(prev_vt, &input_vt[i], t);
+            out_vertices[*out_vertices_count] = pf_vertex3d_lerp_INTERNAL(prev_vt, &input_vt[i], t);
             (*out_vertices_count)++;
         }
 
@@ -195,7 +275,7 @@ pf_proc3d_clip_triangle(
                 float t = ((*prev_homogen)[3] - (*prev_homogen)[iAxis]) / 
                           (((*prev_homogen)[3] - (*prev_homogen)[iAxis]) - (input_homogen[i][3] - input_homogen[i][iAxis]));
                 pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
-                out_vertices[*out_vertices_count] = pf_vertex3d_lerp(prev_vt, &input_vt[i], t);
+                out_vertices[*out_vertices_count] = pf_vertex3d_lerp_INTERNAL(prev_vt, &input_vt[i], t);
                 (*out_vertices_count)++;
             }
 
@@ -230,7 +310,7 @@ pf_proc3d_clip_triangle(
                 float t = ((*prev_homogen)[3] + (*prev_homogen)[iAxis]) / 
                           (((*prev_homogen)[3] + (*prev_homogen)[iAxis]) - (input_homogen[i][3] + input_homogen[i][iAxis]));
                 pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
-                out_vertices[*out_vertices_count] = pf_vertex3d_lerp(prev_vt, &input_vt[i], t);
+                out_vertices[*out_vertices_count] = pf_vertex3d_lerp_INTERNAL(prev_vt, &input_vt[i], t);
                 (*out_vertices_count)++;
             }
 
