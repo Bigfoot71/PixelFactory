@@ -21,7 +21,7 @@ target_include_directories(raylib_lines_2d PRIVATE ${PF_ROOT_PATH}/src)
 # 2D - Mesh2D example
 add_executable(raylib_mesh_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_mesh_2d.c)
 target_link_libraries(raylib_mesh_2d PRIVATE pixelfactory raylib m)
-target_include_directories(meshraylib_mesh_2d_2d PRIVATE ${PF_ROOT_PATH}/src)
+target_include_directories(raylib_mesh_2d PRIVATE ${PF_ROOT_PATH}/src)
 
 # 2D - Rectangle example
 add_executable(raylib_rect_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_rect_2d.c)
