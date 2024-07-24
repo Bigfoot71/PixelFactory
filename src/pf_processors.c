@@ -389,7 +389,8 @@ pf_proc3d_screen_projection_perspective_correct(
         (*h)[2] = 1.0f / (*h)[2];
 
         // Division of texture coordinates by the Z axis (perspective correct)
-        pf_vec2_scale(v->texcoord, v->texcoord, (*h)[2]);
+        v->texcoord[0] *= (*h)[2];
+        v->texcoord[1] *= (*h)[2];
 
         // REVIEW: Division of vertex colors by the Z axis (perspective correct)
         //v->color = pf_color_scale(v->color, (*h)[2]);
@@ -436,16 +437,29 @@ pf_proc3d_rasterizer_perspective_correct(
 {
     (void)attr;
 
-    // Interpolation of texture coordinates with correct perspective
-    pf_vec2_bary_v_r(out_vertex->texcoord, v1->texcoord, v2->texcoord, v3->texcoord, bary);
-    pf_vec2_scale(out_vertex->texcoord, out_vertex->texcoord, z_depth);
+    float u = bary[0];
+    float v = bary[1];
+    float w = bary[2];
 
-    // REVIEW: Interpolation of vertex colors with correct perspective
-    out_vertex->color = pf_color_bary_v(v1->color, v2->color, v3->color, bary);
-    //out_vertex->color = pf_color_scale(out_vertex->color, z_depth);
+    // Interpolation of vertex position coordinates
+    out_vertex->position[0] = u * v1->position[0] + v * v2->position[0] + w * v3->position[0];
+    out_vertex->position[1] = u * v1->position[1] + v * v2->position[1] + w * v3->position[1];
+    out_vertex->position[2] = u * v1->position[2] + v * v2->position[2] + w * v3->position[2];
 
-    pf_vec3_bary_v(out_vertex->position, v1->position, v2->position, v3->position, bary);
-    pf_vec3_bary_v(out_vertex->normal, v1->normal, v2->normal, v3->normal, bary);
+    // Interpolation of normals
+    out_vertex->normal[0] = u * v1->normal[0] + v * v2->normal[0] + w * v3->normal[0];
+    out_vertex->normal[1] = u * v1->normal[1] + v * v2->normal[1] + w * v3->normal[1];
+    out_vertex->normal[2] = u * v1->normal[2] + v * v2->normal[2] + w * v3->normal[2];
+
+    // Interpolation of texture coordinates with perspective correction
+    out_vertex->texcoord[0] = z_depth * (u * v1->texcoord[0] + v * v2->texcoord[0] + w * v3->texcoord[0]);
+    out_vertex->texcoord[1] = z_depth * (u * v1->texcoord[1] + v * v2->texcoord[1] + w * v3->texcoord[1]);
+
+    // Interpolation of vertex colors
+    out_vertex->color.c.r = u * v1->color.c.r + v * v2->color.c.r + w * v3->color.c.r;
+    out_vertex->color.c.g = u * v1->color.c.g + v * v2->color.c.g + w * v3->color.c.g;
+    out_vertex->color.c.b = u * v1->color.c.b + v * v2->color.c.b + w * v3->color.c.b;
+    out_vertex->color.c.a = u * v1->color.c.a + v * v2->color.c.a + w * v3->color.c.a;
 }
 
 void
