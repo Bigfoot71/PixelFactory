@@ -26,7 +26,7 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelForge - Animated Model");
 
     // Create a rendering buffer in RAM
-    pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL);
+    pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
 
     // Create a raylib raylib texture to render buffer
     Texture tex = LoadTextureFromImage((Image) {
