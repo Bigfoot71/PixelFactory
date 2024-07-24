@@ -61,8 +61,8 @@ if(PF_SUPPORT_OPENMP)
     endif()
 endif()
 
-# Add the -pg flag for Debug mode (gprof)
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+# Add the -pg for Debug mode (gprof) only for GCC
+if(CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_C_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 endif()
 
