@@ -86,8 +86,7 @@ pf_renderer3d_point(
 
 void
 pf_renderer3d_point_ex(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* point,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
+    pf_renderer3d_t* rn, const pf_vertex3d_t* point, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
     pf_proc3d_screen_projection_fn proj_proc,
     pf_proc3d_fragment_fn frag_proc,
@@ -101,8 +100,7 @@ pf_renderer3d_point_thick(
 
 void
 pf_renderer3d_point_thick_ex(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
+    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
     pf_proc3d_screen_projection_fn proj_proc,
     pf_proc3d_fragment_fn frag_proc,
