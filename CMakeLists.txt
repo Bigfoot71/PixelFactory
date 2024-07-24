@@ -36,9 +36,9 @@ else()
     target_compile_definitions(${PROJECT_NAME} PUBLIC PF_BUILD_STATIC)
 endif()
 
-# Define PF_USE_BUILD_SHARED if the option is enabled
+# Define PF_USE_SHARED if the option is enabled
 if(PF_BUILD_SHARED AND NOT PF_IS_MAIN)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC PF_USE_BUILD_SHARED)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PF_USE_SHARED)
 endif()
 
 # Specify the include directory

@@ -23,7 +23,7 @@
 #if defined(_WIN32)
 #   if defined(PF_BUILD_SHARED)
 #       define PFAPI __declspec(dllexport)
-#   elif defined(PF_USE_BUILD_SHARED)
+#   elif defined(PF_USE_SHARED)
 #       define PFAPI __declspec(dllimport)
 #   endif
 #else
