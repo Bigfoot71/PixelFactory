@@ -282,8 +282,8 @@ pf_renderer2d_texture2d_mat_map(
             pf_vertex2d_t vertex;
             vertex.position[0] = x;
             vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
+            vertex.texcoord[0] = u;
+            vertex.texcoord[1] = v;
             vertex.color = PF_WHITE;
 
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
