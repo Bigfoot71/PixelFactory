@@ -16,9 +16,9 @@ typedef struct {
     float* positions;
     float* texcoords;
     pf_color_t* colors;
-    uint32_t* indices;
-    size_t num_vertices;
-    size_t num_indices;
+    uint16_t* indices;
+    uint32_t num_vertices;
+    uint32_t num_indices;
 } pf_vertexbuffer2d_t;
 
 typedef struct {
@@ -34,9 +34,9 @@ typedef struct {
     float* texcoords;
     float* normals;
     pf_color_t* colors;
-    uint32_t* indices;
-    size_t num_vertices;
-    size_t num_indices;
+    uint16_t* indices;
+    uint32_t num_vertices;
+    uint32_t num_indices;
 } pf_vertexbuffer3d_t;
 
 #endif //PF_VERTEX_H

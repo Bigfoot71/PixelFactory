@@ -86,23 +86,31 @@ pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* v
     }
 
     float* texcoords = vb->texcoords;
-    uint32_t* indices = vb->indices;
+    uint16_t* indices = vb->indices;
     pf_color_t* colors = vb->colors;
 
     uint8_t has_indices = (indices != NULL);
-    size_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
+    uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
 
         /* Calculating vertex and array indexes */
 
-        uint32_t index_1 = (indices != NULL) ? indices[i + 0] : i + 0;
-        uint32_t index_2 = (indices != NULL) ? indices[i + 1] : i + 1;
-        uint32_t index_3 = (indices != NULL) ? indices[i + 2] : i + 2;
+        uint32_t index_1, index_2, index_3;
 
-        size_t i1 = 2 * index_1;
-        size_t i2 = 2 * index_2;
-        size_t i3 = 2 * index_3;
+        if (has_indices) {
+            index_1 = indices[i + 0];
+            index_2 = indices[i + 1];
+            index_3 = indices[i + 2];
+        } else {
+            index_1 = i + 0;
+            index_2 = i + 1;
+            index_3 = i + 2;
+        }
+
+        uint32_t i1 = 2 * index_1;
+        uint32_t i2 = 2 * index_2;
+        uint32_t i3 = 2 * index_3;
 
         /* Retrieving vertices and calling the vertex code */
 

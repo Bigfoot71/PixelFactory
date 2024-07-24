@@ -36,7 +36,7 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
 
     float* texcoords = vb->texcoords;
     pf_color_t* colors = vb->colors;
-    uint32_t* indices = vb->indices;
+    uint16_t* indices = vb->indices;
     float* normals = vb->normals;
 
     /* Preparation of matrices */
@@ -67,9 +67,9 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
     /* Iterates through all vertices in the vertex buffer */
 
     uint8_t has_indices = (indices != NULL);
-    size_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
+    uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
-    for (size_t i = 0; i < num; i += 3) {
+    for (uint32_t i = 0; i < num; i += 3) {
         uint32_t index_1, index_2, index_3;
 
         if (has_indices) {
@@ -82,9 +82,9 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
             index_3 = i + 2;
         }
 
-        size_t i1 = 3 * index_1;
-        size_t i2 = 3 * index_2;
-        size_t i3 = 3 * index_3;
+        uint32_t i1 = 3 * index_1;
+        uint32_t i2 = 3 * index_2;
+        uint32_t i3 = 3 * index_3;
 
         pf_vertex3d_t v1 = { 0 };
         pf_vertex3d_t v2 = { 0 };
