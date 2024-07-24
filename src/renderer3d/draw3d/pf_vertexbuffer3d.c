@@ -148,16 +148,16 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
 }
 
 void
-pf_renderer3d_vertex_buffer_point(
+pf_renderer3d_vertex_buffer_points(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
     void* attr)
 {
-    pf_renderer3d_vertex_buffer_point_ex(rn, vb, transform, vert_proc, NULL, NULL, frag_proc, attr);
+    pf_renderer3d_vertex_buffer_points_ex(rn, vb, transform, vert_proc, NULL, NULL, frag_proc, attr);
 }
 
 void
-pf_renderer3d_vertex_buffer_point_ex(
+pf_renderer3d_vertex_buffer_points_ex(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
     pf_proc3d_screen_projection_fn proj_proc,
@@ -221,16 +221,16 @@ pf_renderer3d_vertex_buffer_point_ex(
 }
 
 void
-pf_renderer3d_vertex_buffer_point_thick(
+pf_renderer3d_vertex_buffer_points_thick(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, float radius, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
     void* attr)
 {
-    pf_renderer3d_vertex_buffer_point_thick_ex(rn, vb, radius, transform, vert_proc, NULL, NULL, frag_proc, attr);
+    pf_renderer3d_vertex_buffer_points_thick_ex(rn, vb, radius, transform, vert_proc, NULL, NULL, frag_proc, attr);
 }
 
 void
-pf_renderer3d_vertex_buffer_point_thick_ex(
+pf_renderer3d_vertex_buffer_points_thick_ex(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, float radius, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
     pf_proc3d_screen_projection_fn proj_proc,
@@ -294,16 +294,16 @@ pf_renderer3d_vertex_buffer_point_thick_ex(
 }
 
 void
-pf_renderer3d_vertex_buffer_line(
+pf_renderer3d_vertex_buffer_lines(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
     void* attr)
 {
-    pf_renderer3d_vertex_buffer_line_ex(rn, vb, transform, vert_proc, NULL, NULL, frag_proc, attr);
+    pf_renderer3d_vertex_buffer_lines_ex(rn, vb, transform, vert_proc, NULL, NULL, frag_proc, attr);
 }
 
 void
-pf_renderer3d_vertex_buffer_line_ex(
+pf_renderer3d_vertex_buffer_lines_ex(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
     pf_proc3d_screen_projection_fn proj_proc,
@@ -403,16 +403,16 @@ pf_renderer3d_vertex_buffer_line_ex(
 }
 
 void
-pf_renderer3d_vertex_buffer_line_thick(
+pf_renderer3d_vertex_buffer_lines_thick(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, float thick, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
     void* attr)
 {
-    pf_renderer3d_vertex_buffer_line_thick_ex(rn, vb, thick, transform, vert_proc, NULL, NULL, frag_proc, attr);
+    pf_renderer3d_vertex_buffer_lines_thick_ex(rn, vb, thick, transform, vert_proc, NULL, NULL, frag_proc, attr);
 }
 
 void
-pf_renderer3d_vertex_buffer_line_thick_ex(
+pf_renderer3d_vertex_buffer_lines_thick_ex(
     pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, float thick, const pf_mat4_t transform,
     pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
     pf_proc3d_screen_projection_fn proj_proc,
