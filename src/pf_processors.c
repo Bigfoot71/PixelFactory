@@ -261,7 +261,6 @@ pf_proc3d_screen_projection_default(
 {
     for (size_t i = 0; i < vertices_count; i++)
     {
-        pf_vertex3d_t* v = &vertices[i];
         pf_vec4_t* h = &homogeneous[i];
 
         // Division of XY coordinates by weight
