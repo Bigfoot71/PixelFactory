@@ -41,7 +41,7 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                if (rn->test(z, rn->zb.buffer[offset])) {                                       \
+                if (rn->test(rn->zb.buffer[offset], z)) {                                       \
                     rn->zb.buffer[offset] = z;                                                  \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
@@ -97,7 +97,7 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                if (rn->test(z, rn->zb.buffer[offset])) {                                       \
+                if (rn->test(rn->zb.buffer[offset], z)) {                                       \
                     rn->zb.buffer[offset] = z;                                                  \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
