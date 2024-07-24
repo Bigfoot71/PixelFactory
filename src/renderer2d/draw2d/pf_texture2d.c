@@ -18,6 +18,7 @@
  */
 
 #include "pixelfactory/pf_renderer2d.h"
+#include "pixelfactory/pf_config.h"
 #include <float.h>
 
 #define PF_TRAVEL_TEXTURE2D(PIXEL_CODE)                                             \
@@ -68,7 +69,8 @@
     if (y1 > y2) PF_SWAP(y1, y2);                                                   \
     float inv00 = invTransform[0], inv01 = invTransform[1], inv02 = invTransform[2];\
     float inv10 = invTransform[3], inv11 = invTransform[4], inv12 = invTransform[5];\
-    _Pragma("omp parallel for")                                                     \
+    _Pragma("omp parallel for                                                       \
+            if ((x2 - x1) * (y2 - y1) >= PF_OMP_TEXTURE_RN2D_SIZE_THRESHOLD)")      \
     for (int y = y1; y <= y2; ++y) {                                                \
         for (int x = x1; x <= x2; ++x) {                                            \
             float tx = inv00 * x + inv01 * y + inv02;                               \
