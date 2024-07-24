@@ -5,7 +5,9 @@
 /* Public API */
 
 pf_renderer2d_t
-pf_renderer2d_create(uint32_t w, uint32_t h, pf_color_blend_fn blend)
+pf_renderer2d_create(
+    uint32_t w, uint32_t h,
+    pf_color_blend_fn blend)
 {
     pf_renderer2d_t rn = { 0 };
     pf_mat3_identity(rn.mat_view);
@@ -15,14 +17,17 @@ pf_renderer2d_create(uint32_t w, uint32_t h, pf_color_blend_fn blend)
 }
 
 void
-pf_renderer2d_delete(pf_renderer2d_t* rn)
+pf_renderer2d_delete(
+    pf_renderer2d_t* rn)
 {
     pf_framebuffer_delete(&rn->fb);
     rn->blend = NULL;
 }
 
 void
-pf_renderer2d_clear(pf_renderer2d_t* rn, pf_color_t clear_color)
+pf_renderer2d_clear(
+    pf_renderer2d_t* rn,
+    pf_color_t clear_color)
 {
 #   ifdef __AVX2__
 
@@ -54,13 +59,4 @@ pf_renderer2d_clear(pf_renderer2d_t* rn, pf_color_t clear_color)
     }
 
 #endif
-}
-
-void
-pf_renderer2d_point(pf_renderer2d_t* rn, int x, int y, pf_color_t color)
-{
-    if (rn->blend != NULL) {
-        color = rn->blend(pf_framebuffer_get(&rn->fb, x, y), color);
-    }
-    pf_framebuffer_put(&rn->fb, x, y, color);
 }

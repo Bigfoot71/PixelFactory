@@ -4,7 +4,9 @@
 #include <stdint.h>
 
 pf_framebuffer_t
-pf_framebuffer_create(uint32_t w, uint32_t h, pf_color_t def)
+pf_framebuffer_create(
+    uint32_t w, uint32_t h,
+    pf_color_t def)
 {
     pf_framebuffer_t result = { 0 };
     if (w == 0 || h == 0) return result;
@@ -26,7 +28,8 @@ pf_framebuffer_create(uint32_t w, uint32_t h, pf_color_t def)
 }
 
 void
-pf_framebuffer_delete(pf_framebuffer_t* fb)
+pf_framebuffer_delete(
+    pf_framebuffer_t* fb)
 {
     PF_FREE(fb->buffer);
     fb->buffer = NULL;
@@ -34,13 +37,18 @@ pf_framebuffer_delete(pf_framebuffer_t* fb)
 }
 
 int
-pf_framebuffer_is_valid(const pf_framebuffer_t* fb)
+pf_framebuffer_is_valid(
+    const pf_framebuffer_t* fb)
 {
     return (fb->buffer != NULL || fb->w > 0 || fb->h > 0);
 }
 
 void
-pf_framebuffer_copy(pf_framebuffer_t * restrict dst_fb, const uint32_t dst_rect[4], const pf_framebuffer_t * restrict src_fb, const uint32_t src_rect[4])
+pf_framebuffer_copy(
+    pf_framebuffer_t * restrict dst_fb,
+    const uint32_t dst_rect[4],
+    const pf_framebuffer_t * restrict src_fb,
+    const uint32_t src_rect[4])
 {
     int dst_xmin, dst_ymin, dst_xmax, dst_ymax;
     int src_xmin, src_ymin, src_xmax, src_ymax;
@@ -95,7 +103,10 @@ pf_framebuffer_copy(pf_framebuffer_t * restrict dst_fb, const uint32_t dst_rect[
 }
 
 void
-pf_framebuffer_copy_pixels(void * restrict dst, const pf_framebuffer_t * restrict src_fb, const uint32_t src_rect[4])
+pf_framebuffer_copy_pixels(
+    void * restrict dst,
+    const pf_framebuffer_t * restrict src_fb,
+    const uint32_t src_rect[4])
 {
     int xmin, ymin, xmax, ymax;
     if (dst == NULL || src_fb == NULL || src_fb->buffer == NULL) {
@@ -122,7 +133,9 @@ pf_framebuffer_copy_pixels(void * restrict dst, const pf_framebuffer_t * restric
 }
 
 pf_color_t
-pf_framebuffer_get(const pf_framebuffer_t* fb, uint32_t x, uint32_t y)
+pf_framebuffer_get(
+    const pf_framebuffer_t* fb,
+    uint32_t x, uint32_t y)
 {
     pf_color_t result = { 0 };
     if (x < fb->w && y < fb->h) {
@@ -132,7 +145,10 @@ pf_framebuffer_get(const pf_framebuffer_t* fb, uint32_t x, uint32_t y)
 }
 
 void
-pf_framebuffer_put(pf_framebuffer_t* fb, uint32_t x, uint32_t y, pf_color_t color)
+pf_framebuffer_put(
+    pf_framebuffer_t* fb,
+    uint32_t x, uint32_t y,
+    pf_color_t color)
 {
     if (x < fb->w && y < fb->h) {
         fb->buffer[y * fb->w + x] = color;
@@ -140,7 +156,10 @@ pf_framebuffer_put(pf_framebuffer_t* fb, uint32_t x, uint32_t y, pf_color_t colo
 }
 
 void
-pf_framebuffer_fill(pf_framebuffer_t* fb, const uint32_t rect[4], pf_color_t color)
+pf_framebuffer_fill(
+    pf_framebuffer_t* fb,
+    const uint32_t rect[4],
+    pf_color_t color)
 {
     int xmin, ymin, xmax, ymax;
     if (fb == NULL || fb->buffer == NULL) {
@@ -167,7 +186,10 @@ pf_framebuffer_fill(pf_framebuffer_t* fb, const uint32_t rect[4], pf_color_t col
 }
 
 void
-pf_framebuffer_map(pf_framebuffer_t* fb, const uint32_t rect[4], pf_framebuffer_map_fn func)
+pf_framebuffer_map(
+    pf_framebuffer_t* fb,
+    const uint32_t rect[4],
+    pf_framebuffer_map_fn func)
 {
     int xmin, ymin, xmax, ymax;
     if (fb == NULL || fb->buffer == NULL) {

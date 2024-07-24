@@ -1,29 +1,35 @@
 #include "pixelfactory/pf_camera3d.h"
-#include "pixelfactory/math/pf_mat4.h"
-#include "pixelfactory/math/pf_vec3.h"
 
 void
-pf_camera3d_get_right(const pf_camera3d_t* cam, pf_vec3_t dst)
+pf_camera3d_get_right(
+    const pf_camera3d_t* cam,
+    pf_vec3_t dst)
 {
     pf_camera3d_get_forward(cam, dst);
     pf_vec3_cross(dst, dst, cam->up);
 }
 
 void
-pf_camera3d_get_forward(const pf_camera3d_t* cam, pf_vec3_t dst)
+pf_camera3d_get_forward(
+    const pf_camera3d_t* cam,
+    pf_vec3_t dst)
 {
     pf_vec3_sub(dst, cam->target, cam->position);
     pf_vec3_normalize(dst, dst);
 }
 
 void
-pf_camera3d_get_up(const pf_camera3d_t* cam, pf_vec3_t dst)
+pf_camera3d_get_up(
+    const pf_camera3d_t* cam,
+    pf_vec3_t dst)
 {
     pf_vec3_normalize_r(dst, cam->up);
 }
 
 void
-pf_camera3d_move_right(pf_camera3d_t* cam, float distance, int move_in_world_plane)
+pf_camera3d_move_right(
+    pf_camera3d_t* cam, float distance,
+    int move_in_world_plane)
 {
     pf_vec3_t right;
     pf_camera3d_get_right(cam, right);
@@ -44,7 +50,9 @@ pf_camera3d_move_right(pf_camera3d_t* cam, float distance, int move_in_world_pla
 }
 
 void
-pf_camera3d_move_forward(pf_camera3d_t* cam, float distance, int move_in_world_plane)
+pf_camera3d_move_forward(
+    pf_camera3d_t* cam, float distance,
+    int move_in_world_plane)
 {
     pf_vec3_t forward;
     pf_camera3d_get_forward(cam, forward);
@@ -65,7 +73,9 @@ pf_camera3d_move_forward(pf_camera3d_t* cam, float distance, int move_in_world_p
 }
 
 void
-pf_camera3d_move_up(pf_camera3d_t* cam, float distance)
+pf_camera3d_move_up(
+    pf_camera3d_t* cam,
+    float distance)
 {
     pf_mat4_t up;
     pf_camera3d_get_up(cam, up);
@@ -79,7 +89,9 @@ pf_camera3d_move_up(pf_camera3d_t* cam, float distance)
 }
 
 void
-pf_camera3d_move_to_target(pf_camera3d_t* cam, float distance)
+pf_camera3d_move_to_target(
+    pf_camera3d_t* cam,
+    float distance)
 {
     pf_vec3_t direction;
     
@@ -91,7 +103,9 @@ pf_camera3d_move_to_target(pf_camera3d_t* cam, float distance)
 }
 
 void
-pf_camera3d_yaw(pf_camera3d_t* cam, float angle, int rotate_around_target)
+pf_camera3d_yaw(
+    pf_camera3d_t* cam, float angle,
+    int rotate_around_target)
 {
     pf_vec3_t up, target_position;
 
@@ -119,7 +133,9 @@ pf_camera3d_yaw(pf_camera3d_t* cam, float angle, int rotate_around_target)
 }
 
 void
-pf_camera3d_pitch(pf_camera3d_t* cam, float angle, int lock_view, int rotate_around_target, int rotate_up)
+pf_camera3d_pitch(
+    pf_camera3d_t* cam, float angle,
+    int lock_view, int rotate_around_target, int rotate_up)
 {
     pf_vec3_t target_position, right;
 
@@ -163,7 +179,9 @@ pf_camera3d_pitch(pf_camera3d_t* cam, float angle, int lock_view, int rotate_aro
 }
 
 void
-pf_camera3d_roll(pf_camera3d_t* cam, float angle)
+pf_camera3d_roll(
+    pf_camera3d_t* cam,
+    float angle)
 {
     pf_vec3_t forward;
 
@@ -179,14 +197,18 @@ pf_camera3d_roll(pf_camera3d_t* cam, float angle)
 }
 
 void
-pf_camera3d_get_direction(const pf_camera3d_t* cam, pf_vec3_t dst)
+pf_camera3d_get_direction(
+    const pf_camera3d_t* cam,
+    pf_vec3_t dst)
 {
     pf_vec3_sub(dst, cam->target, cam->position);
     pf_vec3_normalize(dst, dst);
 }
 
 void
-pf_camera3d_set_direction(pf_camera3d_t* cam, const pf_vec3_t dir)
+pf_camera3d_set_direction(
+    pf_camera3d_t* cam,
+    const pf_vec3_t dir)
 {
     pf_vec3_t normalized_dir;
     pf_vec3_normalize(normalized_dir, dir);
@@ -194,14 +216,19 @@ pf_camera3d_set_direction(pf_camera3d_t* cam, const pf_vec3_t dir)
 }
 
 void
-pf_camera3d_translate(pf_camera3d_t* cam, const pf_vec3_t delta)
+pf_camera3d_translate(
+    pf_camera3d_t* cam,
+    const pf_vec3_t delta)
 {
     pf_vec3_add(cam->position, cam->position, delta);
     pf_vec3_add(cam->target, cam->target, delta);
 }
 
 void
-pf_camera3d_rotate(pf_camera3d_t* cam, const pf_vec3_t delta, int lock_view)
+pf_camera3d_rotate(
+    pf_camera3d_t* cam,
+    const pf_vec3_t delta,
+    int lock_view)
 {
     pf_vec3_t dt;
     pf_vec3_t right, up, forward, new_forward;
@@ -251,7 +278,9 @@ pf_camera3d_rotate(pf_camera3d_t* cam, const pf_vec3_t delta, int lock_view)
 }
 
 void
-pf_camera3d_set_aspect(pf_camera3d_t* cam, const int viewport_dimension[2])
+pf_camera3d_set_aspect(
+    pf_camera3d_t* cam,
+    const int viewport_dimension[2])
 {
     cam->aspect = (viewport_dimension[0] > viewport_dimension[1])
         ? viewport_dimension[0] / viewport_dimension[1]
@@ -260,19 +289,25 @@ pf_camera3d_set_aspect(pf_camera3d_t* cam, const int viewport_dimension[2])
 
 
 void
-pf_camera3d_get_view_matrix(const pf_camera3d_t* cam, pf_mat4_t dst)
+pf_camera3d_get_view_matrix(
+    const pf_camera3d_t* cam,
+    pf_mat4_t dst)
 {
     pf_mat4_look_at(dst, cam->position, cam->target, cam->up);
 }
 
 void
-pf_camera3d_get_perspective_matrix(const pf_camera3d_t* cam, pf_mat4_t dst)
+pf_camera3d_get_perspective_matrix(
+    const pf_camera3d_t* cam,
+    pf_mat4_t dst)
 {
     pf_mat4_perspective(dst, cam->fovy, cam->aspect, cam->near, cam->far);
 }
 
 void
-pf_camera3d_get_orthographic_matrix(const pf_camera3d_t* cam, pf_mat4_t dst)
+pf_camera3d_get_orthographic_matrix(
+    const pf_camera3d_t* cam,
+    pf_mat4_t dst)
 {
     double top = cam->fovy / 2.0;
     double right = top * cam->aspect;

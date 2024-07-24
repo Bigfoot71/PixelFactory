@@ -1,4 +1,5 @@
 #include "pixelfactory/pf_renderer2d.h"
+#include "pixelfactory/pf_config.h"
 
 /* Macros */
 
@@ -428,7 +429,12 @@
 /* Public API */
 
 void
-pf_renderer2d_triangle(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int x3, int y3, pf_color_t color)
+pf_renderer2d_triangle(
+    pf_renderer2d_t* rn,
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3,
+    pf_color_t color)
 {
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
@@ -510,7 +516,15 @@ pf_renderer2d_triangle(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int 
 #endif
 }
 
-void pf_renderer2d_triangle_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int x3, int y3, pf_color_t c1, pf_color_t c2, pf_color_t c3)
+void
+pf_renderer2d_triangle_gradient(
+    pf_renderer2d_t* rn,
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3,
+    pf_color_t c1,
+    pf_color_t c2,
+    pf_color_t c3)
 {
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
@@ -601,7 +615,13 @@ void pf_renderer2d_triangle_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2
 }
 
 void
-pf_renderer2d_triangle_map(pf_renderer2d_t *rn, int x1, int y1, int x2, int y2, int x3, int y3, pf_proc2d_fragment_fn frag_proc, const void* attr)
+pf_renderer2d_triangle_map(
+    pf_renderer2d_t *rn,
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3,
+    pf_proc2d_fragment_fn frag_proc,
+    const void* attr)
 {
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
@@ -739,7 +759,12 @@ pf_renderer2d_triangle_map(pf_renderer2d_t *rn, int x1, int y1, int x2, int y2, 
 }
 
 void
-pf_renderer2d_triangle_lines(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int x3, int y3, pf_color_t color)
+pf_renderer2d_triangle_lines(
+    pf_renderer2d_t* rn,
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3,
+    pf_color_t color)
 {
     pf_renderer2d_line(rn, x1, y1, x2, y2, color);
     pf_renderer2d_line(rn, x2, y2, x3, y3, color);
@@ -747,7 +772,14 @@ pf_renderer2d_triangle_lines(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2
 }
 
 void
-pf_renderer2d_triangle_lines_gradient(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int x3, int y3, pf_color_t c1, pf_color_t c2, pf_color_t c3)
+pf_renderer2d_triangle_lines_gradient(
+    pf_renderer2d_t* rn,
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3,
+    pf_color_t c1,
+    pf_color_t c2,
+    pf_color_t c3)
 {
     pf_renderer2d_line_gradient(rn, x1, y1, x2, y2, c1, c2);
     pf_renderer2d_line_gradient(rn, x2, y2, x3, y3, c2, c3);
@@ -755,7 +787,13 @@ pf_renderer2d_triangle_lines_gradient(pf_renderer2d_t* rn, int x1, int y1, int x
 }
 
 void
-pf_renderer2d_triangle_lines_map(pf_renderer2d_t* rn, int x1, int y1, int x2, int y2, int x3, int y3, pf_proc2d_fragment_fn frag_proc, const void* attr)
+pf_renderer2d_triangle_lines_map(
+    pf_renderer2d_t* rn,
+    int x1, int y1,
+    int x2, int y2,
+    int x3, int y3,
+    pf_proc2d_fragment_fn frag_proc,
+    const void* attr)
 {
     pf_renderer2d_line_map(rn, x1, y1, x2, y2, frag_proc, attr);
     pf_renderer2d_line_map(rn, x2, y2, x3, y3, frag_proc, attr);
@@ -763,7 +801,10 @@ pf_renderer2d_triangle_lines_map(pf_renderer2d_t* rn, int x1, int y1, int x2, in
 }
 
 void
-pf_renderer2d_triangle_fan(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
+pf_renderer2d_triangle_fan(
+    pf_renderer2d_t* rn,
+    int* points, int count,
+    pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
@@ -777,7 +818,11 @@ pf_renderer2d_triangle_fan(pf_renderer2d_t* rn, int* points, int count, pf_color
 }
 
 void
-pf_renderer2d_triangle_fan_map(pf_renderer2d_t* rn, int* points, int count, pf_proc2d_fragment_fn frag_proc, const void* attr)
+pf_renderer2d_triangle_fan_map(
+    pf_renderer2d_t* rn,
+    int* points, int count,
+    pf_proc2d_fragment_fn frag_proc,
+    const void* attr)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
@@ -791,7 +836,10 @@ pf_renderer2d_triangle_fan_map(pf_renderer2d_t* rn, int* points, int count, pf_p
 }
 
 void
-pf_renderer2d_triangle_fan_lines(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
+pf_renderer2d_triangle_fan_lines(
+    pf_renderer2d_t* rn,
+    int* points, int count,
+    pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
@@ -805,7 +853,10 @@ pf_renderer2d_triangle_fan_lines(pf_renderer2d_t* rn, int* points, int count, pf
 }
 
 void
-pf_renderer2d_triangle_strip(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
+pf_renderer2d_triangle_strip(
+    pf_renderer2d_t* rn,
+    int* points, int count,
+    pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {
@@ -827,7 +878,11 @@ pf_renderer2d_triangle_strip(pf_renderer2d_t* rn, int* points, int count, pf_col
 }
 
 void
-pf_renderer2d_triangle_strip_map(pf_renderer2d_t* rn, int* points, int count, pf_proc2d_fragment_fn frag_proc, const void* attr)
+pf_renderer2d_triangle_strip_map(
+    pf_renderer2d_t* rn,
+    int* points, int count,
+    pf_proc2d_fragment_fn frag_proc,
+    const void* attr)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {
@@ -849,7 +904,10 @@ pf_renderer2d_triangle_strip_map(pf_renderer2d_t* rn, int* points, int count, pf
 }
 
 void
-pf_renderer2d_triangle_strip_lines(pf_renderer2d_t* rn, int* points, int count, pf_color_t color)
+pf_renderer2d_triangle_strip_lines(
+    pf_renderer2d_t* rn,
+    int* points, int count,
+    pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {

@@ -2,20 +2,29 @@
 #include <string.h>
 
 void
-pf_camera2d_translate(pf_camera2d_t* cam, float dx, float dy, int zoom_dependent)
+pf_camera2d_translate(
+    pf_camera2d_t* cam,
+    float dx, float dy,
+    int zoom_dependent)
 {
     cam->target[0] += zoom_dependent ? dx / cam->zoom : dx;
     cam->target[1] += zoom_dependent ? dy / cam->zoom : dy;
 }
 
 void
-pf_camera2d_zoom(pf_camera2d_t* cam, float inc, float min, float max, int zoom_dependent)
+pf_camera2d_zoom(
+    pf_camera2d_t* cam, float inc,
+    float min, float max,
+    int zoom_dependent)
 {
     cam->zoom = PF_CLAMP(cam->zoom + (zoom_dependent ? inc * cam->zoom : inc), min, max);
 }
 
 void
-pf_camera2d_zoom_to_world_pos(pf_camera2d_t* cam, const pf_vec2_t world_pos, float inc, float min, float max, int zoom_dependent)
+pf_camera2d_zoom_to_world_pos(
+    pf_camera2d_t* cam, const pf_vec2_t world_pos,
+    float inc, float min, float max,
+    int zoom_dependent)
 {
     pf_vec2_t offset;
     pf_vec2_sub_r(offset, world_pos, cam->target);
@@ -27,7 +36,10 @@ pf_camera2d_zoom_to_world_pos(pf_camera2d_t* cam, const pf_vec2_t world_pos, flo
 }
 
 void
-pf_camera2d_zoom_to_screen_pos(pf_camera2d_t* cam, const pf_vec2_t screen_pos, float inc, float min, float max, int zoom_dependent)
+pf_camera2d_zoom_to_screen_pos(
+    pf_camera2d_t* cam, const pf_vec2_t screen_pos,
+    float inc, float min, float max,
+    int zoom_dependent)
 {
     pf_vec2_t world_pos;
     memcpy(world_pos, screen_pos, sizeof(pf_vec2_t));
@@ -37,7 +49,9 @@ pf_camera2d_zoom_to_screen_pos(pf_camera2d_t* cam, const pf_vec2_t screen_pos, f
 }
 
 void
-pf_camera2d_to_world(const pf_camera2d_t* cam, pf_vec2_t screen_pos)
+pf_camera2d_to_world(
+    const pf_camera2d_t* cam,
+    pf_vec2_t screen_pos)
 {
     pf_mat3_t mat;
     pf_camera2d_get_view_matrix(cam, mat);
@@ -46,7 +60,9 @@ pf_camera2d_to_world(const pf_camera2d_t* cam, pf_vec2_t screen_pos)
 }
 
 void
-pf_camera2d_to_screen(const pf_camera2d_t* cam, pf_vec2_t wolrd_pos)
+pf_camera2d_to_screen(
+    const pf_camera2d_t* cam,
+    pf_vec2_t wolrd_pos)
 {
     pf_mat3_t mat;
     pf_camera2d_get_view_matrix(cam, mat);
@@ -54,7 +70,9 @@ pf_camera2d_to_screen(const pf_camera2d_t* cam, pf_vec2_t wolrd_pos)
 }
 
 void
-pf_camera2d_get_view_matrix(const pf_camera2d_t* cam, pf_mat3_t dst)
+pf_camera2d_get_view_matrix(
+    const pf_camera2d_t* cam,
+    pf_mat3_t dst)
 {
     // Translation to the origin
     pf_mat3_translate(dst, -cam->target[0], -cam->target[1]);

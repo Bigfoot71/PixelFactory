@@ -27,94 +27,163 @@ typedef enum {
 /* Pixel Getters */
 
 pf_color_t
-pf_pixel_get_gray(const void* pixels, size_t offset);
+pf_pixel_get_gray(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_gray_alpha(const void* pixels, size_t offset);
+pf_pixel_get_gray_alpha(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgb565(const void* pixels, size_t offset);
+pf_pixel_get_rgb565(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgb888(const void* pixels, size_t offset);
+pf_pixel_get_rgb888(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgba5551(const void* pixels, size_t offset);
+pf_pixel_get_rgba5551(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgba4444(const void* pixels, size_t offset);
+pf_pixel_get_rgba4444(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgba8888(const void* pixels, size_t offset);
+pf_pixel_get_rgba8888(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_r32(const void* pixels, size_t offset);
+pf_pixel_get_r32(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgb323232(const void* pixels, size_t offset);
+pf_pixel_get_rgb323232(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgba32323232(const void* pixels, size_t offset);
+pf_pixel_get_rgba32323232(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_r16(const void* pixels, size_t offset);
+pf_pixel_get_r16(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgb161616(const void* pixels, size_t offset);
+pf_pixel_get_rgb161616(
+    const void* pixels,
+    size_t offset);
 
 pf_color_t
-pf_pixel_get_rgba16161616(const void* pixels, size_t offset);
+pf_pixel_get_rgba16161616(
+    const void* pixels,
+    size_t offset);
 
 
 /* Pixel Setters */
 
 void
-pf_pixel_set_gray(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_gray(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_gray_alpha(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_gray_alpha(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgb565(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgb565(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgb888(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgb888(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgba5551(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgba5551(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgba4444(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgba4444(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgba8888(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgba8888(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_r32(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_r32(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgb323232(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgb323232(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgba32323232(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgba32323232(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_r16(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_r16(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgb161616(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgb161616(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 void
-pf_pixel_set_rgba16161616(void* pixels, size_t offset, pf_color_t color);
+pf_pixel_set_rgba16161616(
+    void* pixels,
+    size_t offset,
+    pf_color_t color);
 
 
 /* Helper Functions */
 
 void
-pf_pixel_default_getter_setter(pf_pixel_getter_fn* getter, pf_pixel_setter_fn* setter, pf_pixelformat_t format);
+pf_pixel_default_getter_setter(
+    pf_pixel_getter_fn* getter,
+    pf_pixel_setter_fn* setter,
+    pf_pixelformat_t format);
 
 size_t
-pf_pixel_get_bytes(pf_pixelformat_t format);
+pf_pixel_get_bytes(
+    pf_pixelformat_t format);
 
 
 #endif //PF_PIXEL_H

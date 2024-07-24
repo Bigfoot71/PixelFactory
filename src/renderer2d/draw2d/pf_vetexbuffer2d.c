@@ -57,13 +57,26 @@
 /* Public API Functions */
 
 void
-pf_renderer2d_vertex_buffer(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* vb, const pf_mat3_t transform, pf_proc2d_vertex_fn vert_proc, pf_proc2d_fragment_fn frag_proc, void* attr)
+pf_renderer2d_vertex_buffer(
+    pf_renderer2d_t* rn,
+    const pf_vertexbuffer2d_t* vb,
+    const pf_mat3_t transform,
+    pf_proc2d_vertex_fn vert_proc,
+    pf_proc2d_fragment_fn frag_proc,
+    void* attr)
 {
     pf_renderer2d_vertex_buffer_ex(rn, vb, transform, vert_proc, pf_proc2d_rasterizer_default, frag_proc, attr);
 }
 
 void
-pf_renderer2d_vertex_buffer_ex(pf_renderer2d_t* rn, const pf_vertexbuffer2d_t* vb, const pf_mat3_t transform, pf_proc2d_vertex_fn vert_proc, pf_proc2d_rasterizer_fn rast_proc, pf_proc2d_fragment_fn frag_proc, void* attr)
+pf_renderer2d_vertex_buffer_ex(
+    pf_renderer2d_t* rn,
+    const pf_vertexbuffer2d_t* vb,
+    const pf_mat3_t transform,
+    pf_proc2d_vertex_fn vert_proc,
+    pf_proc2d_rasterizer_fn rast_proc,
+    pf_proc2d_fragment_fn frag_proc,
+    void* attr)
 {
     if (vert_proc == NULL) {
         vert_proc = pf_proc2d_vertex_default;

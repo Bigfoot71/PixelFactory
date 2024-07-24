@@ -2,7 +2,9 @@
 #include <string.h>
 
 pf_texture2d_t
-pf_texture2d_create(void* pixels, uint32_t w, uint32_t h, pf_pixelformat_t format)
+pf_texture2d_create(
+    void* pixels, uint32_t w, uint32_t h,
+    pf_pixelformat_t format)
 {
     pf_texture2d_t texture = { 0 };
     if (w == 0 || h == 0) return texture;
@@ -34,7 +36,8 @@ pf_texture2d_create(void* pixels, uint32_t w, uint32_t h, pf_pixelformat_t forma
 }
 
 void
-pf_texture2d_destroy(pf_texture2d_t* tex)
+pf_texture2d_destroy(
+    pf_texture2d_t* tex)
 {
     free(tex->texels);
     memset(tex, 0, sizeof(pf_texture2d_t));
@@ -43,19 +46,31 @@ pf_texture2d_destroy(pf_texture2d_t* tex)
 /* Map Functions */
 
 void
-pf_texture2d_uv_map_wrap_pot(const pf_texture2d_t* tex, uint32_t* x, uint32_t* y, float u, float v) {
+pf_texture2d_uv_map_wrap_pot(
+    const pf_texture2d_t* tex,
+    uint32_t* x, uint32_t* y,
+    float u, float v)
+{
     *x = (uint32_t)((u - (int)u)*(tex->w - 1)) & (tex->w - 1);
     *y = (uint32_t)((v - (int)v)*(tex->h - 1)) & (tex->h - 1);
 }
 
 void
-pf_texture2d_uv_map_wrap(const pf_texture2d_t* tex, uint32_t* x, uint32_t* y, float u, float v) {
+pf_texture2d_uv_map_wrap(
+    const pf_texture2d_t* tex,
+    uint32_t* x, uint32_t* y,
+    float u, float v)
+{
     *x = (uint32_t)((u - (int)u)*(tex->w - 1)) % tex->w;
     *y = (uint32_t)((v - (int)v)*(tex->h - 1)) % tex->h;
 }
 
 void
-pf_texture2d_uv_map_clamp(const pf_texture2d_t* tex, uint32_t* x, uint32_t* y, float u, float v) {
+pf_texture2d_uv_map_clamp(
+    const pf_texture2d_t* tex,
+    uint32_t* x, uint32_t* y,
+    float u, float v)
+{
     *x = (uint32_t)PF_CLAMP((int)(u*(tex->w - 1)), 0, (int)tex->w - 1);
     *y = (uint32_t)PF_CLAMP((int)(v*(tex->h - 1)), 0, (int)tex->h - 1);
 }
@@ -64,13 +79,19 @@ pf_texture2d_uv_map_clamp(const pf_texture2d_t* tex, uint32_t* x, uint32_t* y, f
 /* Sampler Functions */
 
 pf_color_t
-pf_texture2d_sample_nearest(const pf_texture2d_t* tex, float u, float v) {
+pf_texture2d_sample_nearest(
+    const pf_texture2d_t* tex,
+    float u, float v)
+{
     uint32_t x, y; tex->mapper(tex, &x, &y, u, v);
     return tex->getter(tex->texels, y * tex->w + x);
 }
 
 pf_color_t
-pf_texture2d_sample_bilinear(const pf_texture2d_t* tex, float u, float v) {
+pf_texture2d_sample_bilinear(
+    const pf_texture2d_t* tex,
+    float u, float v)
+{
     uint32_t x0, y0, x1, y1;
     float fx, fy;
 

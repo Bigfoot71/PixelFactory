@@ -5,7 +5,10 @@
 /* General Functions */
 
 pf_color_t
-pf_color_lerpf(pf_color_t a, pf_color_t b, float t)
+pf_color_lerpf(
+    pf_color_t a,
+    pf_color_t b,
+    float t)
 {
     pf_color_t result;
     result.c.r = a.c.r + t * (b.c.r - a.c.r);
@@ -16,7 +19,10 @@ pf_color_lerpf(pf_color_t a, pf_color_t b, float t)
 }
 
 pf_color_t
-pf_color_lerpi(pf_color_t a, pf_color_t b, int i, int max)
+pf_color_lerpi(
+    pf_color_t a,
+    pf_color_t b,
+    int i, int max)
 {
     pf_color_t result;
     result.c.r = (a.c.r * (max - i) + b.c.r * i) / max;
@@ -27,7 +33,13 @@ pf_color_lerpi(pf_color_t a, pf_color_t b, int i, int max)
 }
 
 pf_color_t
-pf_color_bary(pf_color_t c1, pf_color_t c2, pf_color_t c3, float w1, float w2, float w3)
+pf_color_bary(
+    pf_color_t c1,
+    pf_color_t c2,
+    pf_color_t c3,
+    float w1,
+    float w2,
+    float w3)
 {
     uint8_t uw1 = 255 * w1;
     uint8_t uw2 = 255 * w2;
@@ -43,7 +55,11 @@ pf_color_bary(pf_color_t c1, pf_color_t c2, pf_color_t c3, float w1, float w2, f
 }
 
 pf_color_t
-pf_color_bary_v(pf_color_t c1, pf_color_t c2, pf_color_t c3, const pf_vec3_t bary)
+pf_color_bary_v(
+    pf_color_t c1,
+    pf_color_t c2,
+    pf_color_t c3,
+    const pf_vec3_t bary)
 {
     uint8_t uw1 = 255 * bary[0];
     uint8_t uw2 = 255 * bary[1];
@@ -120,7 +136,9 @@ __m256i pf_color_bary_avx(
 #endif //__AVX2__
 
 pf_color_t
-pf_color_scale(pf_color_t col, float scale)
+pf_color_scale(
+    pf_color_t col,
+    float scale)
 {
     int s = scale * 255;
     col.c.r = (col.c.r * s) / 255;
@@ -131,7 +149,9 @@ pf_color_scale(pf_color_t col, float scale)
 }
 
 pf_color_t
-pf_color_scale_u(pf_color_t col, uint8_t scale)
+pf_color_scale_u8(
+    pf_color_t col,
+    uint8_t scale)
 {
     col.c.r = (col.c.r * scale) / 255;
     col.c.g = (col.c.g * scale) / 255;
@@ -141,7 +161,9 @@ pf_color_scale_u(pf_color_t col, uint8_t scale)
 }
 
 void
-pf_color_from_hsv(pf_color_t* color, float h, float s, float v)
+pf_color_from_hsv(
+    pf_color_t* color,
+    float h, float s, float v)
 {
     color->c.r = 0;
     color->c.g = 0;
@@ -171,7 +193,9 @@ pf_color_from_hsv(pf_color_t* color, float h, float s, float v)
 }
 
 void
-pf_color_to_hsv(pf_color_t color, float* h, float* s, float* v)
+pf_color_to_hsv(
+    pf_color_t color,
+    float* h, float* s, float* v)
 {
     if (h == NULL && s == NULL && v == NULL) return;
 
@@ -223,7 +247,9 @@ pf_color_to_hsv(pf_color_t color, float* h, float* s, float* v)
 /* Blending Functions */
 
 pf_color_t
-pf_color_blend_avg(pf_color_t dst, pf_color_t src)
+pf_color_blend_avg(
+    pf_color_t dst,
+    pf_color_t src)
 {
     pf_color_t result;
     result.c.r = (uint8_t)((src.c.r + dst.c.r) >> 1);
@@ -234,7 +260,9 @@ pf_color_blend_avg(pf_color_t dst, pf_color_t src)
 }
 
 pf_color_t
-pf_color_blend_add(pf_color_t dst, pf_color_t src)
+pf_color_blend_add(
+    pf_color_t dst,
+    pf_color_t src)
 {
     pf_color_t result;
     result.c.r = (uint8_t)PF_MIN_255((int)(dst.c.r + src.c.r));
@@ -245,7 +273,9 @@ pf_color_blend_add(pf_color_t dst, pf_color_t src)
 }
 
 pf_color_t
-pf_color_blend_sub(pf_color_t dst, pf_color_t src)
+pf_color_blend_sub(
+    pf_color_t dst,
+    pf_color_t src)
 {
     pf_color_t result;
     result.c.r = (uint8_t)PF_MAX_0((int)(dst.c.r - src.c.r));
@@ -256,7 +286,9 @@ pf_color_blend_sub(pf_color_t dst, pf_color_t src)
 }
 
 pf_color_t
-pf_color_blend_mul(pf_color_t dst, pf_color_t src)
+pf_color_blend_mul(
+    pf_color_t dst,
+    pf_color_t src)
 {
     pf_color_t result;
     result.c.r = (uint8_t)((dst.c.r * src.c.r) / 255);
@@ -267,7 +299,9 @@ pf_color_blend_mul(pf_color_t dst, pf_color_t src)
 }
 
 pf_color_t
-pf_color_blend_alpha(pf_color_t dst, pf_color_t src)
+pf_color_blend_alpha(
+    pf_color_t dst,
+    pf_color_t src)
 {
     uint32_t alpha = src.c.a + 1;
     uint32_t invAlpha = 256 - alpha;
@@ -281,7 +315,9 @@ pf_color_blend_alpha(pf_color_t dst, pf_color_t src)
 }
 
 pf_color_t
-pf_color_blend_screen(pf_color_t dst, pf_color_t src)
+pf_color_blend_screen(
+    pf_color_t dst,
+    pf_color_t src)
 {
     pf_color_t result;
     result.c.r = (uint8_t)PF_MIN_255((int)((dst.c.r * (255 - src.c.r) >> 8) + src.c.r));
@@ -292,7 +328,9 @@ pf_color_blend_screen(pf_color_t dst, pf_color_t src)
 }
 
 pf_color_t
-pf_color_blend_lighten(pf_color_t dst, pf_color_t src)
+pf_color_blend_lighten(
+    pf_color_t dst,
+    pf_color_t src)
 {
     pf_color_t result;
     result.c.r = (uint8_t)(PF_MAX(dst.c.r, src.c.r));
@@ -303,7 +341,9 @@ pf_color_blend_lighten(pf_color_t dst, pf_color_t src)
 }
 
 pf_color_t
-pf_color_blend_darken(pf_color_t dst, pf_color_t src)
+pf_color_blend_darken(
+    pf_color_t dst,
+    pf_color_t src)
 {
     pf_color_t result;
     result.c.r = (uint8_t)(PF_MIN(dst.c.r, src.c.r));

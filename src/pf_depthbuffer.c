@@ -3,7 +3,9 @@
 #include "pixelfactory/pf_helper.h"
 
 pf_depthbuffer_t
-pf_depthbuffer_create(uint32_t w, uint32_t h, float def)
+pf_depthbuffer_create(
+    uint32_t w, uint32_t h,
+    float def)
 {
     pf_depthbuffer_t result = { 0 };
     if (w == 0 || h == 0) return result;
@@ -25,7 +27,8 @@ pf_depthbuffer_create(uint32_t w, uint32_t h, float def)
 }
 
 void
-pf_depthbuffer_delete(pf_depthbuffer_t* zb)
+pf_depthbuffer_delete(
+    pf_depthbuffer_t* zb)
 {
     PF_FREE(zb->buffer);
     zb->buffer = NULL;
@@ -33,13 +36,17 @@ pf_depthbuffer_delete(pf_depthbuffer_t* zb)
 }
 
 int
-pf_depthbuffer_is_valid(const pf_depthbuffer_t* zb)
+pf_depthbuffer_is_valid(
+    const pf_depthbuffer_t* zb)
 {
     return (zb->buffer != NULL || zb->w > 0 || zb->h > 0);
 }
 
 void
-pf_depthbuffer_put(pf_depthbuffer_t* zb, uint32_t x, uint32_t y, float depth)
+pf_depthbuffer_put(
+    pf_depthbuffer_t* zb,
+    uint32_t x, uint32_t y,
+    float depth)
 {
     if (x < zb->w && y < zb->h) {
         zb->buffer[y * zb->w + x] = depth;
@@ -47,7 +54,10 @@ pf_depthbuffer_put(pf_depthbuffer_t* zb, uint32_t x, uint32_t y, float depth)
 }
 
 void
-pf_depthbuffer_fill(pf_depthbuffer_t* zb, const uint32_t rect[4], float depth)
+pf_depthbuffer_fill(
+    pf_depthbuffer_t* zb,
+    const uint32_t rect[4],
+    float depth)
 {
     int xmin, ymin, xmax, ymax;
     if (zb == NULL || zb->buffer == NULL) {

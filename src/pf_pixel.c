@@ -31,7 +31,9 @@ float HalfToFloat(uint16_t x)
 #endif
 
 pf_color_t
-pf_pixel_get_gray(const void* pixels, size_t offset)
+pf_pixel_get_gray(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     uint8_t gray = ((uint8_t*)pixels)[offset];
@@ -41,7 +43,9 @@ pf_pixel_get_gray(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_gray_alpha(const void* pixels, size_t offset)
+pf_pixel_get_gray_alpha(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     uint8_t *pixel = (uint8_t*)pixels + 2 * offset;
@@ -51,7 +55,9 @@ pf_pixel_get_gray_alpha(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgb565(const void* pixels, size_t offset)
+pf_pixel_get_rgb565(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     uint16_t pixel = ((uint16_t*)pixels)[offset];
@@ -63,7 +69,9 @@ pf_pixel_get_rgb565(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgb888(const void* pixels, size_t offset)
+pf_pixel_get_rgb888(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     const uint8_t* pixel = (uint8_t*)pixels + offset*3;
@@ -75,7 +83,9 @@ pf_pixel_get_rgb888(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgba5551(const void* pixels, size_t offset)
+pf_pixel_get_rgba5551(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     uint16_t pixel = ((uint16_t*)pixels)[offset];
@@ -87,7 +97,9 @@ pf_pixel_get_rgba5551(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgba4444(const void* pixels, size_t offset)
+pf_pixel_get_rgba4444(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     uint16_t pixel = ((uint16_t*)pixels)[offset];
@@ -99,13 +111,17 @@ pf_pixel_get_rgba4444(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgba8888(const void* pixels, size_t offset)
+pf_pixel_get_rgba8888(
+    const void* pixels,
+    size_t offset)
 {
     return ((pf_color_t*)pixels)[offset];
 }
 
 pf_color_t
-pf_pixel_get_r32(const void* pixels, size_t offset)
+pf_pixel_get_r32(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     result.c.r = (uint8_t)(((float*)pixels)[offset] * 255.0f);
@@ -115,7 +131,9 @@ pf_pixel_get_r32(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgb323232(const void* pixels, size_t offset)
+pf_pixel_get_rgb323232(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     const float *pixel = (float*)pixels + 3 * offset;
@@ -127,7 +145,9 @@ pf_pixel_get_rgb323232(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgba32323232(const void* pixels, size_t offset)
+pf_pixel_get_rgba32323232(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     const float *pixel = (float*)pixels + 4 * offset;
@@ -139,7 +159,9 @@ pf_pixel_get_rgba32323232(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_r16(const void* pixels, size_t offset)
+pf_pixel_get_r16(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     result.c.r = (uint8_t)(HalfToFloat(((uint16_t*)pixels)[offset]) * 255.0f);
@@ -149,7 +171,9 @@ pf_pixel_get_r16(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgb161616(const void* pixels, size_t offset)
+pf_pixel_get_rgb161616(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     const uint16_t *pixel = (uint16_t*)pixels + 3 * offset;
@@ -161,7 +185,9 @@ pf_pixel_get_rgb161616(const void* pixels, size_t offset)
 }
 
 pf_color_t
-pf_pixel_get_rgba16161616(const void* pixels, size_t offset)
+pf_pixel_get_rgba16161616(
+    const void* pixels,
+    size_t offset)
 {
     pf_color_t result;
     const uint16_t *pixel = (uint16_t*)pixels + 4 * offset;
@@ -175,7 +201,10 @@ pf_pixel_get_rgba16161616(const void* pixels, size_t offset)
 /* Pixel Setters */
 
 void
-pf_pixel_set_gray(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_gray(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate grayscale equivalent color
     float r = color.c.r * (1.0f/255);
@@ -187,7 +216,10 @@ pf_pixel_set_gray(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_gray_alpha(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_gray_alpha(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate grayscale equivalent color
     float r = color.c.r * (1.0f/255);
@@ -200,7 +232,10 @@ pf_pixel_set_gray_alpha(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgb565(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgb565(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate RGB565 equivalent color
     float rf = color.c.r * (1.0f/255);
@@ -215,7 +250,10 @@ pf_pixel_set_rgb565(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgb888(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgb888(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     uint8_t* pixel = (uint8_t*)pixels + 3 * offset;
     pixel[0] = color.c.r;
@@ -224,7 +262,10 @@ pf_pixel_set_rgb888(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgba5551(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgba5551(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate RGB5551 equivalent color
     float rf = color.c.r * (1.0f/255);
@@ -241,7 +282,10 @@ pf_pixel_set_rgba5551(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgba4444(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgba4444(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate RGB4444 equivalent color
     float rf = color.c.r * (1.0f/255);
@@ -258,13 +302,19 @@ pf_pixel_set_rgba4444(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgba8888(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgba8888(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     ((uint32_t*)pixels)[offset] = *(uint32_t*)(&color);
 }
 
 void
-pf_pixel_set_r32(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_r32(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate grayscale equivalent color (normalized to 32bit)
     float rf = color.c.r * (1.0f/255);
@@ -275,7 +325,10 @@ pf_pixel_set_r32(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgb323232(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgb323232(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate RGB323232 equivalent color (normalized to 32bit)
     float nCol[3] = {
@@ -288,7 +341,10 @@ pf_pixel_set_rgb323232(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgba32323232(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgba32323232(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate RGBA32323232 equivalent color (normalized to 32bit)
     float nCol[4] = {
@@ -302,7 +358,10 @@ pf_pixel_set_rgba32323232(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_r16(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_r16(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate grayscale equivalent color (normalized to 32bit)
     ((uint16_t*)pixels)[offset] = FloatToHalf(
@@ -312,7 +371,10 @@ pf_pixel_set_r16(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgb161616(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgb161616(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate RGB161616 equivalent color (normalized to 32bit)
     uint16_t *pixel = (uint16_t*)pixels + offset*3;
@@ -322,7 +384,10 @@ pf_pixel_set_rgb161616(void* pixels, size_t offset, pf_color_t color)
 }
 
 void
-pf_pixel_set_rgba16161616(void* pixels, size_t offset, pf_color_t color)
+pf_pixel_set_rgba16161616(
+    void* pixels,
+    size_t offset,
+    pf_color_t color)
 {
     // NOTE: Calculate RGBA16161616 equivalent color (normalized to 32bit)
     uint16_t *pixel = (uint16_t*)pixels + offset*4;
@@ -336,7 +401,10 @@ pf_pixel_set_rgba16161616(void* pixels, size_t offset, pf_color_t color)
 /* Helper Functions */
 
 void
-pf_pixel_default_getter_setter(pf_pixel_getter_fn* getter, pf_pixel_setter_fn* setter, pf_pixelformat_t format)
+pf_pixel_default_getter_setter(
+    pf_pixel_getter_fn* getter,
+    pf_pixel_setter_fn* setter,
+    pf_pixelformat_t format)
 {
     switch (format)
     {
@@ -412,7 +480,9 @@ pf_pixel_default_getter_setter(pf_pixel_getter_fn* getter, pf_pixel_setter_fn* s
     }
 }
 
-size_t pf_pixel_get_bytes(pf_pixelformat_t format)
+size_t
+pf_pixel_get_bytes(
+    pf_pixelformat_t format)
 {
     switch (format)
     {

@@ -4,7 +4,9 @@
 #include <math.h>
 
 int
-pf_mat3_is_zeroes(const pf_mat3_t mat) {
+pf_mat3_is_zeroes(
+    const pf_mat3_t mat)
+{
     for (int_fast8_t i = 0; i < 9; ++i) {
         if (mat[i] != 0.0f) return 0;
     }
@@ -12,7 +14,9 @@ pf_mat3_is_zeroes(const pf_mat3_t mat) {
 }
 
 int
-pf_mat3_is_identity(const pf_mat3_t mat) {
+pf_mat3_is_identity(
+    const pf_mat3_t mat)
+{
     for (int_fast8_t i = 0; i < 9; ++i) {
         if (i % 4 == 0) {
             if (mat[i] != 1.0f) {
@@ -28,7 +32,9 @@ pf_mat3_is_identity(const pf_mat3_t mat) {
 }
 
 void
-pf_mat3_identity(pf_mat3_t dst) {
+pf_mat3_identity(
+    pf_mat3_t dst)
+{
     memset(dst, 0, sizeof(pf_mat3_t));
     dst[0] = 1.0f;
     dst[4] = 1.0f;
@@ -36,20 +42,26 @@ pf_mat3_identity(pf_mat3_t dst) {
 }
 
 void
-pf_mat3_copy(float* restrict dst, const float* restrict src)
+pf_mat3_copy(
+    float* restrict dst,
+    const float* restrict src)
 {
     memcpy(dst, src, sizeof(pf_mat3_t));
 }
 
 void
-pf_mat3_translate(pf_mat3_t dst, float x, float y) {
+pf_mat3_translate(
+    pf_mat3_t dst, float x, float y)
+{
     pf_mat3_identity(dst);
     dst[2] = x;
     dst[5] = y;
 }
 
 void
-pf_mat3_rotate(pf_mat3_t dst, float angle) {
+pf_mat3_rotate(
+    pf_mat3_t dst, float angle)
+{
     float c = cosf(angle);
     float s = sinf(angle);
 
@@ -61,14 +73,20 @@ pf_mat3_rotate(pf_mat3_t dst, float angle) {
 }
 
 void
-pf_mat3_scale(pf_mat3_t dst, float sx, float sy) {
+pf_mat3_scale(
+    pf_mat3_t dst, float sx, float sy)
+{
     pf_mat3_identity(dst);
     dst[0] = sx;
     dst[4] = sy;
 }
 
 void
-pf_mat3_mul(pf_mat3_t dst, const pf_mat3_t left, const pf_mat3_t right) {
+pf_mat3_mul(
+    pf_mat3_t dst,
+    const pf_mat3_t left,
+    const pf_mat3_t right)
+{
     pf_mat3_t temp;
 
     for (int row = 0; row < 3; ++row) {
@@ -84,7 +102,11 @@ pf_mat3_mul(pf_mat3_t dst, const pf_mat3_t left, const pf_mat3_t right) {
 }
 
 void
-pf_mat3_mul_r(float* restrict dst, const pf_mat3_t left, const pf_mat3_t right) {
+pf_mat3_mul_r(
+    float* restrict dst,
+    const pf_mat3_t left,
+    const pf_mat3_t right)
+{
     for (int row = 0; row < 3; ++row) {
         for (int col = 0; col < 3; ++col) {
             dst[row * 3 + col] = 
@@ -96,7 +118,10 @@ pf_mat3_mul_r(float* restrict dst, const pf_mat3_t left, const pf_mat3_t right) 
 }
 
 void
-pf_mat3_inverse(pf_mat3_t dst, const pf_mat3_t src) {
+pf_mat3_inverse(
+    pf_mat3_t dst,
+    const pf_mat3_t src)
+{
     float det = src[0] * (src[4] * src[8] - src[5] * src[7]) -
                 src[1] * (src[3] * src[8] - src[5] * src[6]) +
                 src[2] * (src[3] * src[7] - src[4] * src[6]);
