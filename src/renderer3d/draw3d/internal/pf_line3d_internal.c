@@ -57,7 +57,7 @@
             If line is more vertical, iterate over y-axis
         */                                                                              \
         for (int i = 0, j = 0; i != end; i += sign, j += dec) {                         \
-            int x = x1 + (j >> 16), y = y1 + i;             \
+            int x = x1 + (j >> 16), y = y1 + i;                                         \
             size_t offset = y * rn->fb.w + x;                                           \
             float t = (float)i * inv_end;                                               \
             float z = z1 + t * (z2 - z1);                                               \
@@ -69,7 +69,7 @@
             If line is more horizontal, iterate over x-axis
         */                                                                              \
         for (int i = 0, j = 0; i != end; i += sign, j += dec) {                         \
-            int x = x1 + i, y = y1 + (j >> 16);             \
+            int x = x1 + i, y = y1 + (j >> 16);                                         \
             size_t offset = y * rn->fb.w + x;                                           \
             float t = (float)i * inv_end;                                               \
             float z = z1 + t * (z2 - z1);                                               \
