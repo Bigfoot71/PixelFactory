@@ -119,34 +119,30 @@ pf_renderer3d_vertex_buffer_ex(pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* v
             index_3 = i + 2;
         }
 
-        uint32_t i1 = 3 * index_1;
-        uint32_t i2 = 3 * index_2;
-        uint32_t i3 = 3 * index_3;
-
         pf_vertex3d_t v1 = { 0 };
         pf_vertex3d_t v2 = { 0 };
         pf_vertex3d_t v3 = { 0 };
 
-        pf_vec3_copy(v1.position, positions + i1);
-        pf_vec3_copy(v2.position, positions + i2);
-        pf_vec3_copy(v3.position, positions + i3);
+        pf_vec3_copy(v1.position, positions + 3 * index_1);
+        pf_vec3_copy(v2.position, positions + 3 * index_2);
+        pf_vec3_copy(v3.position, positions + 3 * index_3);
 
         if (texcoords != NULL) {
-            pf_vec2_copy(v1.texcoord, texcoords + i1);
-            pf_vec2_copy(v2.texcoord, texcoords + i2);
-            pf_vec2_copy(v3.texcoord, texcoords + i3);
+            pf_vec2_copy(v1.texcoord, texcoords + 2 * index_1);
+            pf_vec2_copy(v2.texcoord, texcoords + 2 * index_2);
+            pf_vec2_copy(v3.texcoord, texcoords + 2 * index_3);
         }
 
         if (normals != NULL) {
-            pf_vec3_copy(v1.normal, normals + i1);
-            pf_vec3_copy(v2.normal, normals + i2);
-            pf_vec3_copy(v3.normal, normals + i3);
+            pf_vec3_copy(v1.normal, normals + 3 * index_1);
+            pf_vec3_copy(v2.normal, normals + 3 * index_2);
+            pf_vec3_copy(v3.normal, normals + 3 * index_3);
         }
 
         if (colors != NULL) {
-            v1.color = colors[i];
-            v2.color = colors[i + 1];
-            v3.color = colors[i + 2];
+            v1.color = colors[index_1];
+            v2.color = colors[index_2];
+            v3.color = colors[index_3];
         } else {
             v1.color = PF_WHITE;
             v2.color = PF_WHITE;
@@ -382,23 +378,20 @@ pf_renderer3d_vertex_buffer_lines_ex(
             uint32_t index_1 = tri_indices[j];
             uint32_t index_2 = tri_indices[(j + 1) % 3];
 
-            uint32_t i1 = 3 * index_1;
-            uint32_t i2 = 3 * index_2;
-
             pf_vertex3d_t v1 = { 0 };
             pf_vertex3d_t v2 = { 0 };
 
-            pf_vec3_copy(v1.position, positions + i1);
-            pf_vec3_copy(v2.position, positions + i2);
+            pf_vec3_copy(v1.position, positions + 3 * index_1);
+            pf_vec3_copy(v2.position, positions + 3 * index_2);
 
             if (texcoords != NULL) {
-                pf_vec2_copy(v1.texcoord, texcoords + i1);
-                pf_vec2_copy(v2.texcoord, texcoords + i2);
+                pf_vec2_copy(v1.texcoord, texcoords + 2 * index_1);
+                pf_vec2_copy(v2.texcoord, texcoords + 2 * index_2);
             }
 
             if (normals != NULL) {
-                pf_vec3_copy(v1.normal, normals + i1);
-                pf_vec3_copy(v2.normal, normals + i2);
+                pf_vec3_copy(v1.normal, normals + 3 * index_1);
+                pf_vec3_copy(v2.normal, normals + 3 * index_2);
             }
 
             if (colors != NULL) {
@@ -491,23 +484,20 @@ pf_renderer3d_vertex_buffer_lines_thick_ex(
             uint32_t index_1 = tri_indices[j];
             uint32_t index_2 = tri_indices[(j + 1) % 3];
 
-            uint32_t i1 = 3 * index_1;
-            uint32_t i2 = 3 * index_2;
-
             pf_vertex3d_t v1 = { 0 };
             pf_vertex3d_t v2 = { 0 };
 
-            pf_vec3_copy(v1.position, positions + i1);
-            pf_vec3_copy(v2.position, positions + i2);
+            pf_vec3_copy(v1.position, positions + 3 * index_1);
+            pf_vec3_copy(v2.position, positions + 3 * index_2);
 
             if (texcoords != NULL) {
-                pf_vec2_copy(v1.texcoord, texcoords + i1);
-                pf_vec2_copy(v2.texcoord, texcoords + i2);
+                pf_vec2_copy(v1.texcoord, texcoords + 2 * index_1);
+                pf_vec2_copy(v2.texcoord, texcoords + 2 * index_2);
             }
 
             if (normals != NULL) {
-                pf_vec3_copy(v1.normal, normals + i1);
-                pf_vec3_copy(v2.normal, normals + i2);
+                pf_vec3_copy(v1.normal, normals + 3 * index_1);
+                pf_vec3_copy(v2.normal, normals + 3 * index_2);
             }
 
             if (colors != NULL) {
