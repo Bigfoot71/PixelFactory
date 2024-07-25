@@ -20,7 +20,7 @@ static void FragProcModel(struct pf_renderer3d* rn, pf_vertex3d_t* vertex, pf_co
 int main(void)
 {
     // Init raylib window and set target FPS
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelForge - First Person");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - First Person 3D");
     SetTargetFPS(60);
     DisableCursor();
 
@@ -129,7 +129,7 @@ int main(void)
     UnloadImage(imAtlas);
     UnloadModel(model);
 
-    // Unload the PixelForge context and the target buffer
+    // Unload the renderer and related data
     pf_renderer3d_delete(&rn);
     UnloadTexture(tex);
 
