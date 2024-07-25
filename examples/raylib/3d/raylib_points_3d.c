@@ -24,6 +24,7 @@ int main(void)
 {
     // Init raylib window and set target FPS
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Points 3D");
+    SetTargetFPS(60);
 
     // Create a rendering buffer in RAM
     pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
@@ -80,7 +81,7 @@ int main(void)
 
         // Update camera position/diraction
         pf_mat4_look_at(rn.mat_view,
-            (float[3]) { 10.0f*cosf(GetTime()), 5, 10.0f*sinf(GetTime()) },
+            (float[3]) { 6.0f*cosf(GetTime()), 5, 6.0f*sinf(GetTime()) },
             (float[3]) { 0, 2.5f, 0 }, (float[3]) { 0, 1, 0 });
 
         // Clear the destination buffer (RAM)
@@ -88,7 +89,7 @@ int main(void)
 
         // Rendering vertex buffers (points)
         for (int i = 0; i < model.meshCount; i++) {
-            pf_renderer3d_vertex_buffer_points(&rn, &pfMeshes[i], NULL, NULL, model_frag_proc,
+            pf_renderer3d_vertex_buffer_points_thick(&rn, &pfMeshes[i], 2, NULL, NULL, model_frag_proc,
                 &model.materials[model.meshMaterial[i]]);
         }
 
