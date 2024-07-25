@@ -219,7 +219,7 @@ pf_renderer3d_vertex_buffer_points_ex(
         uint32_t index = (has_indices) ? indices[i] : i;
 
         pf_vertex3d_t vertex = { 0 };
-        pf_vec3_copy(vertex.position, positions + index);
+        pf_vec3_copy(vertex.position, positions + 3 * index);
 
         if (texcoords != NULL) pf_vec2_copy(vertex.texcoord, texcoords + index);
         if (normals != NULL) pf_vec3_copy(vertex.normal, normals + index);
@@ -292,7 +292,7 @@ pf_renderer3d_vertex_buffer_points_thick_ex(
         uint32_t index = (has_indices) ? indices[i] : i;
 
         pf_vertex3d_t vertex = { 0 };
-        pf_vec3_copy(vertex.position, positions + index);
+        pf_vec3_copy(vertex.position, positions + 3 * index);
 
         if (texcoords != NULL) pf_vec2_copy(vertex.texcoord, texcoords + index);
         if (normals != NULL) pf_vec3_copy(vertex.normal, normals + index);
