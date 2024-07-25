@@ -38,6 +38,11 @@ add_executable(raylib_triangle_2d ${PF_ROOT_PATH}/examples/raylib/2d/raylib_tria
 target_link_libraries(raylib_triangle_2d PRIVATE pixelfactory raylib m)
 target_include_directories(raylib_triangle_2d PRIVATE ${PF_ROOT_PATH}/src)
 
+# 3D - First Person example
+add_executable(raylib_first_person_3d ${PF_ROOT_PATH}/examples/raylib/3d/raylib_first_person_3d.c)
+target_link_libraries(raylib_first_person_3d PRIVATE pixelfactory raylib m)
+target_include_directories(raylib_first_person_3d PRIVATE ${PF_ROOT_PATH}/src)
+
 # 3D - Lighting example
 add_executable(raylib_lighting_3d ${PF_ROOT_PATH}/examples/raylib/3d/raylib_lighting_3d.c)
 target_link_libraries(raylib_lighting_3d PRIVATE pixelfactory raylib m)
