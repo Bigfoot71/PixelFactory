@@ -167,6 +167,17 @@ pf_simd_load_i32(const void* p)
 }
 
 static inline int32_t
+pf_simd_extract_ps(pf_simd_t x, int index)
+{
+#if defined(__AVX2__)
+    return pf_simd_extract_ps(x, index);
+#else
+    (void)index;
+    return x; // Scalar fallback does not support extraction
+#endif
+}
+
+static inline int32_t
 pf_simd_extract_i32(pf_simd_i_t x, int index)
 {
 #if defined(__AVX2__)
