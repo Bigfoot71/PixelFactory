@@ -22,6 +22,213 @@
 
 /* Internal Macros */
 
+
+// NOTE: This SIMD version is slightly less efficient than the "SISD" version
+// TODO: Review the logic in a more optimized way
+/*
+#define PF_TRIANGLE_TRAVEL_NODEPTH(PIXEL_CODE)                                          \
+    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
+    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
+    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
+    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
+    for (uint32_t y = ymin; y <= ymax; ++y) {                                           \
+        int w1 = w1_row;                                                                \
+        int w2 = w2_row;                                                                \
+        int w3 = w3_row;                                                                \
+        for (uint32_t x = xmin; x <= xmax; x += PF_SIMD_SIZE) {                         \
+            pf_simd_i_t w1_v = pf_simd_add_i32(pf_simd_set1_i32(w1), w1_x_step_v);      \
+            pf_simd_i_t w2_v = pf_simd_add_i32(pf_simd_set1_i32(w2), w2_x_step_v);      \
+            pf_simd_i_t w3_v = pf_simd_add_i32(pf_simd_set1_i32(w3), w3_x_step_v);      \
+            pf_simd_i_t mask = pf_simd_or_i32(pf_simd_or_i32(w1_v, w2_v), w3_v);        \
+            pf_simd_i_t mask_ge_zero = pf_simd_cmpgt_i32(mask, pf_simd_setzero_i32());  \
+            int mask_int = pf_simd_movemask_ps((pf_simd_t)mask_ge_zero);                \
+            if (mask_int != 0) {                                                        \
+                int mask_bit = 1;                                                       \
+                for (int i = 0; i < PF_SIMD_SIZE; ++i) {                                \
+                    if (mask_int & mask_bit) {                                          \
+                        uint32_t px = x + i;                                            \
+                        if (px <= xmax)  {                                              \
+                            size_t offset = y_offset + px;                              \
+                            pf_vec3_t bary = {                                          \
+                                w1 * inv_w_sum,                                         \
+                                w2 * inv_w_sum,                                         \
+                                w3 * inv_w_sum                                          \
+                            };                                                          \
+                            float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
+                            rn->zb.buffer[offset] = z;                                  \
+                            PIXEL_CODE                                                  \
+                        }                                                               \
+                    }                                                                   \
+                    mask_bit <<= 1;                                                     \
+                    w1 += w1_x_step;                                                    \
+                    w2 += w2_x_step;                                                    \
+                    w3 += w3_x_step;                                                    \
+                }                                                                       \
+            } else {                                                                    \
+                w1 += PF_SIMD_SIZE * w1_x_step;                                         \
+                w2 += PF_SIMD_SIZE * w2_x_step;                                         \
+                w3 += PF_SIMD_SIZE * w3_x_step;                                         \
+            }                                                                           \
+        }                                                                               \
+        w1_row += w1_y_step;                                                            \
+        w2_row += w2_y_step;                                                            \
+        w3_row += w3_y_step;                                                            \
+    }
+
+#define PF_TRIANGLE_TRAVEL_DEPTH(PIXEL_CODE)                                            \
+    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
+    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
+    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
+    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
+    for (int y = ymin; y <= ymax; ++y) {                                                \
+        int w1 = w1_row;                                                                \
+        int w2 = w2_row;                                                                \
+        int w3 = w3_row;                                                                \
+        for (uint32_t x = xmin; x <= xmax; x += PF_SIMD_SIZE) {                         \
+            pf_simd_i_t w1_v = pf_simd_add_i32(pf_simd_set1_i32(w1), w1_x_step_v);      \
+            pf_simd_i_t w2_v = pf_simd_add_i32(pf_simd_set1_i32(w2), w2_x_step_v);      \
+            pf_simd_i_t w3_v = pf_simd_add_i32(pf_simd_set1_i32(w3), w3_x_step_v);      \
+            pf_simd_i_t mask = pf_simd_or_i32(pf_simd_or_i32(w1_v, w2_v), w3_v);        \
+            pf_simd_i_t mask_ge_zero = pf_simd_cmpgt_i32(mask, pf_simd_setzero_i32());  \
+            int mask_int = pf_simd_movemask_ps((pf_simd_t)mask_ge_zero);                \
+            if (mask_int != 0) {                                                        \
+                int mask_bit = 1;                                                       \
+                for (uint32_t i = 0; i < PF_SIMD_SIZE; ++i) {                           \
+                    if (mask_int & mask_bit) {                                          \
+                        uint32_t px = x + i;                                            \
+                        if (px <= xmax)  {                                              \
+                            size_t offset = y_offset + px;                              \
+                            pf_vec3_t bary = {                                          \
+                                w1 * inv_w_sum,                                         \
+                                w2 * inv_w_sum,                                         \
+                                w3 * inv_w_sum                                          \
+                            };                                                          \
+                            float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
+                            if (rn->test(rn->zb.buffer[offset], z)) {                   \
+                                rn->zb.buffer[offset] = z;                              \
+                                PIXEL_CODE                                              \
+                            }                                                           \
+                        }                                                               \
+                    }                                                                   \
+                    mask_bit <<= 1;                                                     \
+                    w1 += w1_x_step;                                                    \
+                    w2 += w2_x_step;                                                    \
+                    w3 += w3_x_step;                                                    \
+                }                                                                       \
+            } else {                                                                    \
+                w1 += PF_SIMD_SIZE * w1_x_step;                                         \
+                w2 += PF_SIMD_SIZE * w2_x_step;                                         \
+                w3 += PF_SIMD_SIZE * w3_x_step;                                         \
+            }                                                                           \
+        }                                                                               \
+        w1_row += w1_y_step;                                                            \
+        w2_row += w2_y_step;                                                            \
+        w3_row += w3_y_step;                                                            \
+    }
+
+#define PF_TRIANGLE_TRAVEL_NODEPTH_OMP(PIXEL_CODE)                                      \
+    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
+    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
+    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
+    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
+    _Pragma("omp parallel for schedule(dynamic)                                         \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
+    for (uint32_t y = ymin; y <= ymax; ++y) {                                           \
+        size_t y_offset = y * rn->fb.w;                                                 \
+        int iy = y - ymin;                                                              \
+        int w1 = w1_row + iy * w1_y_step;                                               \
+        int w2 = w2_row + iy * w2_y_step;                                               \
+        int w3 = w3_row + iy * w3_y_step;                                               \
+        for (uint32_t x = xmin; x <= xmax; x += PF_SIMD_SIZE) {                         \
+            pf_simd_i_t w1_v = pf_simd_add_i32(pf_simd_set1_i32(w1), w1_x_step_v);      \
+            pf_simd_i_t w2_v = pf_simd_add_i32(pf_simd_set1_i32(w2), w2_x_step_v);      \
+            pf_simd_i_t w3_v = pf_simd_add_i32(pf_simd_set1_i32(w3), w3_x_step_v);      \
+            pf_simd_i_t mask = pf_simd_or_i32(pf_simd_or_i32(w1_v, w2_v), w3_v);        \
+            pf_simd_i_t mask_ge_zero = pf_simd_cmpgt_i32(mask, pf_simd_setzero_i32());  \
+            int mask_int = pf_simd_movemask_ps((pf_simd_t)mask_ge_zero);                \
+            if (mask_int != 0) {                                                        \
+                int mask_bit = 1;                                                       \
+                for (uint32_t i = 0; i < PF_SIMD_SIZE; ++i) {                           \
+                    if (mask_int & mask_bit) {                                          \
+                        uint32_t px = x + i;                                            \
+                        if (px <= xmax)  {                                              \
+                            size_t offset = y_offset + px;                              \
+                            pf_vec3_t bary = {                                          \
+                                w1 * inv_w_sum,                                         \
+                                w2 * inv_w_sum,                                         \
+                                w3 * inv_w_sum                                          \
+                            };                                                          \
+                            float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
+                            rn->zb.buffer[offset] = z;                                  \
+                            PIXEL_CODE                                                  \
+                        }                                                               \
+                    }                                                                   \
+                    mask_bit <<= 1;                                                     \
+                    w1 += w1_x_step;                                                    \
+                    w2 += w2_x_step;                                                    \
+                    w3 += w3_x_step;                                                    \
+                }                                                                       \
+            } else {                                                                    \
+                w1 += PF_SIMD_SIZE * w1_x_step;                                         \
+                w2 += PF_SIMD_SIZE * w2_x_step;                                         \
+                w3 += PF_SIMD_SIZE * w3_x_step;                                         \
+            }                                                                           \
+        }                                                                               \
+    }
+
+#define PF_TRIANGLE_TRAVEL_DEPTH_OMP(PIXEL_CODE)                                        \
+    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
+    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
+    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
+    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
+    _Pragma("omp parallel for schedule(dynamic)                                         \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
+    for (uint32_t y = ymin; y <= ymax; ++y) {                                           \
+        size_t y_offset = y * rn->fb.w;                                                 \
+        int iy = y - ymin;                                                              \
+        int w1 = w1_row + iy * w1_y_step;                                               \
+        int w2 = w2_row + iy * w2_y_step;                                               \
+        int w3 = w3_row + iy * w3_y_step;                                               \
+        for (uint32_t x = xmin; x <= xmax; x += PF_SIMD_SIZE) {                         \
+            pf_simd_i_t w1_v = pf_simd_add_i32(pf_simd_set1_i32(w1), w1_x_step_v);      \
+            pf_simd_i_t w2_v = pf_simd_add_i32(pf_simd_set1_i32(w2), w2_x_step_v);      \
+            pf_simd_i_t w3_v = pf_simd_add_i32(pf_simd_set1_i32(w3), w3_x_step_v);      \
+            pf_simd_i_t mask = pf_simd_or_i32(pf_simd_or_i32(w1_v, w2_v), w3_v);        \
+            pf_simd_i_t mask_ge_zero = pf_simd_cmpgt_i32(mask, pf_simd_setzero_i32());  \
+            int mask_int = pf_simd_movemask_ps((pf_simd_t)mask_ge_zero);                \
+            if (mask_int != 0) {                                                        \
+                int mask_bit = 1;                                                       \
+                for (uint32_t i = 0; i < PF_SIMD_SIZE; ++i) {                           \
+                    if (mask_int & mask_bit) {                                          \
+                        uint32_t px = x + i;                                            \
+                        if (px <= xmax)  {                                              \
+                            size_t offset = y_offset + px;                              \
+                            pf_vec3_t bary = {                                          \
+                                w1 * inv_w_sum,                                         \
+                                w2 * inv_w_sum,                                         \
+                                w3 * inv_w_sum                                          \
+                            };                                                          \
+                            float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
+                            if (rn->test(rn->zb.buffer[offset], z)) {                   \
+                                rn->zb.buffer[offset] = z;                              \
+                                PIXEL_CODE                                              \
+                            }                                                           \
+                        }                                                               \
+                    }                                                                   \
+                    mask_bit <<= 1;                                                     \
+                    w1 += w1_x_step;                                                    \
+                    w2 += w2_x_step;                                                    \
+                    w3 += w3_x_step;                                                    \
+                }                                                                       \
+            } else {                                                                    \
+                w1 += PF_SIMD_SIZE * w1_x_step;                                         \
+                w2 += PF_SIMD_SIZE * w2_x_step;                                         \
+                w3 += PF_SIMD_SIZE * w3_x_step;                                         \
+            }                                                                           \
+        }                                                                               \
+    }
+*/
+
 #define PF_TRIANGLE_TRAVEL_NODEPTH(PIXEL_CODE)                                                  \
     for (uint32_t y = ymin, y_offset = ymin*rn->fb.w; y <= ymax; ++y, y_offset += rn->fb.w) {   \
         int w1 = w1_row;                                                                        \
