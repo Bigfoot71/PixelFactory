@@ -16,7 +16,7 @@ PixelFactory is a lightweight software rendering library written in standard C99
 - **Depth Testing**: Toggle depth testing for 3D rendering management. Several basic depth testing functions are included, and custom functions can be provided via function pointers. The clear depth value is also adjustable.
 - **Face Culling**: Supports face culling options such as back-face culling, front-face culling, and no culling.
 - **OpenMP Support**: Utilizes OpenMP to parallelize triangle rasterization loops, with an adjustable threshold for activating parallelization, significantly improving rasterization performance for large triangles.
-- **AVX2 Support**: Some rendering tasks benefit from optional AVX2 support, with plans to expand SIMD compatibility in the future.
+- **SIMD Support**: Some rendering tasks benefit from optional SSE/AVX2 support, with plans to expand SIMD compatibility in the future.
 
 ## Why?
 
@@ -65,10 +65,10 @@ Before you start, make sure you have [CMake](https://cmake.org/install/) and a C
    cmake -DPF_BUILD_SHARED=ON ..
    ```
 
-   To enable support for OpenMP and AVX2, use:
+   To enable support for OpenMP, use:
 
    ```bash
-   cmake -DPF_SUPPORT_OPENMP=ON -DPF_SUPPORT_AVX2=ON ..
+   cmake -DPF_SUPPORT_OPENMP=ON ..
    ```
 
 5. **Build the project:**

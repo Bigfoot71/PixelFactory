@@ -44,12 +44,32 @@ endif()
 # Specify the include directory
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
-# Enable AVX2 support if PF_SUPPORT_AVX2 is ON
-if(PF_SUPPORT_AVX2)
-    message(STATUS "AVX2 support enabled")
+# Check for SIMD support
+include(CheckCCompilerFlag)
+check_c_compiler_flag(-mavx2 HAVE_AVX2)
+if(HAVE_AVX2)
+    message(STATUS "AVX2 support detected")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC PF_SUPPORT_AVX2)
+    add_definitions(-DPF_SUPPORT_AVX2)
+else()
+    # Check for SSE4.1 support
+    check_c_compiler_flag(-msse4.1 HAVE_SSE4_1)
+    if(HAVE_SSE4_1)
+        message(STATUS "SSE4.1 support detected")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4")
+        add_definitions(-DPF_SUPPORT_SSE4)
+    else()
+        # Check for SSE2 support
+        check_c_compiler_flag(-msse2 HAVE_SSE2)
+        if(HAVE_SSE2)
+            message(STATUS "SSE2 support detected")
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
+            add_definitions(-DPF_SUPPORT_SSE2)
+        endif()
+    endif()
 endif()
 
 # Enable OpenMP support if PF_SUPPORT_OPENMP is ON
@@ -57,7 +77,7 @@ if(PF_SUPPORT_OPENMP)
     find_package(OpenMP)
     if (OPENMP_FOUND)
         target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_C)
-        target_compile_definitions(${PROJECT_NAME} PUBLIC PF_SUPPORT_OPENMP)
+        add_definitions(-DPF_SUPPORT_OPENMP)
     endif()
 endif()
 

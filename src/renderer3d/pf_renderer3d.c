@@ -69,8 +69,8 @@ pf_renderer3d_clear(pf_renderer3d_t* rn, pf_color_t clear_color, float clear_dep
     float* zb = rn->zb.buffer;
 
     // Load clear color/depth into an SIMD register
-    __m256i clear_color_vec = pf_simd_set1_i32(clear_color.v);
-    __m256 clear_depth_vec = pf_simd_set1_ps(clear_depth);
+    pf_simd_i_t clear_color_vec = pf_simd_set1_i32(clear_color.v);
+    pf_simd_t clear_depth_vec = pf_simd_set1_ps(clear_depth);
 
     // Fill the buffer using SIMD as much as possible
     size_t i = 0;

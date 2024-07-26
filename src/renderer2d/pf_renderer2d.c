@@ -54,7 +54,7 @@ pf_renderer2d_clear(
     pf_color_t* fb = rn->fb.buffer;
 
     // Load clear color/depth into an SIMD register
-    __m256i clear_color_vec = pf_simd_set1_i32(clear_color.v);
+    pf_simd_i_t clear_color_vec = pf_simd_set1_i32(clear_color.v);
 
     // Fill the buffer using SIMD as much as possible
     size_t i = 0;
