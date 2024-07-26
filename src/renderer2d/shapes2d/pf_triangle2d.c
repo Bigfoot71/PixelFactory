@@ -118,6 +118,8 @@
     pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
     pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
     pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
+    _Pragma("omp parallel for schedule(dynamic)                                         \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         int iy = y - ymin;                                                              \
