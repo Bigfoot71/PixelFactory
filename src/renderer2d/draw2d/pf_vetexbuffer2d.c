@@ -48,7 +48,8 @@
     }
 
 #define PF_MESH_TRIANGLE_TRAVEL_OMP(PIXEL_CODE)                                         \
-    _Pragma("omp parallel for schedule(dynamic)")                                       \
+    _Pragma("omp parallel for schedule(dynamic)                                         \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         int iy = y - ymin;                                                              \
