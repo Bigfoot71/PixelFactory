@@ -48,36 +48,36 @@ pf_renderer2d_clear(
     pf_renderer2d_t* rn,
     pf_color_t clear_color)
 {
-#   ifdef __AVX2__
+#   if PF_SIMD_SIZE > 1
 
-    pf_color_t* buffer = rn->fb.buffer;
     size_t size = rn->fb.w * rn->fb.h;
+    pf_color_t* fb = rn->fb.buffer;
 
-    // Load clear color into an AVX register
-    __m256i clear_color_vec = _mm256_set1_epi32(clear_color.v);
+    // Load clear color/depth into an SIMD register
+    __m256i clear_color_vec = pf_simd_set1_i32(clear_color.v);
 
-    // Fill the buffer using AVX as much as possible
+    // Fill the buffer using SIMD as much as possible
     size_t i = 0;
-    for (; i + 7 < size; i += 8) {
-        _mm256_storeu_si256((__m256i*)&buffer[i], clear_color_vec);
+    for (; i + PF_SIMD_SIZE - 1 < size; i += PF_SIMD_SIZE) {
+        pf_simd_store_i32((pf_simd_i_t*)(fb + i), clear_color_vec);
     }
 
-    // Fill the remaining items (less than 8 elements)
+    // Fill the remaining items (less than PF_SIMD_SIZE elements)
     for (; i < size; ++i) {
-        buffer[i] = clear_color;
+        fb[i] = clear_color;
     }
 
 #else
 
-    pf_color_t* buffer = rn->fb.buffer;
     size_t size = rn->fb.w * rn->fb.h;
+    pf_color_t* fb = rn->fb.buffer;
 
 #ifdef _OPENMP
 #   pragma omp parallel for \
         if (size >= PF_OMP_CLEAR_BUFFER_SIZE_THRESHOLD)
 #endif //_OPENMP
     for (size_t i = 0; i < size; ++i) {
-        buffer[i] = clear_color;
+        fb[i] = clear_color;
     }
 
 #endif

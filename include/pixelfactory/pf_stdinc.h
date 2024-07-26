@@ -24,11 +24,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __AVX2__
-#   include <pmmintrin.h>
-#   include <immintrin.h>
-#endif //__AVX2__
-
 #ifndef PF_MALLOC
 #   define PF_MALLOC(ptr) (malloc(ptr))
 #endif //PF_MALLOC

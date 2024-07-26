@@ -93,66 +93,63 @@ pf_color_bary_v(
     return result;
 }
 
-#ifdef __AVX2__
-
-__m256i pf_color_bary_avx(
-    __m256i c1_r, __m256i c1_g, __m256i c1_b, __m256i c1_a,
-    __m256i c2_r, __m256i c2_g, __m256i c2_b, __m256i c2_a,
-    __m256i c3_r, __m256i c3_g, __m256i c3_b, __m256i c3_a,
-    __m256 w1, __m256 w2, __m256 w3) 
+pf_simd_i_t
+pf_color_bary_simd(
+    pf_simd_i_t c1_r, pf_simd_i_t c1_g, pf_simd_i_t c1_b, pf_simd_i_t c1_a,
+    pf_simd_i_t c2_r, pf_simd_i_t c2_g, pf_simd_i_t c2_b, pf_simd_i_t c2_a,
+    pf_simd_i_t c3_r, pf_simd_i_t c3_g, pf_simd_i_t c3_b, pf_simd_i_t c3_a,
+    pf_simd_t w1, pf_simd_t w2, pf_simd_t w3)
 {
     // Multiply weights by 255 to convert them to integers
-    __m256 scale = _mm256_set1_ps(255.0f);
-    __m256 uw1_vec = _mm256_mul_ps(w1, scale);
-    __m256 uw2_vec = _mm256_mul_ps(w2, scale);
-    __m256 uw3_vec = _mm256_mul_ps(w3, scale);
+    pf_simd_t scale = pf_simd_set1_ps(255.0f);
+    pf_simd_t uw1_vec = pf_simd_mul_ps(w1, scale);
+    pf_simd_t uw2_vec = pf_simd_mul_ps(w2, scale);
+    pf_simd_t uw3_vec = pf_simd_mul_ps(w3, scale);
 
     // Convert weights to integers
-    __m256i uw1_vec_int = _mm256_cvtps_epi32(uw1_vec);
-    __m256i uw2_vec_int = _mm256_cvtps_epi32(uw2_vec);
-    __m256i uw3_vec_int = _mm256_cvtps_epi32(uw3_vec);
+    pf_simd_i_t uw1_vec_int = pf_simd_cvtf32_i32(uw1_vec);
+    pf_simd_i_t uw2_vec_int = pf_simd_cvtf32_i32(uw2_vec);
+    pf_simd_i_t uw3_vec_int = pf_simd_cvtf32_i32(uw3_vec);
 
     // Perform multiplications and additions for each channel
-    __m256i sum_r = _mm256_add_epi32(
-        _mm256_add_epi32(_mm256_mullo_epi32(uw1_vec_int, c1_r), 
-                         _mm256_mullo_epi32(uw2_vec_int, c2_r)),
-        _mm256_mullo_epi32(uw3_vec_int, c3_r));
+    pf_simd_i_t sum_r = pf_simd_add_i32(
+        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_r), 
+                         pf_simd_mullo_i32(uw2_vec_int, c2_r)),
+        pf_simd_mullo_i32(uw3_vec_int, c3_r));
 
-    __m256i sum_g = _mm256_add_epi32(
-        _mm256_add_epi32(_mm256_mullo_epi32(uw1_vec_int, c1_g), 
-                         _mm256_mullo_epi32(uw2_vec_int, c2_g)),
-        _mm256_mullo_epi32(uw3_vec_int, c3_g));
+    pf_simd_i_t sum_g = pf_simd_add_i32(
+        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_g), 
+                         pf_simd_mullo_i32(uw2_vec_int, c2_g)),
+        pf_simd_mullo_i32(uw3_vec_int, c3_g));
 
-    __m256i sum_b = _mm256_add_epi32(
-        _mm256_add_epi32(_mm256_mullo_epi32(uw1_vec_int, c1_b), 
-                         _mm256_mullo_epi32(uw2_vec_int, c2_b)),
-        _mm256_mullo_epi32(uw3_vec_int, c3_b));
+    pf_simd_i_t sum_b = pf_simd_add_i32(
+        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_b), 
+                         pf_simd_mullo_i32(uw2_vec_int, c2_b)),
+        pf_simd_mullo_i32(uw3_vec_int, c3_b));
 
-    __m256i sum_a = _mm256_add_epi32(
-        _mm256_add_epi32(_mm256_mullo_epi32(uw1_vec_int, c1_a), 
-                         _mm256_mullo_epi32(uw2_vec_int, c2_a)),
-        _mm256_mullo_epi32(uw3_vec_int, c3_a));
+    pf_simd_i_t sum_a = pf_simd_add_i32(
+        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_a), 
+                         pf_simd_mullo_i32(uw2_vec_int, c2_a)),
+        pf_simd_mullo_i32(uw3_vec_int, c3_a));
 
     // Approximate division by 255
-    __m256i factor = _mm256_set1_epi32(257);
-    sum_r = _mm256_srli_epi32(_mm256_mullo_epi32(sum_r, factor), 16);
-    sum_g = _mm256_srli_epi32(_mm256_mullo_epi32(sum_g, factor), 16);
-    sum_b = _mm256_srli_epi32(_mm256_mullo_epi32(sum_b, factor), 16);
-    sum_a = _mm256_srli_epi32(_mm256_mullo_epi32(sum_a, factor), 16);
+    pf_simd_i_t factor = pf_simd_set1_i32(257);
+    sum_r = pf_simd_srli_i32(pf_simd_mullo_i32(sum_r, factor), 16);
+    sum_g = pf_simd_srli_i32(pf_simd_mullo_i32(sum_g, factor), 16);
+    sum_b = pf_simd_srli_i32(pf_simd_mullo_i32(sum_b, factor), 16);
+    sum_a = pf_simd_srli_i32(pf_simd_mullo_i32(sum_a, factor), 16);
 
-    // Combine results into a single vector __m256i
-    __m256i result = _mm256_or_si256(
-        _mm256_or_si256(
-            _mm256_slli_epi32(sum_a, 24), 
-            _mm256_slli_epi32(sum_b, 16)),
-        _mm256_or_si256(
-            _mm256_slli_epi32(sum_g, 8), 
+    // Combine results into a single vector pf_simd_i_t
+    pf_simd_i_t result = pf_simd_or_i32(
+        pf_simd_or_i32(
+            pf_simd_slli_i32(sum_a, 24), 
+            pf_simd_slli_i32(sum_b, 16)),
+        pf_simd_or_i32(
+            pf_simd_slli_i32(sum_g, 8), 
             sum_r));
 
     return result;
 }
-
-#endif //__AVX2__
 
 pf_color_t
 pf_color_scale(

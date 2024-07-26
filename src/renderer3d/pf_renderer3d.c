@@ -62,24 +62,24 @@ pf_renderer3d_delete(
 void
 pf_renderer3d_clear(pf_renderer3d_t* rn, pf_color_t clear_color, float clear_depth)
 {
-#   ifdef __AVX2__
+#   if PF_SIMD_SIZE > 1
 
     size_t size = rn->fb.w * rn->fb.h;
     pf_color_t* fb = rn->fb.buffer;
     float* zb = rn->zb.buffer;
 
-    // Load clear color/depth into an AVX register
-    __m256i clear_color_vec = _mm256_set1_epi32(clear_color.v);
-    __m256 clear_depth_vec = _mm256_set1_ps(clear_depth);
+    // Load clear color/depth into an SIMD register
+    __m256i clear_color_vec = pf_simd_set1_i32(clear_color.v);
+    __m256 clear_depth_vec = pf_simd_set1_ps(clear_depth);
 
-    // Fill the buffer using AVX as much as possible
+    // Fill the buffer using SIMD as much as possible
     size_t i = 0;
-    for (; i + 7 < size; i += 8) {
-        _mm256_storeu_si256((__m256i*)(fb + i), clear_color_vec);
-        _mm256_storeu_ps(zb + i, clear_depth_vec);
+    for (; i + PF_SIMD_SIZE - 1 < size; i += PF_SIMD_SIZE) {
+        pf_simd_store_i32((pf_simd_i_t*)(fb + i), clear_color_vec);
+        pf_simd_store_ps(zb + i, clear_depth_vec);
     }
 
-    // Fill the remaining items (less than 8 elements)
+    // Fill the remaining items (less than PF_SIMD_SIZE elements)
     for (; i < size; ++i) {
         fb[i] = clear_color;
         zb[i] = clear_depth;
@@ -97,7 +97,7 @@ pf_renderer3d_clear(pf_renderer3d_t* rn, pf_color_t clear_color, float clear_dep
 #endif //_OPENMP
     for (size_t i = 0; i < size; ++i) {
         fb[i] = clear_color;
-        zb[i] = depth_color;
+        zb[i] = clear_depth;
     }
 
 #endif

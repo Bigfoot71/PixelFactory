@@ -24,6 +24,7 @@
 #include "pf_stdinc.h"
 #include "pf_helper.h"
 #include "pf_config.h"
+#include "pf_simd.h"
 #include <math.h>
 
 typedef union {
@@ -100,16 +101,12 @@ pf_color_bary_v(
     pf_color_t c3,
     const pf_vec3_t bary);
 
-#ifdef __AVX2__
-
-PFAPI __m256i
-pf_color_bary_avx(
-    __m256i c1_r, __m256i c1_g, __m256i c1_b, __m256i c1_a,
-    __m256i c2_r, __m256i c2_g, __m256i c2_b, __m256i c2_a,
-    __m256i c3_r, __m256i c3_g, __m256i c3_b, __m256i c3_a,
-    __m256 w1, __m256 w2, __m256 w3);
-
-#endif //__AVX2__
+pf_simd_i_t
+pf_color_bary_simd(
+    pf_simd_i_t c1_r, pf_simd_i_t c1_g, pf_simd_i_t c1_b, pf_simd_i_t c1_a,
+    pf_simd_i_t c2_r, pf_simd_i_t c2_g, pf_simd_i_t c2_b, pf_simd_i_t c2_a,
+    pf_simd_i_t c3_r, pf_simd_i_t c3_g, pf_simd_i_t c3_b, pf_simd_i_t c3_a,
+    pf_simd_t w1, pf_simd_t w2, pf_simd_t w3);
 
 PFAPI pf_color_t
 pf_color_scale(
