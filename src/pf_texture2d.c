@@ -58,7 +58,7 @@ void
 pf_texture2d_destroy(
     pf_texture2d_t* tex)
 {
-    free(tex->texels);
+    PF_FREE(tex->texels);
     memset(tex, 0, sizeof(pf_texture2d_t));
 }
 
