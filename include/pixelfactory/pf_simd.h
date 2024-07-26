@@ -38,7 +38,7 @@ _mm_mullo_epi32_sse2(__m128i x, __m128i y)
 }
 
 static inline __m128i
-mm_shuffle_epi8_sse2(__m128i x, __m128i y)
+_mm_shuffle_epi8_sse2(__m128i x, __m128i y)
 {
     // From Agner Fog's Vector Class Library
     // SEE: https://github.com/vectorclass/version2/blob/master/vectori128.h#L5516
@@ -272,7 +272,7 @@ pf_simd_permute_i32(pf_simd_i_t x, pf_simd_i_t y)
     y = _mm_and_si128(y, _mm_set1_epi32(0x00000003));
     y = _mm_mullo_epi32_sse2(y, _mm_set1_epi32(0x04040404));
     y = _mm_or_si128(y, _mm_set1_epi32(0x03020100));
-    return mm_shuffle_epi8_sse2(x, y);
+    return _mm_shuffle_epi8_sse2(x, y);
 #else
     (void)y;
     return x;
