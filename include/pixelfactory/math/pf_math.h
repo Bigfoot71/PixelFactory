@@ -56,20 +56,83 @@
 static inline PF_MATH_FLOAT
 pf_math_rsqrt(PF_MATH_FLOAT x)
 {
-    float xhalf = 0.5f*x;
+    float xhalf = 0.5f * x;
     int i = *(int*)&x;              // get bits for floating value
     i = 0x5f375a86 - (i >> 1);      // gives initial guess y0
     x = *(float*)&i;                // convert bits back to float
-    x = x*(1.5f - xhalf*x*x);       // Newton step, repeating increases accuracy
+    x = x * (1.5f - xhalf * x * x); // Newton step, repeating increases accuracy
     return x;
 }
 #endif //PFM_FISR
 
 /* Helper Functions */
 
-static inline float pf_math_lerp(float x, float y, float t)
+static inline PF_MATH_FLOAT
+pf_math_clamp(PF_MATH_FLOAT value, PF_MATH_FLOAT min, PF_MATH_FLOAT max)
+{
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
+static inline PF_MATH_FLOAT
+pf_math_lerp(PF_MATH_FLOAT x, PF_MATH_FLOAT y, PF_MATH_FLOAT t)
 {
     return x + t * (y - x);
+}
+
+static inline PF_MATH_FLOAT
+pf_math_inverse_lerp(PF_MATH_FLOAT a, PF_MATH_FLOAT b, PF_MATH_FLOAT value)
+{
+    return (value - a) / (b - a);
+}
+
+static inline PF_MATH_FLOAT
+pf_math_smoothstep(PF_MATH_FLOAT a, PF_MATH_FLOAT b, PF_MATH_FLOAT t)
+{
+    t = (t - a) / (b - a);
+    return t * t * (3 - 2 * t);
+}
+
+static inline PF_MATH_FLOAT
+pf_math_hermite(PF_MATH_FLOAT a, PF_MATH_FLOAT b, PF_MATH_FLOAT c, PF_MATH_FLOAT d, PF_MATH_FLOAT t)
+{
+    PF_MATH_FLOAT t2 = t * t;
+    PF_MATH_FLOAT t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * a + (t3 - 2 * t2 + t) * b + (-2 * t3 + 3 * t2) * c + (t3 - t2) * d;
+}
+
+static inline PF_MATH_FLOAT
+pf_math_cubic_interpolation(PF_MATH_FLOAT a, PF_MATH_FLOAT b, PF_MATH_FLOAT c, PF_MATH_FLOAT d, PF_MATH_FLOAT t)
+{
+    PF_MATH_FLOAT t2 = t * t;
+    PF_MATH_FLOAT a0 = d - c - a + b;
+    PF_MATH_FLOAT a1 = a - b - a0;
+    PF_MATH_FLOAT a2 = c - a;
+    PF_MATH_FLOAT a3 = b;
+
+    return (a0 * t * t2 + a1 * t2 + a2 * t + a3);
+}
+
+static inline PF_MATH_FLOAT
+pf_math_cosine_interpolation(PF_MATH_FLOAT a, PF_MATH_FLOAT b, PF_MATH_FLOAT t)
+{
+    PF_MATH_FLOAT t2 = (1 - cos(t * M_PI)) / 2;
+    return (a * (1 - t2) + b * t2);
+}
+
+static inline void
+pf_math_polar_to_cartesian(PF_MATH_FLOAT radius, PF_MATH_FLOAT angle, PF_MATH_FLOAT* x, PF_MATH_FLOAT* y)
+{
+    *x = radius * cos(angle);
+    *y = radius * sin(angle);
+}
+
+static inline void
+pf_math_cartesian_to_polar(PF_MATH_FLOAT x, PF_MATH_FLOAT y, PF_MATH_FLOAT* radius, PF_MATH_FLOAT* angle)
+{
+    *radius = sqrt(x * x + y * y);
+    *angle = atan2(y, x);
 }
 
 #endif //PFM_H
