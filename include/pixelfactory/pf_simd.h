@@ -12,7 +12,7 @@ typedef __m256i pf_simd_i_t;
 #else
 #define PF_SIMD_SIZE 1
 typedef float pf_simd_t;
-typedef int pf_simd_i_t;
+typedef int32_t pf_simd_i_t;
 #endif
 
 static inline pf_simd_t
@@ -167,7 +167,7 @@ pf_simd_load_i32(const void* p)
 }
 
 static inline int32_t
-pf_simd_extract_ps(pf_simd_t x, int index)
+pf_simd_extract_ps(pf_simd_t x, int32_t index)
 {
 #if defined(__AVX2__)
     return pf_simd_extract_ps(x, index);
@@ -178,7 +178,7 @@ pf_simd_extract_ps(pf_simd_t x, int index)
 }
 
 static inline int32_t
-pf_simd_extract_i32(pf_simd_i_t x, int index)
+pf_simd_extract_i32(pf_simd_i_t x, int32_t index)
 {
 #if defined(__AVX2__)
     return _mm256_extract_epi32(x, index);
@@ -200,7 +200,7 @@ pf_simd_permute_i32(pf_simd_i_t x, pf_simd_i_t y)
 }
 
 static inline pf_simd_i_t
-pf_simd_srli_i32(pf_simd_i_t x, int imm8)
+pf_simd_srli_i32(pf_simd_i_t x, int32_t imm8)
 {
 #if defined(__AVX2__)
     return _mm256_srli_epi32(x, imm8);
@@ -230,7 +230,7 @@ pf_simd_or_i32(pf_simd_i_t x, pf_simd_i_t y)
 }
 
 static inline pf_simd_i_t
-pf_simd_slli_i32(pf_simd_i_t x, int imm8)
+pf_simd_slli_i32(pf_simd_i_t x, int32_t imm8)
 {
 #if defined(__AVX2__)
     return _mm256_slli_epi32(x, imm8);
@@ -239,7 +239,7 @@ pf_simd_slli_i32(pf_simd_i_t x, int imm8)
 #endif
 }
 
-static inline int
+static inline int32_t
 pf_simd_movemask_ps(pf_simd_t x)
 {
 #if defined(__AVX2__)
@@ -249,7 +249,7 @@ pf_simd_movemask_ps(pf_simd_t x)
 #endif
 }
 
-static inline int
+static inline int32_t
 pf_simd_movemask_i8(pf_simd_i_t x)
 {
 #if defined(__AVX2__)
@@ -270,12 +270,52 @@ pf_simd_blendv_i8(pf_simd_i_t a, pf_simd_i_t b, pf_simd_i_t mask)
 }
 
 static inline pf_simd_i_t
+pf_simd_cmpeq_i32(pf_simd_i_t x, pf_simd_i_t y)
+{
+#if defined(__AVX2__)
+    return _mm256_cmpeq_epi32(x, y);
+#else
+    return x == y; // Fallback for scalar comparison
+#endif
+}
+
+static inline pf_simd_i_t
+pf_simd_cmplt_i32(pf_simd_i_t x, pf_simd_i_t y)
+{
+#if defined(__AVX2__)
+    return _mm256_cmpgt_epi32(y, x);
+#else
+    return x < y; // Fallback for scalar comparison
+#endif
+}
+
+static inline pf_simd_i_t
 pf_simd_cmpgt_i32(pf_simd_i_t x, pf_simd_i_t y)
 {
 #if defined(__AVX2__)
     return _mm256_cmpgt_epi32(x, y);
 #else
-    return x > y ? -1 : 0; // Fallback for scalar comparison
+    return x > y; // Fallback for scalar comparison
+#endif
+}
+
+static inline pf_simd_i_t
+pf_simd_cmple_i32(pf_simd_i_t x, pf_simd_i_t y)
+{
+#if defined(__AVX2__)
+    return _mm256_cmpgt_epi32(y, x); // Equivalent to x <= y
+#else
+    return x <= y; // Fallback for scalar comparison
+#endif
+}
+
+static inline pf_simd_i_t
+pf_simd_cmpge_i32(pf_simd_i_t x, pf_simd_i_t y)
+{
+#if defined(__AVX2__)
+    return _mm256_cmpgt_epi32(y, x); // Equivalent to x <= y
+#else
+    return x >= y; // Fallback for scalar comparison
 #endif
 }
 
