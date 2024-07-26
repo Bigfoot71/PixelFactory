@@ -61,6 +61,26 @@ pf_vec4_copy(
 }
 
 static inline void
+pf_vec4_copy_f(
+    PF_MATH_FLOAT* restrict dst,
+    const float* restrict src)
+{
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        dst[i] = src[i];
+    }
+}
+
+static inline void
+pf_vec4_copy_d(
+    PF_MATH_FLOAT* restrict dst,
+    const double* restrict src)
+{
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        dst[i] = src[i];
+    }
+}
+
+static inline void
 pf_vec4_swap(
     PF_MATH_FLOAT* restrict a,
     PF_MATH_FLOAT* restrict b)

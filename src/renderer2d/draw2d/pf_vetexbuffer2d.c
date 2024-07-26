@@ -150,14 +150,14 @@ pf_renderer2d_vertex_buffer_ex(
         pf_vertex2d_t v2 = { 0 };
         pf_vertex2d_t v3 = { 0 };
 
-        pf_vec2_copy(v1.position, positions + i1);
-        pf_vec2_copy(v2.position, positions + i2);
-        pf_vec2_copy(v3.position, positions + i3);
+        pf_vec2_copy_f(v1.position, positions + i1);
+        pf_vec2_copy_f(v2.position, positions + i2);
+        pf_vec2_copy_f(v3.position, positions + i3);
 
         if (texcoords != NULL) {
-            pf_vec2_copy(v1.texcoord, texcoords + i1);
-            pf_vec2_copy(v2.texcoord, texcoords + i2);
-            pf_vec2_copy(v3.texcoord, texcoords + i3);
+            pf_vec2_copy_f(v1.texcoord, texcoords + i1);
+            pf_vec2_copy_f(v2.texcoord, texcoords + i2);
+            pf_vec2_copy_f(v3.texcoord, texcoords + i3);
         }
 
         if (colors != NULL) {

@@ -74,6 +74,26 @@ pf_mat3_copy(
 }
 
 static inline void
+pf_mat3_copy_f(
+    PF_MATH_FLOAT* restrict dst,
+    const float* restrict src)
+{
+    for (int_fast8_t i = 0; i < 9; ++i) {
+        dst[i] = src[i];
+    }
+}
+
+static inline void
+pf_mat3_copy_d(
+    PF_MATH_FLOAT* restrict dst,
+    const double* restrict src)
+{
+    for (int_fast8_t i = 0; i < 9; ++i) {
+        dst[i] = src[i];
+    }
+}
+
+static inline void
 pf_mat3_translate(
     pf_mat3_t dst, PF_MATH_FLOAT x, PF_MATH_FLOAT y)
 {

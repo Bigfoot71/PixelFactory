@@ -25,7 +25,7 @@
 #ifdef PF_MATH_USE_DOUBLE
 #   define PF_MATH_FLOAT double
 #else
-#   define PF_MATH_FLOAT float
+#   define PF_MATH_FLOAT double
 #endif
 
 #ifndef M_PI

@@ -45,11 +45,11 @@
     pf_framebuffer_t* fb = &rn->fb;                                                 \
     pf_mat3_t invTransform;                                                         \
     pf_mat3_inverse(invTransform, transform);                                       \
-    float corners[4][2] = {                                                         \
+    PF_MATH_FLOAT corners[4][2] = {                                                 \
         {0, 0}, {tex->w, 0},                                                        \
         {tex->w, tex->h}, {0, tex->h}                                               \
     };                                                                              \
-    float transformedCorners[4][2];                                                 \
+    PF_MATH_FLOAT transformedCorners[4][2];                                         \
     for (int i = 0; i < 4; ++i) {                                                   \
         pf_vec2_transform(transformedCorners[i], corners[i], transform);            \
     }                                                                               \

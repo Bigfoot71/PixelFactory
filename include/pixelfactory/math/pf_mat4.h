@@ -72,6 +72,26 @@ pf_mat4_copy(
 }
 
 static inline void
+pf_mat4_copy_f(
+    PF_MATH_FLOAT* restrict dst,
+    const float* restrict src)
+{
+    for (int_fast8_t i = 0; i < 16; ++i) {
+        dst[i] = src[i];
+    }
+}
+
+static inline void
+pf_mat4_copy_d(
+    PF_MATH_FLOAT* restrict dst,
+    const double* restrict src)
+{
+    for (int_fast8_t i = 0; i < 16; ++i) {
+        dst[i] = src[i];
+    }
+}
+
+static inline void
 pf_mat4_transpose(
     pf_mat4_t dst,
     const pf_mat4_t src)
