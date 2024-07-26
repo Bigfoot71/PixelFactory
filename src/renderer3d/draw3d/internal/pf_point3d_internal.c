@@ -19,7 +19,7 @@
 
 #include "pixelfactory/pf_renderer3d.h"
 
-/* Internal Macros */
+/* Internal Drawing Macros */
 
 #define PF_POINT_THICK_TRAVEL_NODEPTH(PIXEL_CODE)                               \
     float rSq = radius*radius;                                                  \
@@ -55,6 +55,19 @@
         }                                                                       \
     }
 
+/* Internal Pixel Code Macros */
+
+#define PF_PIXEL_CODE_NOBLEND()                 \
+    pf_color_t* ptr = rn->fb.buffer + offset;   \
+    pf_color_t final_color = *ptr;              \
+    frag_proc(rn, &vertex, &final_color, attr); \
+    *ptr = final_color;
+
+#define PF_PIXEL_CODE_BLEND()                   \
+    pf_color_t* ptr = rn->fb.buffer + offset;   \
+    pf_color_t final_color = *ptr;              \
+    frag_proc(rn, &vertex, &final_color, attr); \
+    *ptr = rn->blend(*ptr, final_color);
 
 /* Internal Rendering Functions */
 
@@ -95,33 +108,21 @@ pf_renderer3d_point_INTERNAL(
         if (rn->test != NULL) {
             if (rn->blend != NULL) {
                 PF_POINT_THICK_TRAVEL_DEPTH({
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = rn->blend(*ptr, final_color);
+                    PF_PIXEL_CODE_BLEND()
                 })
             } else {
                 PF_POINT_THICK_TRAVEL_DEPTH({
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = final_color;
+                    PF_PIXEL_CODE_NOBLEND()
                 })
             }
         } else {
             if (rn->blend != NULL) {
                 PF_POINT_THICK_TRAVEL_NODEPTH({
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = rn->blend(*ptr, final_color);
+                    PF_PIXEL_CODE_BLEND()
                 })
             } else {
                 PF_POINT_THICK_TRAVEL_NODEPTH({
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = final_color;
+                    PF_PIXEL_CODE_NOBLEND()
                 })
             }
         }

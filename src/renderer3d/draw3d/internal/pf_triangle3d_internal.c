@@ -20,8 +20,7 @@
 #include "pixelfactory/pf_renderer3d.h"
 #include "pixelfactory/pf_config.h"
 
-/* Internal Macros */
-
+/* Internal Rasterization Macros */
 
 // NOTE: This SIMD version is slightly less efficient than the "SISD" version
 // TODO: Review the logic in a more optimized way
@@ -339,6 +338,24 @@
         }                                                                                       \
     }
 
+/* Internal Pixel Code Macros */
+
+#define PF_PIXEL_CODE_NOBLEND()                     \
+    pf_vertex3d_t vertex;                           \
+    rast_proc(&vertex, v1, v2, v3, bary, z, attr);  \
+    pf_color_t* ptr = rn->fb.buffer + offset;       \
+    pf_color_t final_color = *ptr;                  \
+    frag_proc(rn, &vertex, &final_color, attr);     \
+    *ptr = final_color;
+
+#define PF_PIXEL_CODE_BLEND()                       \
+    pf_vertex3d_t vertex;                           \
+    rast_proc(&vertex, v1, v2, v3, bary, z, attr);  \
+    pf_color_t* ptr = rn->fb.buffer + offset;       \
+    pf_color_t final_color = *ptr;                  \
+    frag_proc(rn, &vertex, &final_color, attr);     \
+    *ptr = rn->blend(*ptr, final_color);
+
 
 /* Internal Rendering Functions */
 
@@ -455,49 +472,21 @@ pf_renderer3d_triangle_INTERNAL(
         if (rn->test != NULL) {
             if (rn->blend != NULL) {
                 PF_TRIANGLE_TRAVEL_DEPTH_OMP({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = rn->blend(*ptr, final_color);
+                    PF_PIXEL_CODE_BLEND()
                 })
             } else {
                 PF_TRIANGLE_TRAVEL_DEPTH_OMP({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = final_color;
+                    PF_PIXEL_CODE_NOBLEND()
                 })
             }
         } else {
             if (rn->blend != NULL) {
                 PF_TRIANGLE_TRAVEL_NODEPTH_OMP({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = rn->blend(*ptr, final_color);
+                    PF_PIXEL_CODE_BLEND()
                 })
             } else {
                 PF_TRIANGLE_TRAVEL_NODEPTH_OMP({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = final_color;
+                    PF_PIXEL_CODE_NOBLEND()
                 })
             }
         }
@@ -505,49 +494,21 @@ pf_renderer3d_triangle_INTERNAL(
         if (rn->test != NULL) {
             if (rn->blend != NULL) {
                 PF_TRIANGLE_TRAVEL_DEPTH({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = rn->blend(*ptr, final_color);
+                    PF_PIXEL_CODE_BLEND()
                 })
             } else {
                 PF_TRIANGLE_TRAVEL_DEPTH({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = final_color;
+                    PF_PIXEL_CODE_NOBLEND()
                 })
             }
         } else {
             if (rn->blend != NULL) {
                 PF_TRIANGLE_TRAVEL_NODEPTH({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = rn->blend(*ptr, final_color);
+                    PF_PIXEL_CODE_BLEND()
                 })
             } else {
                 PF_TRIANGLE_TRAVEL_NODEPTH({
-                    pf_vertex3d_t vertex;
-                    rast_proc(&vertex, v1, v2, v3, bary, z, attr);
-
-                    pf_color_t* ptr = rn->fb.buffer + offset;
-                    pf_color_t final_color = *ptr;
-
-                    frag_proc(rn, &vertex, &final_color, attr);
-                    *ptr = final_color;
+                    PF_PIXEL_CODE_NOBLEND()
                 })
             }
         }

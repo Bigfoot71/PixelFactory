@@ -19,7 +19,7 @@
 
 #include "pixelfactory/pf_renderer3d.h"
 
-/* Internal Macros */
+/* Internal Rasterization Macros */
 
 #define PF_LINE_TRAVEL_NODEPTH(PIXEL_CODE)                                              \
     int_fast8_t y_longer = 0;                                                           \
@@ -199,6 +199,8 @@
             }                                                                           \
         }                                                                               \
     }
+
+/* Internal Pixel Code Macros */
 
 #define PF_PIXEL_CODE_NOBLEND()                                                         \
     pf_vertex3d_t vertex = pf_vertex3d_lerp_INTERNAL(&vertices[0], &vertices[1], t);    \
