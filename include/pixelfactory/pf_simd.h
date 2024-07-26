@@ -116,6 +116,16 @@ pf_simd_cvtf32_i32(pf_simd_t x)
 #endif
 }
 
+static inline pf_simd_t
+pf_simd_rcp_ps(pf_simd_t x)
+{
+#if defined(__AVX2__)
+    return _mm256_rcp_ps(x);
+#else
+    return 1.0f / x;
+#endif
+}
+
 static inline void
 pf_simd_store_ps(void* p, pf_simd_t x)
 {
