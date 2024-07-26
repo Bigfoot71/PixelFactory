@@ -28,6 +28,7 @@
 #include <math.h>
 
 typedef union {
+    uint8_t a[4];
     uint32_t v;
     struct {
         uint8_t r;
