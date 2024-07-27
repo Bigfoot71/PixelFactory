@@ -217,7 +217,9 @@ pf_proc3d_clip_line(
     }
 }
 
-// TODO: Fix the issue related to the depth which appears following clipping in certain situations
+// TODO: Fix the warping issue that occurs during near clipping
+// NOTE: To avoid this problem of deformation, it is currently advisable
+//       to apply the smallest "near" value possible in your projection matrix.
 void
 pf_proc3d_clip_triangle(
     const pf_renderer3d_t* rn,
