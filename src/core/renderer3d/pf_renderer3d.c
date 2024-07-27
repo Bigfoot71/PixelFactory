@@ -20,6 +20,28 @@
 #include "pixelfactory/core/pf_renderer3d.h"
 #include <float.h>
 
+/* Internal Macros */
+
+#define PF_RENDERER3D_MAP(PIXEL_CODE)                                   \
+    for (int y = 0; y < (int)rn->fb.h; ++y) {                           \
+        size_t y_offset = y * rn->fb.w;                                 \
+        for (int x = 0; x < (int)rn->fb.w; ++x) {                       \
+            size_t offset = y_offset + x;                               \
+            pf_color_t* fb_ptr = rn->fb.buffer + offset;                \
+            float* zb_ptr = rn->zb.buffer + offset;                     \
+            pf_color_t color = *fb_ptr;                                 \
+            float depth = *zb_ptr;                                      \
+            PIXEL_CODE                                                  \
+            u += tx;                                                    \
+        }                                                               \
+        v += ty;                                                        \
+    }
+
+#define PF_RENDERER3D_MAP_OMP(PIXEL_CODE)                               \
+    _Pragma("omp parallel for                                           \
+        if (rn->fb.w * rn->fb.h >= PF_OMP_BUFFER_MAP_SIZE_THRESHOLD)")  \
+    PF_RENDERER3D_MAP(PIXEL_CODE)
+
 /* Public API */
 
 pf_renderer3d_t
@@ -100,6 +122,46 @@ pf_renderer3d_clear(pf_renderer3d_t* rn, pf_color_t clear_color, float clear_dep
         zb[i] = clear_depth;
     }
 
+#endif
+}
+
+void
+pf_renderer3d_map(
+    pf_renderer3d_t* rn,
+    pf_renderer3d_map_fn func)
+{
+    float tx = 1.0f / rn->fb.w;
+    float ty = 1.0f / rn->fb.h;
+    float u = 0, v = 0;
+
+#if defined(_OPENMP)
+    if (rn->blend != NULL) {
+        PF_RENDERER3D_MAP_OMP({
+            func(rn, &color, &depth, x, y, u, v);
+            *fb_ptr = rn->blend(*fb_ptr, color);
+            *zb_ptr = depth;
+        })
+    } else {
+        PF_RENDERER3D_MAP_OMP({
+            func(rn, &color, &depth, x, y, u, v);
+            *fb_ptr = color;
+            *zb_ptr = depth;
+        })
+    }
+#else
+    if (rn->blend != NULL) {
+        PF_RENDERER3D_MAP({
+            func(rn, &color, &depth, x, y, u, v);
+            *fb_ptr = rn->blend(*fb_ptr, color);
+            *zb_ptr = depth;
+        })
+    } else {
+        PF_RENDERER3D_MAP({
+            func(rn, &color, &depth, x, y, u, v);
+            *fb_ptr = color;
+            *zb_ptr = depth;
+        })
+    }
 #endif
 }
 

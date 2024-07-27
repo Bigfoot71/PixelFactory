@@ -1,5 +1,3 @@
-#include "pixelfactory/math/pf_mat4.h"
-#include "pixelfactory/math/pf_vec3.h"
 #include "pixelfactory/pf.h"
 
 #include <float.h>
@@ -16,16 +14,18 @@ typedef struct {
 
 static bool WallCollision(Camera3D* camera, const Image* imMap);
 static void FragProcModel(struct pf_renderer3d* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* attr);
+static void RendererMap(pf_renderer3d_t* rn, pf_color_t* outColor, float* outDepth, int x, int y, float u, float v);
 
 int main(void)
 {
     // Init raylib window and set target FPS
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - First Person 3D");
-    SetTargetFPS(60);
+    //SetTargetFPS(60);
     DisableCursor();
 
     // Create a rendering buffer in RAM
     pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
+    pf_mat4_perspective(rn.mat_proj, 45.0f, (float)rn.fb.w / rn.fb.h, 0.01f, 10.0f);
     rn.cull_mode = PF_CULL_BACK;
 
     // Create a raylib raylib texture to render buffer
@@ -110,11 +110,10 @@ int main(void)
         // Draw
 
         pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
-
-
         for (int i = 0; i < model.meshCount; i++) {
             pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, NULL, FragProcModel, &uniforms);
         }
+        pf_renderer3d_map(&rn, RendererMap);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -203,19 +202,16 @@ bool WallCollision(Camera3D* camera, const Image* imMap)
     return (adx > 0 && ady > 0);
 }
 
-void FragProcModel(struct pf_renderer3d* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* attr)
+void FragProcModel(pf_renderer3d_t* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* attr)
 {
     (void)rn;
-
     const Uniforms* uniforms = attr;
-
     *outColor = uniforms->texture.sampler(attr,
         vertex->texcoord[0], vertex->texcoord[1]);
+}
 
-    float dist = pf_vec3_distance(uniforms->camPos, vertex->position);
-    float nDist = 1.0f - PF_MIN(dist, 10.0f) * 0.1f;
-
-    outColor->c.r *= nDist;
-    outColor->c.g *= nDist;
-    outColor->c.b *= nDist;
+void RendererMap(pf_renderer3d_t* rn, pf_color_t* outColor, float* outDepth, int x, int y, float u, float v)
+{
+    (void)rn, (void)x, (void)y, (void)u, (void)v;
+    *outColor = pf_color_lerpf(*outColor, PF_GRAY, PF_MIN(*outDepth, 10.0f) * 0.1f);
 }

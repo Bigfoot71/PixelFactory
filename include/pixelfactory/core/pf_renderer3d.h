@@ -39,6 +39,14 @@ typedef enum {
     PF_CULL_FRONT
 } pf_cullmode_e;
 
+typedef void(*pf_renderer3d_map_fn)(
+    struct pf_renderer3d* rn,
+    pf_color_t* out_color,
+    float* out_depth,
+    int x, int y,
+    float u,
+    float v);
+
 typedef struct pf_renderer3d {
     pf_mat4_t           mat_view;
     pf_mat4_t           mat_proj;
@@ -69,6 +77,11 @@ pf_renderer3d_clear(
     pf_renderer3d_t* rn,
     pf_color_t clear_color,
     float clear_depth);
+
+PFAPI void
+pf_renderer3d_map(
+    pf_renderer3d_t* rn,
+    pf_renderer3d_map_fn func);
 
 PFAPI void
 pf_renderer3d_viewport(
