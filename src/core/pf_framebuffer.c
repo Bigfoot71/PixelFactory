@@ -106,6 +106,10 @@ pf_framebuffer_copy(
     float inv_dst_w = 1.0f / (float)dst_fb->w;
     float inv_dst_h = 1.0f / (float)dst_fb->h;
 
+#ifdef _OPENMP
+#   pragma omp parallel for\
+        if ((dst_xmax - dst_xmin) * (dst_ymax - dst_ymin) > PF_OMP_BUFFER_COPY_SIZE_THRESHOLD)
+#endif //_OPENMP
     for (int y = dst_ymin; y <= dst_ymax; ++y)
     {
         size_t y_dst_offset = y * dst_fb->w;
@@ -128,9 +132,11 @@ pf_framebuffer_copy_pixels(
     const uint32_t src_rect[4])
 {
     int xmin, ymin, xmax, ymax;
+    
     if (dst == NULL || src_fb == NULL || src_fb->buffer == NULL) {
         return;
     }
+    
     if (src_rect == NULL) {
         xmin = ymin = 0;
         xmax = src_fb->w - 1;
@@ -143,10 +149,22 @@ pf_framebuffer_copy_pixels(
         if (xmin > xmax) PF_SWAP(xmin, xmax);
         if (ymin > ymax) PF_SWAP(ymin, ymax);
     }
-    uint32_t *ptr = dst;
+
+    uint32_t *dst_ptr = (uint32_t*)dst;
+    pf_simd_i_t src_vector;
+    
     for (int y = ymin; y <= ymax; ++y) {
-        for (int x = xmin; x <= xmax; ++x) {
-            *ptr++ = src_fb->buffer[y * src_fb->w + x].v;
+        const pf_color_t *src_row_ptr = src_fb->buffer + y * src_fb->w + xmin;
+        int x = xmin;
+        
+        for (; x <= xmax - PF_SIMD_SIZE + 1; x += PF_SIMD_SIZE) {
+            src_vector = pf_simd_load_i32(src_row_ptr + x);
+            pf_simd_store_i32(dst_ptr + x, src_vector);
+        }
+        
+        // Copie des pixels restants
+        for (; x <= xmax; ++x) {
+            dst_ptr[x] = src_row_ptr[x].v;
         }
     }
 }
@@ -181,11 +199,14 @@ pf_framebuffer_fill(
     pf_color_t color)
 {
     int xmin, ymin, xmax, ymax;
+    
     if (fb == NULL || fb->buffer == NULL) {
         return;
     }
+    
     if (rect == NULL) {
-        xmin = ymin = 0;
+        xmin = 0;
+        ymin = 0;
         xmax = fb->w - 1;
         ymax = fb->h - 1;
     } else {
@@ -193,13 +214,22 @@ pf_framebuffer_fill(
         ymin = PF_MIN(rect[1], fb->h - 1);
         xmax = PF_MIN(rect[2], fb->w - 1);
         ymax = PF_MIN(rect[3], fb->h - 1);
+        
         if (xmin > xmax) PF_SWAP(xmin, xmax);
         if (ymin > ymax) PF_SWAP(ymin, ymax);
     }
+
+    pf_color_t* row_ptr;
+    pf_simd_i_t color_vector = pf_simd_set1_i32(color.v);
+
     for (int y = ymin; y <= ymax; ++y) {
-        pf_color_t* ptr = fb->buffer + y * fb->w + xmin;
-        for (int x = xmin; x <= xmax; ++x) {
-            *ptr++ = color;
+        row_ptr = fb->buffer + y * fb->w + xmin;
+        int x = xmin;
+        for (; x <= xmax - PF_SIMD_SIZE + 1; x += PF_SIMD_SIZE) {
+            pf_simd_store_i32(row_ptr + x, color_vector);
+        }
+        for (; x <= xmax; ++x) {
+            row_ptr[x] = color;
         }
     }
 }
@@ -211,9 +241,11 @@ pf_framebuffer_map(
     pf_framebuffer_map_fn func)
 {
     int xmin, ymin, xmax, ymax;
+
     if (fb == NULL || fb->buffer == NULL) {
         return;
     }
+
     if (rect == NULL) {
         xmin = ymin = 0;
         xmax = fb->w - 1;
@@ -226,6 +258,11 @@ pf_framebuffer_map(
         if (xmin > xmax) PF_SWAP(xmin, xmax);
         if (ymin > ymax) PF_SWAP(ymin, ymax);
     }
+
+#ifdef _OPENMP
+#   pragma omp parallel for\
+        if ((xmax - xmin) * (ymax - ymin) > PF_OMP_BUFFER_MAP_SIZE_THRESHOLD)
+#endif //_OPENMP
     for (int y = ymin; y <= ymax; ++y) {
         pf_color_t* ptr = fb->buffer + y * fb->w + xmin;
         for (int x = xmin; x <= xmax; ++x) {
