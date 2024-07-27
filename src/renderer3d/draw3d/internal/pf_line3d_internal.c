@@ -203,14 +203,16 @@
 /* Internal Pixel Code Macros */
 
 #define PF_PIXEL_CODE_NOBLEND()                                                         \
-    pf_vertex3d_t vertex = pf_vertex3d_lerp_INTERNAL(&vertices[0], &vertices[1], t);    \
+    pf_vertex3d_t vertex;                                                               \
+    pf_vertex3d_lerp_INTERNAL(&vertex, &vertices[0], &vertices[1], t);                  \
     pf_color_t *ptr = rn->fb.buffer + offset;                                           \
     pf_color_t final_color = *ptr;                                                      \
     frag_proc(rn, &vertex, &final_color, attr);                                         \
     *ptr = final_color;                                                                 \
 
 #define PF_PIXEL_CODE_BLEND()                                                           \
-    pf_vertex3d_t vertex = pf_vertex3d_lerp_INTERNAL(&vertices[0], &vertices[1], t);    \
+    pf_vertex3d_t vertex;                                                               \
+    pf_vertex3d_lerp_INTERNAL(&vertex, &vertices[0], &vertices[1], t);                  \
     pf_color_t *ptr = rn->fb.buffer + offset;                                           \
     pf_color_t final_color = *ptr;                                                      \
     frag_proc(rn, &vertex, &final_color, attr);                                         \
@@ -220,8 +222,12 @@
 /* Internal Functions Declarations */
 
 // NOTE: Defined in pf_processors.c
-pf_vertex3d_t
-pf_vertex3d_lerp_INTERNAL(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t);
+void
+pf_vertex3d_lerp_INTERNAL(
+    pf_vertex3d_t* restrict result,
+    const pf_vertex3d_t* restrict start,
+    const pf_vertex3d_t* restrict end,
+    float t);
 
 
 /* Internal Rendering Functions */

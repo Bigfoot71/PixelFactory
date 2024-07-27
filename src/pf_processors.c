@@ -25,14 +25,13 @@
 
 /* Internal Helper Functions */
 
-pf_vertex3d_t
-pf_vertex3d_lerp_INTERNAL(const pf_vertex3d_t* start, const pf_vertex3d_t* end, float t)
+void
+pf_vertex3d_lerp_INTERNAL(
+    pf_vertex3d_t* restrict result,
+    const pf_vertex3d_t* restrict start,
+    const pf_vertex3d_t* restrict end,
+    float t)
 {
-    pf_vertex3d_t result = { 0 };
-
-    const uint8_t *startCol = (const uint8_t*)(&start->color);
-    const uint8_t *endCol = (const uint8_t*)(&end->color);
-    uint8_t *resultCol = (uint8_t*)(&result.color);
     uint8_t uT = 255*t;
 
 #ifdef _OPENMP
@@ -40,19 +39,17 @@ pf_vertex3d_lerp_INTERNAL(const pf_vertex3d_t* start, const pf_vertex3d_t* end, 
 #endif //_OPENMP
     for (int_fast8_t i = 0; i < 4; ++i)
     {
-        resultCol[i] = startCol[i] + (uT*((int)endCol[i] - startCol[i]))/255;
+        result->color.a[i] = start->color.a[i] + (uT * ((int)end->color.a[i] - start->color.a[i])) / 255;
 
         if (i < 2) {
-            result.texcoord[i] = start->texcoord[i] + t*(end->texcoord[i] - start->texcoord[i]);
+            result->texcoord[i] = start->texcoord[i] + t * (end->texcoord[i] - start->texcoord[i]);
         }
 
         if (i < 3) {
-            result.position[i] = start->position[i] + t*(end->position[i] - start->position[i]);
-            result.normal[i] = start->normal[i] + t*(end->normal[i] - start->normal[i]);
+            result->position[i] = start->position[i] + t * (end->position[i] - start->position[i]);
+            result->normal[i] = start->normal[i] + t * (end->normal[i] - start->normal[i]);
         }
     }
-
-    return result;
 }
 
 static uint8_t
@@ -249,9 +246,9 @@ pf_proc3d_clip_triangle(
         int_fast8_t currDot = (input_homogen[i][3] < PF_EPSILON) ? -1 : 1;
 
         if (prevDot * currDot < 0) {
-            float t = (PF_EPSILON - (*prev_homogen)[3]) / (input_homogen[i][3] - (*prev_homogen)[3]);
+            PF_MATH_FLOAT t = (PF_EPSILON - (*prev_homogen)[3]) / (input_homogen[i][3] - (*prev_homogen)[3]);
             pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
-            out_vertices[*out_vertices_count] = pf_vertex3d_lerp_INTERNAL(prev_vt, &input_vt[i], t);
+            pf_vertex3d_lerp_INTERNAL(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
             (*out_vertices_count)++;
         }
 
@@ -290,10 +287,10 @@ pf_proc3d_clip_triangle(
             int_fast8_t currDot = (input_homogen[i][iAxis] <= input_homogen[i][3]) ? 1 : -1;
 
             if (prevDot * currDot <= 0) {
-                float t = ((*prev_homogen)[3] - (*prev_homogen)[iAxis]) / 
-                          (((*prev_homogen)[3] - (*prev_homogen)[iAxis]) - (input_homogen[i][3] - input_homogen[i][iAxis]));
+                PF_MATH_FLOAT t = (*prev_homogen)[3] - (*prev_homogen)[iAxis];
+                t /= ((*prev_homogen)[3] - (*prev_homogen)[iAxis]) - (input_homogen[i][3] - input_homogen[i][iAxis]);
                 pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
-                out_vertices[*out_vertices_count] = pf_vertex3d_lerp_INTERNAL(prev_vt, &input_vt[i], t);
+                pf_vertex3d_lerp_INTERNAL(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
                 (*out_vertices_count)++;
             }
 
@@ -325,10 +322,10 @@ pf_proc3d_clip_triangle(
             int_fast8_t currDot = (-input_homogen[i][iAxis] <= input_homogen[i][3]) ? 1 : -1;
 
             if (prevDot * currDot <= 0) {
-                float t = ((*prev_homogen)[3] + (*prev_homogen)[iAxis]) / 
-                          (((*prev_homogen)[3] + (*prev_homogen)[iAxis]) - (input_homogen[i][3] + input_homogen[i][iAxis]));
+                PF_MATH_FLOAT t = (*prev_homogen)[3] + (*prev_homogen)[iAxis];
+                t /= ((*prev_homogen)[3] + (*prev_homogen)[iAxis]) - (input_homogen[i][3] + input_homogen[i][iAxis]);
                 pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
-                out_vertices[*out_vertices_count] = pf_vertex3d_lerp_INTERNAL(prev_vt, &input_vt[i], t);
+                pf_vertex3d_lerp_INTERNAL(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
                 (*out_vertices_count)++;
             }
 
@@ -458,10 +455,10 @@ pf_proc3d_rasterizer_perspective_correct(
     out_vertex->normal[2] = u * v1->normal[2] + v * v2->normal[2] + w * v3->normal[2];
 
     // Interpolation of vertex colors
-    out_vertex->color.c.r = u * v1->color.c.r + v * v2->color.c.r + w * v3->color.c.r;
-    out_vertex->color.c.g = u * v1->color.c.g + v * v2->color.c.g + w * v3->color.c.g;
-    out_vertex->color.c.b = u * v1->color.c.b + v * v2->color.c.b + w * v3->color.c.b;
-    out_vertex->color.c.a = u * v1->color.c.a + v * v2->color.c.a + w * v3->color.c.a;
+    out_vertex->color.a[0] = u * v1->color.a[0] + v * v2->color.a[0] + w * v3->color.a[0];
+    out_vertex->color.a[1] = u * v1->color.a[1] + v * v2->color.a[1] + w * v3->color.a[1];
+    out_vertex->color.a[2] = u * v1->color.a[2] + v * v2->color.a[2] + w * v3->color.a[2];
+    out_vertex->color.a[3] = u * v1->color.a[3] + v * v2->color.a[3] + w * v3->color.a[3];
 }
 
 void
