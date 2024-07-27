@@ -288,7 +288,7 @@ pf_proc3d_clip_triangle(
 
             if (prevDot * currDot <= 0) {
                 float t = (*prev_homogen)[3] - (*prev_homogen)[iAxis];
-                t /= ((*prev_homogen)[3] - (*prev_homogen)[iAxis]) - (input_homogen[i][3] - input_homogen[i][iAxis]);
+                t /= t - (input_homogen[i][3] - input_homogen[i][iAxis]);
                 pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
                 pf_vertex3d_lerp_INTERNAL(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
                 (*out_vertices_count)++;
@@ -323,7 +323,7 @@ pf_proc3d_clip_triangle(
 
             if (prevDot * currDot <= 0) {
                 float t = (*prev_homogen)[3] + (*prev_homogen)[iAxis];
-                t /= ((*prev_homogen)[3] + (*prev_homogen)[iAxis]) - (input_homogen[i][3] + input_homogen[i][iAxis]);
+                t /= t - (input_homogen[i][3] + input_homogen[i][iAxis]);
                 pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
                 pf_vertex3d_lerp_INTERNAL(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
                 (*out_vertices_count)++;
