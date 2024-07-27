@@ -20,7 +20,7 @@ int main(void)
 {
     // Init raylib window and set target FPS
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - First Person 3D");
-    //SetTargetFPS(60);
+    SetTargetFPS(60);
     DisableCursor();
 
     // Create a rendering buffer in RAM
