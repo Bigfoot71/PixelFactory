@@ -17,34 +17,45 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef PF_H
-#define PF_H
+#ifndef PF_VERTEX_H
+#define PF_VERTEX_H
 
-#include "components/pf_color.h"
-#include "components/pf_depth.h"
-#include "components/pf_pixel.h"
-#include "components/pf_processors.h"
-#include "components/pf_simd.h"
-#include "components/pf_vertex.h"
+#include "../math/pf_vec2.h"
+#include "../math/pf_vec4.h"
+#include "pf_color.h"
 
-#include "core/pf_depthbuffer.h"
-#include "core/pf_framebuffer.h"
-#include "core/pf_renderer2d.h"
-#include "core/pf_renderer3d.h"
-#include "core/pf_texture2d.h"
+typedef struct {
+    pf_vec2_t position;
+    pf_vec2_t texcoord;
+    pf_color_t color;
+    uint32_t index;
+} pf_vertex2d_t;
 
-#include "math/pf_math.h"
-#include "math/pf_vec2.h"
-#include "math/pf_vec3.h"
-#include "math/pf_vec4.h"
-#include "math/pf_mat3.h"
-#include "math/pf_mat4.h"
+typedef struct {
+    float* positions;
+    float* texcoords;
+    pf_color_t* colors;
+    uint16_t* indices;
+    uint32_t num_vertices;
+    uint32_t num_indices;
+} pf_vertexbuffer2d_t;
 
-#include "misc/pf_config.h"
-#include "misc/pf_helper.h"
-#include "misc/pf_stdinc.h"
+typedef struct {
+    pf_vec3_t position;
+    pf_vec2_t texcoord;
+    pf_vec3_t normal;
+    pf_color_t color;
+    uint32_t index;
+} pf_vertex3d_t;
 
-#include "utils/pf_camera2d.h"
-#include "utils/pf_camera3d.h"
+typedef struct {
+    float* positions;
+    float* texcoords;
+    float* normals;
+    pf_color_t* colors;
+    uint16_t* indices;
+    uint32_t num_vertices;
+    uint32_t num_indices;
+} pf_vertexbuffer3d_t;
 
-#endif //PF_H
+#endif //PF_VERTEX_H

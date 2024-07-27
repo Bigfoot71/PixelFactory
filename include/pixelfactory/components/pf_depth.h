@@ -17,34 +17,56 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef PF_H
-#define PF_H
+#ifndef PF_DEPTH_H
+#define PF_DEPTH_H
 
-#include "components/pf_color.h"
-#include "components/pf_depth.h"
-#include "components/pf_pixel.h"
-#include "components/pf_processors.h"
-#include "components/pf_simd.h"
-#include "components/pf_vertex.h"
+/* Function Prototypes */
 
-#include "core/pf_depthbuffer.h"
-#include "core/pf_framebuffer.h"
-#include "core/pf_renderer2d.h"
-#include "core/pf_renderer3d.h"
-#include "core/pf_texture2d.h"
+typedef int (*pf_depth_test_fn)(
+    float, float);
 
-#include "math/pf_math.h"
-#include "math/pf_vec2.h"
-#include "math/pf_vec3.h"
-#include "math/pf_vec4.h"
-#include "math/pf_mat3.h"
-#include "math/pf_mat4.h"
+/* Depth Testing Functions Collection */
 
-#include "misc/pf_config.h"
-#include "misc/pf_helper.h"
-#include "misc/pf_stdinc.h"
+static inline int
+pf_depth_equal(
+    float dst, float src)
+{
+    return (src == dst);
+}
 
-#include "utils/pf_camera2d.h"
-#include "utils/pf_camera3d.h"
+static inline int
+pf_depth_not_equal(
+    float dst, float src)
+{
+    return (src != dst);
+}
 
-#endif //PF_H
+static inline int
+pf_depth_less(
+    float dst, float src)
+{
+    return (src < dst);
+}
+
+static inline int
+pf_depth_less_equal(
+    float dst, float src)
+{
+    return (src <= dst);
+}
+
+static inline int
+pf_depth_greater(
+    float dst, float src)
+{
+    return (src > dst);
+}
+
+static inline int
+pf_depth_greater_equal(
+    float dst, float src)
+{
+    return (src >= dst);
+}
+
+#endif //PF_DEPTH_H

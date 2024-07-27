@@ -17,34 +17,41 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#ifndef PF_H
-#define PF_H
+#ifndef PF_DEPTHBUFFER_H
+#define PF_DEPTHBUFFER_H
 
-#include "components/pf_color.h"
-#include "components/pf_depth.h"
-#include "components/pf_pixel.h"
-#include "components/pf_processors.h"
-#include "components/pf_simd.h"
-#include "components/pf_vertex.h"
+#include "../misc/pf_config.h"
+#include <stdint.h>
 
-#include "core/pf_depthbuffer.h"
-#include "core/pf_framebuffer.h"
-#include "core/pf_renderer2d.h"
-#include "core/pf_renderer3d.h"
-#include "core/pf_texture2d.h"
+typedef struct {
+    float* buffer;
+    uint32_t w;
+    uint32_t h;
+} pf_depthbuffer_t;
 
-#include "math/pf_math.h"
-#include "math/pf_vec2.h"
-#include "math/pf_vec3.h"
-#include "math/pf_vec4.h"
-#include "math/pf_mat3.h"
-#include "math/pf_mat4.h"
+pf_depthbuffer_t
+pf_depthbuffer_create(
+    uint32_t w, uint32_t h,
+    float def);
 
-#include "misc/pf_config.h"
-#include "misc/pf_helper.h"
-#include "misc/pf_stdinc.h"
+PFAPI void
+pf_depthbuffer_delete(
+    pf_depthbuffer_t* zb);
 
-#include "utils/pf_camera2d.h"
-#include "utils/pf_camera3d.h"
+PFAPI int
+pf_depthbuffer_is_valid(
+    const pf_depthbuffer_t* zb);
 
-#endif //PF_H
+PFAPI void
+pf_depthbuffer_put(
+    pf_depthbuffer_t* zb,
+    uint32_t x, uint32_t y,
+    float depth);
+
+PFAPI void
+pf_depthbuffer_fill(
+    pf_depthbuffer_t* zb,
+    const uint32_t rect[4],
+    float depth);
+
+#endif //PF_DEPTHBUFFER_H

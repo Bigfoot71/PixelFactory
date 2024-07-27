@@ -22,7 +22,7 @@
 
 #include "pf_math.h"
 
-#include "../pf_stdinc.h"
+#include "../misc/pf_stdinc.h"
 #include <string.h>
 
 typedef PF_MATH_FLOAT pf_mat3_t[3*3];
