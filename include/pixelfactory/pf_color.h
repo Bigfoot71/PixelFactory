@@ -39,6 +39,7 @@ typedef union {
 } pf_color_t;
 
 #define PF_WHITE        ((pf_color_t) { .c = { 255, 255, 255, 255 } })
+#define PF_GRAY         ((pf_color_t) { .c = { 127, 127, 127, 255 } })
 #define PF_BLACK        ((pf_color_t) { .c = {   0,   0,   0, 255 } })
 #define PF_BLANK        ((pf_color_t) { .c = {   0,   0,   0,   0 } })
 
