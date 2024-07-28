@@ -22,7 +22,6 @@
 /* Macros */
 
 #define PF_RECT_TRAVEL(PIXEL_CODE)                                                      \
-    _Pragma("omp parallel for")                                                         \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         for (int x = xmin; x <= xmax; ++x) {                                            \
@@ -31,8 +30,11 @@
         }                                                                               \
     }
 
-#define PF_RECT_TRANSFORM_TRAVEL(PIXEL_CODE)                                            \
+#define PF_RECT_TRAVEL_OMP(PIXEL_CODE)                                                  \
     _Pragma("omp parallel for")                                                         \
+    PF_RECT_TRAVEL(PIXEL_CODE)
+
+#define PF_RECT_TRANSFORM_TRAVEL(PIXEL_CODE)                                            \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         for (int x = xmin; x <= xmax; ++x) {                                            \
@@ -46,6 +48,10 @@
             }                                                                           \
         }                                                                               \
     }
+
+#define PF_RECT_TRANSFORM_TRAVEL_OMP(PIXEL_CODE)                                        \
+    _Pragma("omp parallel for")                                                         \
+    PF_RECT_TRANSFORM_TRAVEL(PIXEL_CODE)
 
 /* Public API */
 
@@ -64,6 +70,18 @@ pf_renderer2d_rect(
         int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
         int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
         int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
+#if defined(_OPENMP)
+        if (rn->blend == NULL) {
+            PF_RECT_TRAVEL_OMP({
+                rn->fb.buffer[offset] = color;
+            })
+        } else {
+            PF_RECT_TRAVEL_OMP({
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                *ptr = rn->blend(*ptr, color);
+            })
+        }
+#else
         if (rn->blend == NULL) {
             PF_RECT_TRAVEL({
                 rn->fb.buffer[offset] = color;
@@ -74,6 +92,7 @@ pf_renderer2d_rect(
                 *ptr = rn->blend(*ptr, color);
             })
         }
+#endif
     } else {
         pf_vec2_t p1 = { x1, y1 };
         pf_vec2_t p2 = { x2, y1 };
@@ -97,6 +116,18 @@ pf_renderer2d_rect(
         pf_mat3_inverse(mat_view_inv, rn->mat_view);
 
         // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
+#if defined(_OPENMP)
+        if (rn->blend == NULL) {
+            PF_RECT_TRANSFORM_TRAVEL_OMP({
+                rn->fb.buffer[offset] = color;
+            })
+        } else {
+            PF_RECT_TRANSFORM_TRAVEL_OMP({
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                *ptr = rn->blend(*ptr, color);
+            })
+        }
+#else
         if (rn->blend == NULL) {
             PF_RECT_TRANSFORM_TRAVEL({
                 rn->fb.buffer[offset] = color;
@@ -107,6 +138,7 @@ pf_renderer2d_rect(
                 *ptr = rn->blend(*ptr, color);
             })
         }
+#endif
     }
 }
 
@@ -131,6 +163,26 @@ pf_renderer2d_rect_gradient(
         int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
         int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
         int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
+#if defined(_OPENMP)
+        if (rn->blend == NULL) {
+            PF_RECT_TRAVEL_OMP({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
+            })
+        } else {
+            PF_RECT_TRAVEL_OMP({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+            })
+        }
+#else
         if (rn->blend == NULL) {
             PF_RECT_TRAVEL({
                 int ix = x - x1;
@@ -149,6 +201,7 @@ pf_renderer2d_rect_gradient(
                 *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
             })
         }
+#endif
     } else {
         pf_vec2_t p1 = { x1, y1 };
         pf_vec2_t p2 = { x2, y1 };
@@ -172,6 +225,26 @@ pf_renderer2d_rect_gradient(
         pf_mat3_inverse(mat_view_inv, rn->mat_view);
 
         // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
+#if defined(_OPENMP)
+        if (rn->blend == NULL) {
+            PF_RECT_TRANSFORM_TRAVEL_OMP({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
+            })
+        } else {
+            PF_RECT_TRANSFORM_TRAVEL_OMP({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+            })
+        }
+#else
         if (rn->blend == NULL) {
             PF_RECT_TRANSFORM_TRAVEL({
                 int ix = x - x1;
@@ -190,6 +263,7 @@ pf_renderer2d_rect_gradient(
                 *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
             })
         }
+#endif
     }
 }
 
@@ -209,6 +283,39 @@ pf_renderer2d_rect_map(
         int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
         int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
         int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
+#if defined(_OPENMP)
+        if (rn->blend != NULL) {
+            PF_RECT_TRAVEL_OMP({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = rn->blend(*ptr, final_color);
+            })
+        } else {
+            PF_RECT_TRAVEL_OMP({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = final_color;
+            })
+        }
+#else
         if (rn->blend != NULL) {
             PF_RECT_TRAVEL({
                 pf_vertex2d_t vertex;
@@ -240,6 +347,7 @@ pf_renderer2d_rect_map(
                 *ptr = final_color;
             })
         }
+#endif
     } else {
         pf_vec2_t p1 = { x1, y1 };
         pf_vec2_t p2 = { x2, y1 };
@@ -263,6 +371,39 @@ pf_renderer2d_rect_map(
         pf_mat3_inverse(mat_view_inv, rn->mat_view);
 
         // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
+#if defined(_OPENMP)
+        if (rn->blend != NULL) {
+            PF_RECT_TRAVEL_OMP({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = rn->blend(*ptr, final_color);
+            })
+        } else {
+            PF_RECT_TRAVEL_OMP({
+                pf_vertex2d_t vertex;
+                vertex.position[0] = x;
+                vertex.position[1] = y;
+                vertex.texcoord[0] = 0;
+                vertex.texcoord[1] = 0;
+                vertex.color = PF_WHITE;
+
+                pf_color_t *ptr = rn->fb.buffer + offset;
+                pf_color_t final_color = *ptr;
+
+                frag_proc(rn, &vertex, &final_color, attr);
+                *ptr = final_color;
+            })
+        }
+#else
         if (rn->blend != NULL) {
             PF_RECT_TRAVEL({
                 pf_vertex2d_t vertex;
@@ -294,6 +435,7 @@ pf_renderer2d_rect_map(
                 *ptr = final_color;
             })
         }
+#endif
     }
 }
 
