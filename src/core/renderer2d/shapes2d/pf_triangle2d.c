@@ -23,11 +23,8 @@
 /* Macros */
 
 #define PF_TRIANGLE_TRAVEL(PIXEL_CODE)                                                  \
-    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
-    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
-    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
-    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
     for (int y = ymin; y <= ymax; ++y) {                                                \
+        size_t y_offset = y * rn->fb.w;                                                 \
         int w1 = w1_row;                                                                \
         int w2 = w2_row;                                                                \
         int w3 = w3_row;                                                                \
@@ -82,42 +79,7 @@
         w3_row += w3_y_step;                                                            \
     }
 
-
-
 #define PF_TRIANGLE_TRAVEL_OMP(PIXEL_CODE)                                              \
-    /*
-        Calculate the 2D bounding box of the triangle
-    */                                                                                  \
-    int xmin = PF_MAX(PF_MIN(x1, PF_MIN(x2, x3)), 0);                                   \
-    int ymin = PF_MAX(PF_MIN(y1, PF_MIN(y2, y3)), 0);                                   \
-    int xmax = PF_MIN(PF_MAX(x1, PF_MAX(x2, x3)), (int)rn->fb.w - 1);                   \
-    int ymax = PF_MIN(PF_MAX(y1, PF_MAX(y2, y3)), (int)rn->fb.h - 1);                   \
-    /*
-        Check the order of the vertices to determine if it's a front or back face
-    */                                                                                  \
-    float signed_area = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);                  \
-    int_fast8_t is_back_face = (signed_area > 0);                                       \
-    /*
-        Barycentric interpolation setup
-    */                                                                                  \
-    int w1_x_step = y3 - y2, w1_y_step = x2 - x3;                                       \
-    int w2_x_step = y1 - y3, w2_y_step = x3 - x1;                                       \
-    int w3_x_step = y2 - y1, w3_y_step = x1 - x2;                                       \
-    if (is_back_face) {                                                                 \
-        w1_x_step = -w1_x_step, w1_y_step = -w1_y_step;                                 \
-        w2_x_step = -w2_x_step, w2_y_step = -w2_y_step;                                 \
-        w3_x_step = -w3_x_step, w3_y_step = -w3_y_step;                                 \
-    }                                                                                   \
-    int w1_row = (xmin - x2) * w1_x_step + w1_y_step * (ymin - y2);                     \
-    int w2_row = (xmin - x3) * w2_x_step + w2_y_step * (ymin - y3);                     \
-    int w3_row = (xmin - x1) * w3_x_step + w3_y_step * (ymin - y1);                     \
-    /*
-        Vector constants
-    */                                                                                  \
-    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
-    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
-    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
-    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
     _Pragma("omp parallel for schedule(dynamic)                                         \
         if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
@@ -172,13 +134,6 @@
     }
 
 #define PF_FAST_TRIANGLE_FILLING()                                                      \
-    /*
-        Vector constants
-    */                                                                                  \
-    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
-    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
-    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
-    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         int w1 = w1_row;                                                                \
@@ -222,7 +177,6 @@
     }
 
 #define PF_TRIANGLE_GRADIENT_TRAVEL(PIXEL_CODE)                                         \
-    pf_simd_t inv_w_sum_v = pf_simd_set1_ps(inv_w_sum);                                 \
     pf_simd_i_t c1_r = pf_simd_set1_i32(c1.c.r),                                        \
             c1_g = pf_simd_set1_i32(c1.c.g),                                            \
             c1_b = pf_simd_set1_i32(c1.c.b),                                            \
@@ -235,11 +189,8 @@
             c3_g = pf_simd_set1_i32(c3.c.g),                                            \
             c3_b = pf_simd_set1_i32(c3.c.b),                                            \
             c3_a = pf_simd_set1_i32(c3.c.a);                                            \
-    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
-    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
-    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
-    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
     for (int y = ymin; y <= ymax; ++y) {                                                \
+        size_t y_offset = y * rn->fb.w;                                                 \
         int w1 = w1_row;                                                                \
         int w2 = w2_row;                                                                \
         int w3 = w3_row;                                                                \
@@ -281,23 +232,18 @@
     }
 
 #define PF_TRIANGLE_GRADIENT_TRAVEL_OMP(PIXEL_CODE)                                     \
-    pf_simd_t inv_w_sum_v = pf_simd_set1_ps(inv_w_sum);                                 \
     pf_simd_i_t c1_r = pf_simd_set1_i32(c1.c.r),                                        \
-            c1_g = pf_simd_set1_i32(c1.c.g),                                            \
-            c1_b = pf_simd_set1_i32(c1.c.b),                                            \
-            c1_a = pf_simd_set1_i32(c1.c.a);                                            \
+                c1_g = pf_simd_set1_i32(c1.c.g),                                        \
+                c1_b = pf_simd_set1_i32(c1.c.b),                                        \
+                c1_a = pf_simd_set1_i32(c1.c.a);                                        \
     pf_simd_i_t c2_r = pf_simd_set1_i32(c2.c.r),                                        \
-            c2_g = pf_simd_set1_i32(c2.c.g),                                            \
-            c2_b = pf_simd_set1_i32(c2.c.b),                                            \
-            c2_a = pf_simd_set1_i32(c2.c.a);                                            \
+                c2_g = pf_simd_set1_i32(c2.c.g),                                        \
+                c2_b = pf_simd_set1_i32(c2.c.b),                                        \
+                c2_a = pf_simd_set1_i32(c2.c.a);                                        \
     pf_simd_i_t c3_r = pf_simd_set1_i32(c3.c.r),                                        \
-            c3_g = pf_simd_set1_i32(c3.c.g),                                            \
-            c3_b = pf_simd_set1_i32(c3.c.b),                                            \
-            c3_a = pf_simd_set1_i32(c3.c.a);                                            \
-    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);                      \
-    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);   \
-    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);   \
-    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);   \
+                c3_g = pf_simd_set1_i32(c3.c.g),                                        \
+                c3_b = pf_simd_set1_i32(c3.c.b),                                        \
+                c3_a = pf_simd_set1_i32(c3.c.a);                                        \
     _Pragma("omp parallel for schedule(dynamic)                                         \
         if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
@@ -385,6 +331,12 @@ pf_renderer2d_triangle(
     int w2_row = (xmin - x3) * w2_x_step + w2_y_step * (ymin - y3);
     int w3_row = (xmin - x1) * w3_x_step + w3_y_step * (ymin - y1);
 
+    // Vector constants
+    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);
+    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);
+    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);
+    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);
+
     // Rasterization loop
     // Iterate through each pixel in the bounding box
     if (rn->blend == NULL) {
@@ -449,9 +401,16 @@ pf_renderer2d_triangle_gradient(
     int w2_row = (xmin - x3) * w2_x_step + w2_y_step * (ymin - y3);
     int w3_row = (xmin - x1) * w3_x_step + w3_y_step * (ymin - y1);
 
+    // Vector constants
+    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);
+    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);
+    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);
+    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);
+
     // Calculate the inverse of the sum of the barycentric coordinates for normalization
     // NOTE: This sum remains constant throughout the triangle
     float inv_w_sum = 1.0f / (float)(w1_row + w2_row + w3_row);
+    pf_simd_t inv_w_sum_v = pf_simd_set1_ps(inv_w_sum);
 
     // Rasterization loop
     // Iterate through each pixel in the bounding box
@@ -492,6 +451,43 @@ pf_renderer2d_triangle_map(
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
     pf_vec2_transform_i(&x3, &y3, x3, y3, rn->mat_view);
+
+    // Calculate the 2D bounding box of the triangle
+    // Determine the minimum and maximum x and y coordinates of the triangle vertices
+    int xmin = PF_MAX(PF_MIN(x1, PF_MIN(x2, x3)), 0);
+    int ymin = PF_MAX(PF_MIN(y1, PF_MIN(y2, y3)), 0);
+    int xmax = PF_MIN(PF_MAX(x1, PF_MAX(x2, x3)), (int)rn->fb.w - 1);
+    int ymax = PF_MIN(PF_MAX(y1, PF_MAX(y2, y3)), (int)rn->fb.h - 1);
+
+    // Check the order of the vertices to determine if it's a front or back face
+    // NOTE: if signed_area is equal to 0, the face is degenerate
+    float signed_area = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1);
+    int_fast8_t is_back_face = (signed_area > 0);
+
+    // Barycentric interpolation setup
+    // Calculate the step increments for the barycentric coordinates
+    int w1_x_step = y3 - y2, w1_y_step = x2 - x3;
+    int w2_x_step = y1 - y3, w2_y_step = x3 - x1;
+    int w3_x_step = y2 - y1, w3_y_step = x1 - x2;
+
+    // If the triangle is a back face, invert the steps
+    if (is_back_face) {
+        w1_x_step = -w1_x_step, w1_y_step = -w1_y_step;
+        w2_x_step = -w2_x_step, w2_y_step = -w2_y_step;
+        w3_x_step = -w3_x_step, w3_y_step = -w3_y_step;
+    }
+
+    // Calculate the initial barycentric coordinates
+    // for the top-left point of the bounding box
+    int w1_row = (xmin - x2) * w1_x_step + w1_y_step * (ymin - y2);
+    int w2_row = (xmin - x3) * w2_x_step + w2_y_step * (ymin - y3);
+    int w3_row = (xmin - x1) * w3_x_step + w3_y_step * (ymin - y1);
+
+    // Vector constants
+    pf_simd_i_t offset = pf_simd_setr_i32(0, 1, 2, 3, 4, 5, 6, 7);
+    pf_simd_i_t w1_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w1_x_step), offset);
+    pf_simd_i_t w2_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w2_x_step), offset);
+    pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);
 
 #if defined(_OPENMP)
     if (rn->blend != NULL) {
