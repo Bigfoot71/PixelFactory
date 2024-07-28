@@ -18,6 +18,7 @@
  */
 
 #include "pixelfactory/core/pf_texture2d.h"
+#include "pixelfactory/components/pf_pixel.h"
 #include <string.h>
 
 pf_texture2d_t
@@ -34,12 +35,44 @@ pf_texture2d_create(
 
     texture.sampler = pf_texture2d_sample_nearest;
 
-    if ((w & (w - 1)) == 0 && (h & (h - 1)) == 0)
-    {
+    if ((w & (w - 1)) == 0 && (h & (h - 1)) == 0) {
         texture.mapper = pf_texture2d_uv_map_wrap_pot;
+    } else {
+        texture.mapper = pf_texture2d_uv_map_wrap;
     }
-    else
-    {
+
+    pf_pixel_default_getter_setter(
+        &texture.getter,
+        &texture.setter,
+        format);
+
+    texture.tx = 1.0f/w;
+    texture.ty = 1.0f/h;
+
+    return texture;
+}
+
+pf_texture2d_t
+pf_texture2d_create_with_copy(
+    void* pixels, uint32_t w, uint32_t h,
+    pf_pixelformat_t format)
+{
+    pf_texture2d_t texture = { 0 };
+    if (w == 0 || h == 0) return texture;
+
+    size_t size = w * h * pf_pixel_get_bytes(format);
+
+    texture.texels = malloc(size);
+    memcpy(texture.texels, pixels, size);
+
+    texture.w = w;
+    texture.h = h;
+
+    texture.sampler = pf_texture2d_sample_nearest;
+
+    if ((w & (w - 1)) == 0 && (h & (h - 1)) == 0) {
+        texture.mapper = pf_texture2d_uv_map_wrap_pot;
+    } else {
         texture.mapper = pf_texture2d_uv_map_wrap;
     }
 
