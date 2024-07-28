@@ -23,6 +23,27 @@
 
 /* General Functions */
 
+PFAPI pf_color_t
+pf_color_from_factor(
+    const float factor[4])
+{
+    pf_color_t result;
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        result.a[i] = 255 * factor[i];
+    }
+    return result;
+}
+
+PFAPI void
+pf_color_to_factor(
+    float* factor,
+    pf_color_t color)
+{
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        factor[i] = (float)color.a[i] / 255;
+    }
+}
+
 pf_color_t
 pf_color_lerpf(
     pf_color_t a,

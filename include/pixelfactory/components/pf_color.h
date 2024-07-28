@@ -77,6 +77,15 @@ typedef pf_color_t(*pf_color_blend_fn)(
 /* General Functions */
 
 PFAPI pf_color_t
+pf_color_from_factor(
+    const float factor[4]);
+
+PFAPI void
+pf_color_to_factor(
+    float* factor,
+    pf_color_t color);
+
+PFAPI pf_color_t
 pf_color_lerpf(
     pf_color_t a,
     pf_color_t b,
