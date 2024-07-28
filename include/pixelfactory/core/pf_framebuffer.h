@@ -84,4 +84,9 @@ pf_framebuffer_map(
     const uint32_t rect[4],
     pf_framebuffer_map_fn func);
 
+PFAPI int
+pf_framebuffer_export_as_bmp(
+    const pf_framebuffer_t* framebuffer,
+    const char* filename);
+
 #endif //PF_FRAMEBUFFER_H

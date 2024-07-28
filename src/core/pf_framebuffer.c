@@ -18,9 +18,7 @@
  */
 
 #include "pixelfactory/core/pf_framebuffer.h"
-#include "pixelfactory/misc/pf_stdinc.h"
-#include "pixelfactory/misc/pf_helper.h"
-#include <stdint.h>
+#include <stdio.h>
 
 pf_framebuffer_t
 pf_framebuffer_create(
@@ -108,7 +106,7 @@ pf_framebuffer_copy(
 
 #ifdef _OPENMP
 #   pragma omp parallel for\
-        if ((dst_xmax - dst_xmin) * (dst_ymax - dst_ymin) > PF_OMP_BUFFER_COPY_SIZE_THRESHOLD)
+        if ((dst_xmax - dst_xmin) * (dst_ymax - dst_ymin) >= PF_OMP_BUFFER_COPY_SIZE_THRESHOLD)
 #endif //_OPENMP
     for (int y = dst_ymin; y <= dst_ymax; ++y)
     {
@@ -261,7 +259,7 @@ pf_framebuffer_map(
 
 #ifdef _OPENMP
 #   pragma omp parallel for\
-        if ((xmax - xmin) * (ymax - ymin) > PF_OMP_BUFFER_MAP_SIZE_THRESHOLD)
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_BUFFER_MAP_SIZE_THRESHOLD)
 #endif //_OPENMP
     for (int y = ymin; y <= ymax; ++y) {
         pf_color_t* ptr = fb->buffer + y * fb->w + xmin;
@@ -269,4 +267,103 @@ pf_framebuffer_map(
             func(fb, ptr++, x, y);
         }
     }
+}
+
+int
+pf_framebuffer_export_as_bmp(
+    const pf_framebuffer_t* framebuffer,
+    const char* filename)
+{
+    // NOTE: The structure used is the same as that of wingdi.h
+
+#pragma pack(push, 1)
+    typedef struct {
+        uint16_t bfType;
+        uint32_t bfSize;
+        uint16_t bfReserved1;
+        uint16_t bfReserved2;
+        uint32_t bfOffBits;
+    } BITMAPFILEHEADER;
+
+    typedef struct {
+        uint32_t biSize;
+        int32_t biWidth;
+        int32_t biHeight;
+        uint16_t biPlanes;
+        uint16_t biBitCount;
+        uint32_t biCompression;
+        uint32_t biSizeImage;
+        int32_t biXPelsPerMeter;
+        int32_t biYPelsPerMeter;
+        uint32_t biClrUsed;
+        uint32_t biClrImportant;
+    } BITMAPINFOHEADER;
+#pragma pack(pop)
+
+    FILE* file = fopen(filename != NULL ? filename : "framebuffer.bmp", "wb");
+    if (!file) {
+        fprintf(stderr, "Error: Could not open file [%s] for writing", filename);
+        return -1;
+    }
+
+    // Calculate the size of the image data (without alpha channel)
+    uint32_t image_size = framebuffer->w * framebuffer->h * 3;
+
+    // Define the BMP file header
+    BITMAPFILEHEADER file_header;
+    file_header.bfType = 0x4D42;  // "BM"
+    file_header.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + image_size;
+    file_header.bfReserved1 = 0;
+    file_header.bfReserved2 = 0;
+    file_header.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+
+    // Define the BMP info header
+    BITMAPINFOHEADER info_header;
+    info_header.biSize = sizeof(BITMAPINFOHEADER);
+    info_header.biWidth = framebuffer->w;
+    info_header.biHeight = -((int32_t)framebuffer->h);  // Negative to indicate a top-down DIB
+    info_header.biPlanes = 1;
+    info_header.biBitCount = 24;
+    info_header.biCompression = 0;  // BI_RGB
+    info_header.biSizeImage = image_size;
+    info_header.biXPelsPerMeter = 0;
+    info_header.biYPelsPerMeter = 0;
+    info_header.biClrUsed = 0;
+    info_header.biClrImportant = 0;
+
+    // Write the headers to the file
+    fwrite(&file_header, sizeof(BITMAPFILEHEADER), 1, file);
+    fwrite(&info_header, sizeof(BITMAPINFOHEADER), 1, file);
+
+    // Allocate memory for the pixel data
+    uint8_t* pixel_data = (uint8_t*)malloc(image_size);
+    if (!pixel_data) {
+        fprintf(stderr, "Error: Could not allocate memory for pixel data");
+        fclose(file);
+        return -2;
+    }
+
+    // Copy the pixel data without the alpha channel
+    uint8_t* ptr = pixel_data;
+#ifdef _OPENMP
+#   pragma omp parallel for\
+        if (fb->w * fb->h >= PF_OMP_BUFFER_COPY_SIZE_THRESHOLD)
+#endif //_OPENMP
+    for (uint32_t y = 0; y < framebuffer->h; y++) {
+        for (uint32_t x = 0; x < framebuffer->w; x++) {
+            pf_color_t color = framebuffer->buffer[y * framebuffer->w + x];
+            *ptr++ = color.c.b;
+            *ptr++ = color.c.g;
+            *ptr++ = color.c.r;
+        }
+    }
+
+    // Write the pixel data to the file
+    fwrite(pixel_data, 1, image_size, file);
+
+    // Clean up
+    free(pixel_data);
+    fclose(file);
+
+    return 0;
 }
