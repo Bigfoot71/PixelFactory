@@ -18,8 +18,6 @@
  */
 
 #include "pixelfactory/components/pf_color.h"
-#include "pixelfactory/misc/pf_stdinc.h"
-#include <stdint.h>
 
 /* General Functions */
 

@@ -18,7 +18,6 @@
  */
 
 #include "pixelfactory/components/pf_pixel.h"
-#include <string.h>
 
 /* Internal convert functions */
 

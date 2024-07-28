@@ -20,8 +20,6 @@
 #include "pixelfactory/components/pf_processors.h"
 #include "pixelfactory/core/pf_renderer2d.h"
 #include "pixelfactory/core/pf_renderer3d.h"
-#include "pixelfactory/misc/pf_config.h"
-#include <string.h>
 
 /* Internal Helper Functions */
 

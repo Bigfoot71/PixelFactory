@@ -18,7 +18,6 @@
  */
 
 #include "pixelfactory/core/pf_renderer2d.h"
-#include "pixelfactory/misc/pf_stdinc.h"
 
 /* Public API */
 
