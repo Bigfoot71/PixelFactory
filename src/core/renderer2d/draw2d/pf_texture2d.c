@@ -41,7 +41,7 @@
         }                                                                           \
     }
 
-#define PF_TRAVEL_TEXTURE2D_MAT(PIXEL_CODE)                                         \
+#define PF_PREPARE_TEXTURE2D_MAT()                                                  \
     pf_framebuffer_t* fb = &rn->fb;                                                 \
     pf_mat3_t invTransform;                                                         \
     pf_mat3_inverse(invTransform, transform);                                       \
@@ -69,8 +69,8 @@
     if (y1 > y2) PF_SWAP(y1, y2);                                                   \
     float inv00 = invTransform[0], inv01 = invTransform[1], inv02 = invTransform[2];\
     float inv10 = invTransform[3], inv11 = invTransform[4], inv12 = invTransform[5];\
-    _Pragma("omp parallel for                                                       \
-            if ((x2 - x1) * (y2 - y1) >= PF_OMP_TEXTURE_RN2D_SIZE_THRESHOLD)")      \
+
+#define PF_TRAVEL_TEXTURE2D_MAT(PIXEL_CODE)                                         \
     for (int y = y1; y <= y2; ++y) {                                                \
         for (int x = x1; x <= x2; ++x) {                                            \
             float tx = inv00 * x + inv01 * y + inv02;                               \
@@ -82,6 +82,11 @@
             }                                                                       \
         }                                                                           \
     }
+
+#define PF_TRAVEL_TEXTURE2D_MAT_OMP(PIXEL_CODE)                                     \
+    _Pragma("omp parallel for                                                       \
+            if ((x2 - x1) * (y2 - y1) >= PF_OMP_TEXTURE_RN2D_SIZE_THRESHOLD)")      \
+    PF_TRAVEL_TEXTURE2D_MAT(PIXEL_CODE)
 
 void
 pf_renderer2d_texture2d(
@@ -237,6 +242,22 @@ pf_renderer2d_texture2d_mat(
     const pf_texture2d_t* tex,
     pf_mat3_t transform)
 {
+    PF_PREPARE_TEXTURE2D_MAT();
+
+#if defined(_OPENMP)
+    if (rn->blend == NULL) {
+        PF_TRAVEL_TEXTURE2D_MAT_OMP({
+            pf_color_t texel = tex->sampler(tex, u, v);
+            fb->buffer[y * fb->w + x] = texel;
+        })
+    } else {
+        PF_TRAVEL_TEXTURE2D_MAT_OMP({
+            pf_color_t* ptr = fb->buffer + y * fb->w + x;
+            pf_color_t texel = tex->sampler(tex, u, v);
+            *ptr = rn->blend(*ptr, texel);
+        })
+    }
+#else
     if (rn->blend == NULL) {
         PF_TRAVEL_TEXTURE2D_MAT({
             pf_color_t texel = tex->sampler(tex, u, v);
@@ -249,6 +270,7 @@ pf_renderer2d_texture2d_mat(
             *ptr = rn->blend(*ptr, texel);
         })
     }
+#endif
 }
 
 void
@@ -258,6 +280,22 @@ pf_renderer2d_texture2d_mat_tint(
     pf_mat3_t transform,
     pf_color_t tint)
 {
+    PF_PREPARE_TEXTURE2D_MAT();
+
+#if defined(_OPENMP)
+    if (rn->blend == NULL) {
+        PF_TRAVEL_TEXTURE2D_MAT_OMP({
+            pf_color_t texel = tex->sampler(tex, u, v);
+            fb->buffer[y * fb->w + x] = pf_color_blend_mul(texel, tint);
+        })
+    } else {
+        PF_TRAVEL_TEXTURE2D_MAT_OMP({
+            pf_color_t texel = tex->sampler(tex, u, v);
+            pf_color_t* ptr = fb->buffer + y * fb->w + x;
+            *ptr = rn->blend(*ptr, pf_color_blend_mul(texel, tint));
+        })
+    }
+#else
     if (rn->blend == NULL) {
         PF_TRAVEL_TEXTURE2D_MAT({
             pf_color_t texel = tex->sampler(tex, u, v);
@@ -270,6 +308,7 @@ pf_renderer2d_texture2d_mat_tint(
             *ptr = rn->blend(*ptr, pf_color_blend_mul(texel, tint));
         })
     }
+#endif
 }
 
 void
@@ -279,6 +318,41 @@ pf_renderer2d_texture2d_mat_map(
     pf_mat3_t transform,
     pf_proc2d_fragment_fn frag_proc)
 {
+    PF_PREPARE_TEXTURE2D_MAT();
+
+#if defined(_OPENMP)
+    if (rn->blend != NULL) {
+        PF_TRAVEL_TEXTURE2D_MAT_OMP({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = u;
+            vertex.texcoord[1] = v;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, tex);
+            *ptr = rn->blend(*ptr, final_color);
+        })
+    } else {
+        PF_TRAVEL_TEXTURE2D_MAT_OMP({
+            pf_vertex2d_t vertex;
+            vertex.position[0] = x;
+            vertex.position[1] = y;
+            vertex.texcoord[0] = u;
+            vertex.texcoord[1] = v;
+            vertex.color = PF_WHITE;
+
+            pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
+            pf_color_t final_color = *ptr;
+
+            frag_proc(rn, &vertex, &final_color, tex);
+            *ptr = final_color;
+        })
+    }
+#else
     if (rn->blend != NULL) {
         PF_TRAVEL_TEXTURE2D_MAT({
             pf_vertex2d_t vertex;
@@ -299,8 +373,8 @@ pf_renderer2d_texture2d_mat_map(
             pf_vertex2d_t vertex;
             vertex.position[0] = x;
             vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
+            vertex.texcoord[0] = u;
+            vertex.texcoord[1] = v;
             vertex.color = PF_WHITE;
 
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
@@ -310,4 +384,5 @@ pf_renderer2d_texture2d_mat_map(
             *ptr = final_color;
         })
     }
+#endif
 }
