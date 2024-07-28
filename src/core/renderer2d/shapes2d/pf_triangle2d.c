@@ -177,18 +177,6 @@
     }
 
 #define PF_TRIANGLE_GRADIENT_TRAVEL(PIXEL_CODE)                                         \
-    pf_simd_i_t c1_r = pf_simd_set1_i32(c1.c.r),                                        \
-            c1_g = pf_simd_set1_i32(c1.c.g),                                            \
-            c1_b = pf_simd_set1_i32(c1.c.b),                                            \
-            c1_a = pf_simd_set1_i32(c1.c.a);                                            \
-    pf_simd_i_t c2_r = pf_simd_set1_i32(c2.c.r),                                        \
-            c2_g = pf_simd_set1_i32(c2.c.g),                                            \
-            c2_b = pf_simd_set1_i32(c2.c.b),                                            \
-            c2_a = pf_simd_set1_i32(c2.c.a);                                            \
-    pf_simd_i_t c3_r = pf_simd_set1_i32(c3.c.r),                                        \
-            c3_g = pf_simd_set1_i32(c3.c.g),                                            \
-            c3_b = pf_simd_set1_i32(c3.c.b),                                            \
-            c3_a = pf_simd_set1_i32(c3.c.a);                                            \
     for (int y = ymin; y <= ymax; ++y) {                                                \
         size_t y_offset = y * rn->fb.w;                                                 \
         int w1 = w1_row;                                                                \
@@ -232,18 +220,6 @@
     }
 
 #define PF_TRIANGLE_GRADIENT_TRAVEL_OMP(PIXEL_CODE)                                     \
-    pf_simd_i_t c1_r = pf_simd_set1_i32(c1.c.r),                                        \
-                c1_g = pf_simd_set1_i32(c1.c.g),                                        \
-                c1_b = pf_simd_set1_i32(c1.c.b),                                        \
-                c1_a = pf_simd_set1_i32(c1.c.a);                                        \
-    pf_simd_i_t c2_r = pf_simd_set1_i32(c2.c.r),                                        \
-                c2_g = pf_simd_set1_i32(c2.c.g),                                        \
-                c2_b = pf_simd_set1_i32(c2.c.b),                                        \
-                c2_a = pf_simd_set1_i32(c2.c.a);                                        \
-    pf_simd_i_t c3_r = pf_simd_set1_i32(c3.c.r),                                        \
-                c3_g = pf_simd_set1_i32(c3.c.g),                                        \
-                c3_b = pf_simd_set1_i32(c3.c.b),                                        \
-                c3_a = pf_simd_set1_i32(c3.c.a);                                        \
     _Pragma("omp parallel for schedule(dynamic)                                         \
         if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")          \
     for (int y = ymin; y <= ymax; ++y) {                                                \
@@ -411,6 +387,21 @@ pf_renderer2d_triangle_gradient(
     // NOTE: This sum remains constant throughout the triangle
     float inv_w_sum = 1.0f / (float)(w1_row + w2_row + w3_row);
     pf_simd_t inv_w_sum_v = pf_simd_set1_ps(inv_w_sum);
+
+    // Load colors into SIMD registers
+    // In order to carry out their interpolation in a vectorized way
+    pf_simd_i_t c1_r = pf_simd_set1_i32(c1.c.r),
+                c1_g = pf_simd_set1_i32(c1.c.g),
+                c1_b = pf_simd_set1_i32(c1.c.b),
+                c1_a = pf_simd_set1_i32(c1.c.a);
+    pf_simd_i_t c2_r = pf_simd_set1_i32(c2.c.r),
+                c2_g = pf_simd_set1_i32(c2.c.g),
+                c2_b = pf_simd_set1_i32(c2.c.b),
+                c2_a = pf_simd_set1_i32(c2.c.a);
+    pf_simd_i_t c3_r = pf_simd_set1_i32(c3.c.r),
+                c3_g = pf_simd_set1_i32(c3.c.g),
+                c3_b = pf_simd_set1_i32(c3.c.b),
+                c3_a = pf_simd_set1_i32(c3.c.a);
 
     // Rasterization loop
     // Iterate through each pixel in the bounding box
