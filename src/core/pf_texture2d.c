@@ -55,7 +55,7 @@ pf_texture2d_create(
 }
 
 void
-pf_texture2d_destroy(
+pf_texture2d_delete(
     pf_texture2d_t* tex)
 {
     PF_FREE(tex->texels);

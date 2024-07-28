@@ -52,7 +52,7 @@ pf_texture2d_create(
     pf_pixelformat_t format);
 
 PFAPI void
-pf_texture2d_destroy(
+pf_texture2d_delete(
     pf_texture2d_t* tex);
 
 
