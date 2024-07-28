@@ -42,7 +42,7 @@ if(PF_BUILD_SHARED AND NOT PF_IS_MAIN)
 endif()
 
 # Specify the include directory
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PF_ROOT_PATH}/include)
 
 # Check for SIMD support
 include(CheckCCompilerFlag)
