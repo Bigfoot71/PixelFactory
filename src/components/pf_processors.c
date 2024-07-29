@@ -53,20 +53,18 @@ pf_vertex3d_lerp_INTERNAL(
 static uint8_t
 pf_clip_coord_line_INTERNAL(float q, float p, float* t1, float* t2)
 {
-    if (fabsf(p) < PF_EPSILON && q < 0)
-    {
-        return 0;
+    if (fabsf(p) < PF_EPSILON) {
+        // Check if the line is entirely outside the window
+        if (q < -PF_EPSILON) return 0;  // Completely outside
+        return 1;                       // Completely inside or on the edges
     }
 
     const float r = q / p;
 
-    if (p < 0)
-    {
+    if (p < 0)  {
         if (r > *t2) return 0;
         if (r > *t1) *t1 = r;
-    }
-    else
-    {
+    } else {
         if (r < *t1) return 0;
         if (r < *t2) *t2 = r;
     }
@@ -173,29 +171,13 @@ pf_proc3d_clip_line(
     pf_vec4_t delta;
     pf_vec4_sub_r(delta, out_homogeneous[1], out_homogeneous[0]);
 
-    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][0], -delta[3] + delta[0], &t1, &t2)) {
-        *out_vertices_count = 0;
-        return;
-    }
-    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][0], -delta[3] - delta[0], &t1, &t2)) {
-        *out_vertices_count = 0;
-        return;
-    }
-
-    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][1], -delta[3] + delta[1], &t1, &t2)) {
-        *out_vertices_count = 0;
-        return;
-    }
-    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][1], -delta[3] - delta[1], &t1, &t2)) {
-        *out_vertices_count = 0;
-        return;
-    }
-
-    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][2], -delta[3] + delta[2], &t1, &t2)) {
-        *out_vertices_count = 0;
-        return;
-    }
-    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][2], -delta[3] - delta[2], &t1, &t2)) {
+    if (!pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][0], -delta[3] + delta[0], &t1, &t2) ||
+        !pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][0], -delta[3] - delta[0], &t1, &t2) ||
+        !pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][1], -delta[3] + delta[1], &t1, &t2) ||
+        !pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][1], -delta[3] - delta[1], &t1, &t2) ||
+        !pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][2], -delta[3] + delta[2], &t1, &t2) ||
+        !pf_clip_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][2], -delta[3] - delta[2], &t1, &t2))
+    {
         *out_vertices_count = 0;
         return;
     }
