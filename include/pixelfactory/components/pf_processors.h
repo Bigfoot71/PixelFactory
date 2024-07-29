@@ -143,6 +143,14 @@ pf_proc2d_fragment_default(
     const void* uniforms,
     void* varyin);
 
+void
+pf_proc2d_fragment_texture_as_uniform(
+    struct pf_renderer2d* rn,
+    pf_vertex2d_t* vertex,
+    pf_color_t* out_color,
+    const void* uniforms,
+    void* varying);
+
 /* Default Processor 3D Functions */
 
 PFAPI void

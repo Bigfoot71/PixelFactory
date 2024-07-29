@@ -67,6 +67,22 @@ pf_proc2d_fragment_default(
     *out_color = vertex->color;
 }
 
+void
+pf_proc2d_fragment_texture_as_uniform(
+    struct pf_renderer2d* rn,
+    pf_vertex2d_t* vertex,
+    pf_color_t* out_color,
+    const void* uniforms,
+    void* varying)
+{
+    (void)rn;
+    (void)uniforms;
+    (void)varying;
+
+    const pf_texture2d_t* tex = uniforms;
+    *out_color = tex->sampler(tex, vertex->texcoord[0], vertex->texcoord[1]);
+    *out_color = pf_color_blend_mul(*out_color, vertex->color);
+}
 
 /* Default Processor 3D Functions */
 
