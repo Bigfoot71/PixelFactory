@@ -269,12 +269,12 @@ pf_renderer2d_circle_map(
 
     /* Setup processor */
 
-    pf_proc2d_generic_t processor = { 0 };
-    processor.fragment = pf_proc2d_fragment_default;
+    pf_proc2d_fragment_fn fragment = pf_proc2d_fragment_default;
+    const void* uniforms = NULL;
 
     if (proc != NULL) {
-        if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+        if (proc->fragment != NULL) fragment = proc->fragment;
+        if (proc->uniforms != NULL) uniforms = proc->uniforms;
     }
 
     /* Rendering */
@@ -291,7 +291,7 @@ pf_renderer2d_circle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -306,7 +306,7 @@ pf_renderer2d_circle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms, NULL);
             *ptr = final_color;
         })
     }
@@ -362,12 +362,12 @@ pf_renderer2d_circle_lines_map(
 
     /* Setup processor */
 
-    pf_proc2d_generic_t processor = { 0 };
-    processor.fragment = pf_proc2d_fragment_default;
+    pf_proc2d_fragment_fn fragment = pf_proc2d_fragment_default;
+    const void* uniforms = NULL;
 
     if (proc != NULL) {
-        if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+        if (proc->fragment != NULL) fragment = proc->fragment;
+        if (proc->uniforms != NULL) uniforms = proc->uniforms;
     }
 
     /* Rendering */
@@ -384,7 +384,7 @@ pf_renderer2d_circle_lines_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -399,7 +399,7 @@ pf_renderer2d_circle_lines_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms, NULL);
             *ptr = final_color;
         })
     }
