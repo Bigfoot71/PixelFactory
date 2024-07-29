@@ -26,7 +26,8 @@
 #pragma GCC optimize ("no-strict-aliasing")
 #endif
 
-static uint16_t FloatToHalf(float x)
+static uint16_t
+pf_float_to_half_INTERNAL(float x)
 {
     const uint32_t b = (*(uint32_t*)&x)+0x00001000; // round-to-nearest-even: add last bit after truncated mantissa
     const uint32_t e = (b&0x7F800000)>>23; // exponent
@@ -34,7 +35,8 @@ static uint16_t FloatToHalf(float x)
     return (b&0x80000000)>>16 | (e>112)*((((e-112)<<10)&0x7C00)|m>>13) | ((e<113)&(e>101))*((((0x007FF000+m)>>(125-e))+1)>>1) | (e>143)*0x7FFF; // sign : normalized : denormalized : saturate
 }
 
-float HalfToFloat(uint16_t x)
+static float
+pf_half_to_float_INTERNAL(uint16_t x)
 {
     const uint32_t e = (x&0x7C00)>>10; // exponent
     const uint32_t m = (x&0x03FF)<<13; // mantissa
@@ -182,7 +184,7 @@ pf_pixel_get_r16(
     size_t offset)
 {
     pf_color_t result;
-    result.c.r = (uint8_t)(HalfToFloat(((uint16_t*)pixels)[offset]) * 255.0f);
+    result.c.r = (uint8_t)(pf_half_to_float_INTERNAL(((uint16_t*)pixels)[offset]) * 255.0f);
     result.c.g = result.c.b = 0;
     result.c.a = 255;
     return result;
@@ -195,9 +197,9 @@ pf_pixel_get_rgb161616(
 {
     pf_color_t result;
     const uint16_t *pixel = (uint16_t*)pixels + 3 * offset;
-    result.c.r = (uint8_t)(HalfToFloat(pixel[0]) * 255.0f);
-    result.c.g = (uint8_t)(HalfToFloat(pixel[1]) * 255.0f);
-    result.c.b = (uint8_t)(HalfToFloat(pixel[2]) * 255.0f);
+    result.c.r = (uint8_t)(pf_half_to_float_INTERNAL(pixel[0]) * 255.0f);
+    result.c.g = (uint8_t)(pf_half_to_float_INTERNAL(pixel[1]) * 255.0f);
+    result.c.b = (uint8_t)(pf_half_to_float_INTERNAL(pixel[2]) * 255.0f);
     result.c.a = 255;
     return result;
 }
@@ -209,10 +211,10 @@ pf_pixel_get_rgba16161616(
 {
     pf_color_t result;
     const uint16_t *pixel = (uint16_t*)pixels + 4 * offset;
-    result.c.r = (uint8_t)(HalfToFloat(pixel[0]) * 255.0f);
-    result.c.g = (uint8_t)(HalfToFloat(pixel[1]) * 255.0f);
-    result.c.b = (uint8_t)(HalfToFloat(pixel[2]) * 255.0f);
-    result.c.a = (uint8_t)(HalfToFloat(pixel[3]) * 255.0f);
+    result.c.r = (uint8_t)(pf_half_to_float_INTERNAL(pixel[0]) * 255.0f);
+    result.c.g = (uint8_t)(pf_half_to_float_INTERNAL(pixel[1]) * 255.0f);
+    result.c.b = (uint8_t)(pf_half_to_float_INTERNAL(pixel[2]) * 255.0f);
+    result.c.a = (uint8_t)(pf_half_to_float_INTERNAL(pixel[3]) * 255.0f);
     return result;
 }
 
@@ -382,7 +384,7 @@ pf_pixel_set_r16(
     pf_color_t color)
 {
     // NOTE: Calculate grayscale equivalent color (normalized to 32bit)
-    ((uint16_t*)pixels)[offset] = FloatToHalf(
+    ((uint16_t*)pixels)[offset] = pf_float_to_half_INTERNAL(
         color.c.r * (1.0f/255) * 0.299f +
         color.c.g * (1.0f/255) * 0.587f +
         color.c.b * (1.0f/255) * 0.114f);
@@ -396,9 +398,9 @@ pf_pixel_set_rgb161616(
 {
     // NOTE: Calculate RGB161616 equivalent color (normalized to 32bit)
     uint16_t *pixel = (uint16_t*)pixels + offset*3;
-    pixel[0] = FloatToHalf(color.c.r * (1.0f/255));
-    pixel[1] = FloatToHalf(color.c.g * (1.0f/255));
-    pixel[2] = FloatToHalf(color.c.b * (1.0f/255));
+    pixel[0] = pf_float_to_half_INTERNAL(color.c.r * (1.0f/255));
+    pixel[1] = pf_float_to_half_INTERNAL(color.c.g * (1.0f/255));
+    pixel[2] = pf_float_to_half_INTERNAL(color.c.b * (1.0f/255));
 }
 
 void
@@ -409,10 +411,10 @@ pf_pixel_set_rgba16161616(
 {
     // NOTE: Calculate RGBA16161616 equivalent color (normalized to 32bit)
     uint16_t *pixel = (uint16_t*)pixels + offset*4;
-    pixel[0] = FloatToHalf(color.c.r * (1.0f/255));
-    pixel[1] = FloatToHalf(color.c.g * (1.0f/255));
-    pixel[2] = FloatToHalf(color.c.b * (1.0f/255));
-    pixel[3] = FloatToHalf(color.c.a * (1.0f/255));
+    pixel[0] = pf_float_to_half_INTERNAL(color.c.r * (1.0f/255));
+    pixel[1] = pf_float_to_half_INTERNAL(color.c.g * (1.0f/255));
+    pixel[2] = pf_float_to_half_INTERNAL(color.c.b * (1.0f/255));
+    pixel[3] = pf_float_to_half_INTERNAL(color.c.a * (1.0f/255));
 }
 
 
