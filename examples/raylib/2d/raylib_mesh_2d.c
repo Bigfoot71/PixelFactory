@@ -37,11 +37,14 @@ void frag_proc(
     struct pf_renderer2d* rn,
     pf_vertex2d_t* vertex,
     pf_color_t* out_color,
-    const void* attr)
+    const void* uniforms,
+    void* varying)
 {
     (void)rn;
-    const PF_Material* material = attr;
-    *out_color = material->texture.sampler(attr, vertex->texcoord[0], vertex->texcoord[1]);
+    (void)varying;
+
+    const PF_Material* material = uniforms;
+    *out_color = material->texture.sampler(&material->texture, vertex->texcoord[0], vertex->texcoord[1]);
 }
 
 int main()
@@ -69,10 +72,14 @@ int main()
     material.texture = pf_texture2d_create(image.data, image.width, image.height, image.format);
     material.tint = PF_BLUE;
 
+    pf_proc2d_triangle_t proc = { 0 };
+    proc.fragment = frag_proc;
+    proc.uniforms = &material;
+
     while (!WindowShouldClose())
     {
         pf_renderer2d_clear(&rn, PF_BLACK);
-        pf_renderer2d_vertex_buffer(&rn, &mesh, NULL, NULL, frag_proc, &material);
+        pf_renderer2d_vertex_buffer(&rn, &mesh, NULL, &proc);
 
         UpdateTexture(tex, rn.fb.buffer);
 

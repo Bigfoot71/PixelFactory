@@ -436,12 +436,20 @@ pf_renderer2d_triangle_map(
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr)
+    pf_proc2d_generic_t* proc)
 {
+    // Transformation
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
     pf_vec2_transform_i(&x3, &y3, x3, y3, rn->mat_view);
+
+    // Setup processor
+    pf_proc2d_generic_t processor = { 0 };
+    processor.fragment = pf_proc2d_fragment_default;
+    if (proc != NULL) {
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    }
 
     // Calculate the 2D bounding box of the triangle
     // Determine the minimum and maximum x and y coordinates of the triangle vertices
@@ -493,7 +501,7 @@ pf_renderer2d_triangle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -508,7 +516,7 @@ pf_renderer2d_triangle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = final_color;
         })
     }
@@ -525,7 +533,7 @@ pf_renderer2d_triangle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -540,7 +548,7 @@ pf_renderer2d_triangle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = final_color;
         })
     }
@@ -581,12 +589,11 @@ pf_renderer2d_triangle_lines_map(
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr)
+    pf_proc2d_generic_t* proc)
 {
-    pf_renderer2d_line_map(rn, x1, y1, x2, y2, frag_proc, attr);
-    pf_renderer2d_line_map(rn, x2, y2, x3, y3, frag_proc, attr);
-    pf_renderer2d_line_map(rn, x3, y3, x1, y1, frag_proc, attr);
+    pf_renderer2d_line_map(rn, x1, y1, x2, y2, proc);
+    pf_renderer2d_line_map(rn, x2, y2, x3, y3, proc);
+    pf_renderer2d_line_map(rn, x3, y3, x1, y1, proc);
 }
 
 void
@@ -610,8 +617,7 @@ void
 pf_renderer2d_triangle_fan_map(
     pf_renderer2d_t* rn,
     int* points, int count,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr)
+    pf_proc2d_generic_t* proc)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
@@ -619,7 +625,7 @@ pf_renderer2d_triangle_fan_map(
                 points[0], points[1],
                 points[2 * i], points[2 * i + 1],
                 points[2 * (i + 1)], points[2 * (i + 1) + 1],
-                frag_proc, attr);
+                proc);
         }
     }
 }
@@ -670,8 +676,7 @@ void
 pf_renderer2d_triangle_strip_map(
     pf_renderer2d_t* rn,
     int* points, int count,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr)
+    pf_proc2d_generic_t* proc)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {
@@ -680,13 +685,13 @@ pf_renderer2d_triangle_strip_map(
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],
-                    frag_proc, attr);
+                    proc);
             } else {
                 pf_renderer2d_triangle_map(rn,
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],
-                    frag_proc, attr);
+                    proc);
             }
         }
     }

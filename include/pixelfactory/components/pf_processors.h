@@ -17,6 +17,8 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
+// TODO: Improve the management of “varyings” by making it automatic
+
 #ifndef PF_PROCESSORS_H
 #define PF_PROCESSORS_H
 
@@ -30,7 +32,8 @@ struct pf_renderer3d;
 typedef void (*pf_proc2d_vertex_fn)(
     pf_vertex2d_t* out_vertex,
     const pf_mat3_t transform,
-    const void* attr);
+    const void* uniforms,
+    void* varying);
 
 typedef void (*pf_proc2d_rasterizer_fn)(
     pf_vertex2d_t* out_vertex,
@@ -38,13 +41,14 @@ typedef void (*pf_proc2d_rasterizer_fn)(
     pf_vertex2d_t* vertex_2,
     pf_vertex2d_t* vertex_3,
     pf_vec3_t bary,
-    void* attr);
+    void* varying);
 
 typedef void (*pf_proc2d_fragment_fn)(
     struct pf_renderer2d* rn,
     pf_vertex2d_t* vertex,
     pf_color_t* out_color,
-    const void* attr);
+    const void* uniforms,
+    void* varying);
 
 /* Processor 3D Prototypes */
 
@@ -54,20 +58,16 @@ typedef void (*pf_proc3d_vertex_fn)(
     const pf_mat4_t mat_model,
     const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp,
-    const void* attr);
-
-typedef void (*pf_proc3d_clip_fn)(
-    const struct pf_renderer3d* rn,
-    pf_vertex3d_t* out_vertices,
-    pf_vec4_t out_homogeneous[],
-    size_t* out_vertices_count);
+    const void* uniforms,
+    void* varying);
 
 typedef void (*pf_proc3d_screen_projection_fn)(
     const struct pf_renderer3d* rn,
     pf_vertex3d_t* vertices,
     pf_vec4_t homogeneous[],
     size_t vertices_count,
-    int screen_pos[][2]);
+    int screen_pos[][2],
+    void* varying);
 
 typedef void (*pf_proc3d_rasterizer_fn)(
     pf_vertex3d_t* out_vertex,
@@ -76,13 +76,46 @@ typedef void (*pf_proc3d_rasterizer_fn)(
     pf_vertex3d_t* v3,
     pf_vec3_t bary,
     float z_depth,
-    void* attr);
+    void* varying);
 
 typedef void (*pf_proc3d_fragment_fn)(
     struct pf_renderer3d* rn,
     pf_vertex3d_t* vertex,
     pf_color_t* out_color,
-    const void* attr);
+    const void* uniforms,
+    void* varying);
+
+/* 2D Processors Structs */
+
+typedef struct {
+    pf_proc2d_fragment_fn           fragment;
+    const void*                     uniforms;
+} pf_proc2d_generic_t;
+
+typedef struct {
+    pf_proc2d_vertex_fn             vertex;
+    pf_proc2d_rasterizer_fn         rasterizer;
+    pf_proc2d_fragment_fn           fragment;
+    const void*                     uniforms;
+    void*                           varying;
+} pf_proc2d_triangle_t;
+
+/* 3D Processors Structs */
+
+typedef struct {
+    pf_proc3d_vertex_fn             vertex;
+    pf_proc3d_fragment_fn           fragment;
+    const void*                     uniforms;
+} pf_proc3d_generic_t;
+
+typedef struct {
+    pf_proc3d_vertex_fn             vertex;
+    pf_proc3d_screen_projection_fn  screen_projection;
+    pf_proc3d_rasterizer_fn         rasterizer;
+    pf_proc3d_fragment_fn           fragment;
+    const void*                     uniforms;
+    void*                           varying;
+} pf_proc3d_triangle_t;
 
 /* Default Processor 2D Functions */
 
@@ -90,7 +123,8 @@ PFAPI void
 pf_proc2d_vertex_default(
     pf_vertex2d_t* out_vertex,
     const pf_mat3_t transform,
-    const void* attr);
+    const void* uniforms,
+    void* varying);
 
 PFAPI void
 pf_proc2d_rasterizer_default(
@@ -99,14 +133,15 @@ pf_proc2d_rasterizer_default(
     pf_vertex2d_t* v2,
     pf_vertex2d_t* v3,
     pf_vec3_t bary,
-    void* attr);
+    void* varying);
 
 PFAPI void
 pf_proc2d_fragment_default(
     struct pf_renderer2d* rn,
     pf_vertex2d_t* vertex,
     pf_color_t* out_color,
-    const void* attr);
+    const void* uniforms,
+    void* varyin);
 
 /* Default Processor 3D Functions */
 
@@ -117,29 +152,9 @@ pf_proc3d_vertex_default(
     const pf_mat4_t mat_model,
     const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp,
-    const void* attr
+    const void* uniforms,
+    void* varying
 );
-
-PFAPI void
-pf_proc3d_clip_point(
-    const struct pf_renderer3d* rn,
-    pf_vertex3d_t* out_vertices,
-    pf_vec4_t out_homogeneous[],
-    size_t* out_vertices_count);
-
-PFAPI void
-pf_proc3d_clip_line(
-    const struct pf_renderer3d* rn,
-    pf_vertex3d_t* out_vertices,
-    pf_vec4_t out_homogeneous[],
-    size_t* out_vertices_count);
-
-PFAPI void
-pf_proc3d_clip_triangle(
-    const struct pf_renderer3d* rn,
-    pf_vertex3d_t* out_vertices,
-    pf_vec4_t out_homogeneous[],
-    size_t* out_vertices_count);
 
 PFAPI void
 pf_proc3d_screen_projection_default(
@@ -147,7 +162,8 @@ pf_proc3d_screen_projection_default(
     pf_vertex3d_t* vertices,
     pf_vec4_t homogeneous[],
     size_t vertices_count,
-    int screen_pos[][2]);
+    int screen_pos[][2],
+    void* varying);
 
 PFAPI void
 pf_proc3d_screen_projection_perspective_correct(
@@ -155,7 +171,8 @@ pf_proc3d_screen_projection_perspective_correct(
     pf_vertex3d_t* vertices,
     pf_vec4_t homogeneous[],
     size_t vertices_count,
-    int screen_pos[][2]);
+    int screen_pos[][2],
+    void* varying);
 
 PFAPI void
 pf_proc3d_rasterizer_default(
@@ -165,7 +182,7 @@ pf_proc3d_rasterizer_default(
     pf_vertex3d_t* v3,
     pf_vec3_t bary,
     float z_depth,
-    void* attr);
+    void* varying);
 
 PFAPI void
 pf_proc3d_rasterizer_perspective_correct(
@@ -175,13 +192,14 @@ pf_proc3d_rasterizer_perspective_correct(
     pf_vertex3d_t* v3,
     pf_vec3_t bary,
     float z_depth,
-    void* attr);
+    void* varying);
 
 PFAPI void
 pf_proc3d_fragment_default(
     struct pf_renderer3d* rn,
     pf_vertex3d_t* vertex,
     pf_color_t* out_color,
-    const void* attr);
+    const void* uniforms,
+    void* varying);
 
 #endif //PF_PROCESSORS_H

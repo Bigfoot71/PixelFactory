@@ -424,7 +424,7 @@ void
 pf_pixel_default_getter_setter(
     pf_pixel_getter_fn* getter,
     pf_pixel_setter_fn* setter,
-    pf_pixelformat_t format)
+    pf_pixelformat_e format)
 {
     switch (format)
     {
@@ -502,7 +502,7 @@ pf_pixel_default_getter_setter(
 
 size_t
 pf_pixel_get_bytes(
-    pf_pixelformat_t format)
+    pf_pixelformat_e format)
 {
     switch (format)
     {

@@ -332,7 +332,7 @@ pf_renderer2d_texture2d_mat_map(
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex);
+            frag_proc(rn, &vertex, &final_color, tex, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -347,7 +347,7 @@ pf_renderer2d_texture2d_mat_map(
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex);
+            frag_proc(rn, &vertex, &final_color, tex, NULL);
             *ptr = final_color;
         })
     }
@@ -364,7 +364,7 @@ pf_renderer2d_texture2d_mat_map(
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex);
+            frag_proc(rn, &vertex, &final_color, tex, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -379,7 +379,7 @@ pf_renderer2d_texture2d_mat_map(
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex);
+            frag_proc(rn, &vertex, &final_color, tex, NULL);
             *ptr = final_color;
         })
     }

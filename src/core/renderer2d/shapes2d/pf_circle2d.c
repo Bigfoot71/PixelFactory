@@ -252,8 +252,10 @@ pf_renderer2d_circle_gradient(
 void
 pf_renderer2d_circle_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_fragment_fn frag_proc, const void* attr)
+    pf_proc2d_generic_t* proc)
 {
+    /* Transformation */
+
     if (pf_mat3_is_identity(rn->mat_view) != 0)
     {
         pf_vec2_transform_i(&cx, &cy, cx, cy, rn->mat_view);
@@ -264,6 +266,18 @@ pf_renderer2d_circle_map(
         float scale = (scale_x + scale_y) / 2.0f;
         radius = (int)(radius * scale + 0.5f);
     }
+
+    /* Setup processor */
+
+    pf_proc2d_generic_t processor = { 0 };
+    processor.fragment = pf_proc2d_fragment_default;
+
+    if (proc != NULL) {
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    }
+
+    /* Rendering */
 
     if (rn->blend != NULL) {
         PF_CIRCLE_TRAVEL({
@@ -277,7 +291,7 @@ pf_renderer2d_circle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -292,7 +306,7 @@ pf_renderer2d_circle_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = final_color;
         })
     }
@@ -331,8 +345,10 @@ pf_renderer2d_circle_lines(
 void
 pf_renderer2d_circle_lines_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_fragment_fn frag_proc, const void* attr)
+    pf_proc2d_generic_t* proc)
 {
+    /* Transformation */
+
     if (pf_mat3_is_identity(rn->mat_view) != 0)
     {
         pf_vec2_transform_i(&cx, &cy, cx, cy, rn->mat_view);
@@ -343,6 +359,18 @@ pf_renderer2d_circle_lines_map(
         float scale = (scale_x + scale_y) / 2.0f;
         radius = (int)(radius * scale + 0.5f);
     }
+
+    /* Setup processor */
+
+    pf_proc2d_generic_t processor = { 0 };
+    processor.fragment = pf_proc2d_fragment_default;
+
+    if (proc != NULL) {
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    }
+
+    /* Rendering */
 
     if (rn->blend != NULL) {
         PF_CIRCLE_LINE_TRAVEL({
@@ -356,7 +384,7 @@ pf_renderer2d_circle_lines_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -371,7 +399,7 @@ pf_renderer2d_circle_lines_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = final_color;
         })
     }
@@ -391,10 +419,10 @@ pf_renderer2d_circle_lines_thick(
 void
 pf_renderer2d_circle_lines_thick_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius, int thick,
-    pf_proc2d_fragment_fn frag_proc, const void* attr)
+    pf_proc2d_generic_t* proc)
 {
     int ht = thick/2;
     for (int i = -ht; i <= ht; ++i) {
-        pf_renderer2d_circle_lines_map(rn, cx, cy, radius + i, frag_proc, attr);
+        pf_renderer2d_circle_lines_map(rn, cx, cy, radius + i, proc);
     }
 }

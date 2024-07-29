@@ -271,7 +271,7 @@ pf_framebuffer_map(
 
 int
 pf_framebuffer_export_as_bmp(
-    const pf_framebuffer_t* framebuffer,
+    const pf_framebuffer_t* fb,
     const char* filename)
 {
     // NOTE: The structure used is the same as that of wingdi.h
@@ -307,7 +307,7 @@ pf_framebuffer_export_as_bmp(
     }
 
     // Calculate the size of the image data (without alpha channel)
-    uint32_t image_size = framebuffer->w * framebuffer->h * 3;
+    uint32_t image_size = fb->w * fb->h * 3;
 
     // Define the BMP file header
     BITMAPFILEHEADER file_header;
@@ -320,8 +320,8 @@ pf_framebuffer_export_as_bmp(
     // Define the BMP info header
     BITMAPINFOHEADER info_header;
     info_header.biSize = sizeof(BITMAPINFOHEADER);
-    info_header.biWidth = framebuffer->w;
-    info_header.biHeight = -((int32_t)framebuffer->h);  // Negative to indicate a top-down DIB
+    info_header.biWidth = fb->w;
+    info_header.biHeight = -((int32_t)fb->h);  // Negative to indicate a top-down DIB
     info_header.biPlanes = 1;
     info_header.biBitCount = 24;
     info_header.biCompression = 0;  // BI_RGB
@@ -349,9 +349,9 @@ pf_framebuffer_export_as_bmp(
 #   pragma omp parallel for\
         if (fb->w * fb->h >= PF_OMP_BUFFER_COPY_SIZE_THRESHOLD)
 #endif //_OPENMP
-    for (uint32_t y = 0; y < framebuffer->h; y++) {
-        for (uint32_t x = 0; x < framebuffer->w; x++) {
-            pf_color_t color = framebuffer->buffer[y * framebuffer->w + x];
+    for (uint32_t y = 0; y < fb->h; y++) {
+        for (uint32_t x = 0; x < fb->w; x++) {
+            pf_color_t color = fb->buffer[y * fb->w + x];
             *ptr++ = color.c.b;
             *ptr++ = color.c.g;
             *ptr++ = color.c.r;

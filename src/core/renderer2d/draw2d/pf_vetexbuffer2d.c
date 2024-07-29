@@ -80,35 +80,19 @@ pf_renderer2d_vertex_buffer(
     pf_renderer2d_t* rn,
     const pf_vertexbuffer2d_t* vb,
     const pf_mat3_t transform,
-    pf_proc2d_vertex_fn vert_proc,
-    pf_proc2d_fragment_fn frag_proc,
-    void* attr)
+    pf_proc2d_triangle_t* proc)
 {
-    pf_renderer2d_vertex_buffer_ex(rn, vb, transform, vert_proc, pf_proc2d_rasterizer_default, frag_proc, attr);
-}
-
-void
-pf_renderer2d_vertex_buffer_ex(
-    pf_renderer2d_t* rn,
-    const pf_vertexbuffer2d_t* vb,
-    const pf_mat3_t transform,
-    pf_proc2d_vertex_fn vert_proc,
-    pf_proc2d_rasterizer_fn rast_proc,
-    pf_proc2d_fragment_fn frag_proc,
-    void* attr)
-{
-    if (vert_proc == NULL) {
-        vert_proc = pf_proc2d_vertex_default;
-    }
-    if (rast_proc == NULL) {
-        rast_proc = pf_proc2d_rasterizer_default;
-    }
-    if (frag_proc == NULL) {
-        frag_proc = pf_proc2d_fragment_default;
-    }
-
     float* positions = vb->positions;
     if (positions == NULL) return;
+
+    float* texcoords = vb->texcoords;
+    uint16_t* indices = vb->indices;
+    pf_color_t* colors = vb->colors;
+
+    uint8_t has_indices = (indices != NULL);
+    uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
+
+    /* Preparation of matrices */
 
     pf_mat3_t mat;
     if (transform != NULL) {
@@ -117,12 +101,20 @@ pf_renderer2d_vertex_buffer_ex(
         memcpy(mat, rn->mat_view, sizeof(pf_mat3_t));
     }
 
-    float* texcoords = vb->texcoords;
-    uint16_t* indices = vb->indices;
-    pf_color_t* colors = vb->colors;
+    /* Setup processors */
 
-    uint8_t has_indices = (indices != NULL);
-    uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
+    pf_proc2d_triangle_t processor = { 0 };
+    processor.vertex = pf_proc2d_vertex_default;
+    processor.fragment = pf_proc2d_fragment_default;
+    processor.rasterizer = pf_proc2d_rasterizer_default;
+
+    if (proc != NULL) {
+        if (proc->vertex != NULL) processor.vertex = proc->vertex;
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->rasterizer != NULL) processor.rasterizer = proc->rasterizer;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+        if (proc->varying != NULL) processor.varying = proc->varying;
+    }
 
     for (uint32_t i = 0; i < num; i += 3) {
 
@@ -176,9 +168,9 @@ pf_renderer2d_vertex_buffer_ex(
 
         /* Transform Vertices */
 
-        vert_proc(&v1, mat, attr);
-        vert_proc(&v2, mat, attr);
-        vert_proc(&v3, mat, attr);
+        processor.vertex(&v1, mat, processor.uniforms, processor.varying);
+        processor.vertex(&v2, mat, processor.uniforms, processor.varying);
+        processor.vertex(&v3, mat, processor.uniforms, processor.varying);
 
         /*
             Calculate the 2D bounding box of the triangle
@@ -246,23 +238,23 @@ pf_renderer2d_vertex_buffer_ex(
         if (rn->blend != NULL) {
             PF_MESH_TRIANGLE_TRAVEL_OMP({
                 pf_vertex2d_t vertex;
-                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                frag_proc(rn, &vertex, &final_color, attr);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_MESH_TRIANGLE_TRAVEL_OMP({
                 pf_vertex2d_t vertex;
-                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                frag_proc(rn, &vertex, &final_color, attr);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
                 *ptr = final_color;
             })
         }
@@ -270,23 +262,23 @@ pf_renderer2d_vertex_buffer_ex(
         if (rn->blend != NULL) {
             PF_MESH_TRIANGLE_TRAVEL({
                 pf_vertex2d_t vertex;
-                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                frag_proc(rn, &vertex, &final_color, attr);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_MESH_TRIANGLE_TRAVEL({
                 pf_vertex2d_t vertex;
-                rast_proc(&vertex, &v1, &v2, &v3, bary, attr);
+                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                frag_proc(rn, &vertex, &final_color, attr);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
                 *ptr = final_color;
             })
         }

@@ -339,34 +339,162 @@
 
 /* Internal Pixel Code Macros */
 
-#define PF_PIXEL_CODE_NOBLEND()                     \
-    pf_vertex3d_t vertex;                           \
-    rast_proc(&vertex, v1, v2, v3, bary, z, attr);  \
-    pf_color_t* ptr = rn->fb.buffer + offset;       \
-    pf_color_t final_color = *ptr;                  \
-    frag_proc(rn, &vertex, &final_color, attr);     \
+#define PF_PIXEL_CODE_NOBLEND()                                                 \
+    pf_vertex3d_t vertex;                                                       \
+    proc->rasterizer(&vertex, v1, v2, v3, bary, z, proc->varying);              \
+    pf_color_t* ptr = rn->fb.buffer + offset;                                   \
+    pf_color_t final_color = *ptr;                                              \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms, proc->varying);   \
     *ptr = final_color;
 
-#define PF_PIXEL_CODE_BLEND()                       \
-    pf_vertex3d_t vertex;                           \
-    rast_proc(&vertex, v1, v2, v3, bary, z, attr);  \
-    pf_color_t* ptr = rn->fb.buffer + offset;       \
-    pf_color_t final_color = *ptr;                  \
-    frag_proc(rn, &vertex, &final_color, attr);     \
+#define PF_PIXEL_CODE_BLEND()                                                   \
+    pf_vertex3d_t vertex;                                                       \
+    proc->rasterizer(&vertex, v1, v2, v3, bary, z, proc->varying);              \
+    pf_color_t* ptr = rn->fb.buffer + offset;                                   \
+    pf_color_t final_color = *ptr;                                              \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms, proc->varying);   \
     *ptr = rn->blend(*ptr, final_color);
 
+
+/* Internal Clipping Function */
+
+// TODO: Fix the warping issue that occurs during near clipping
+// NOTE: To avoid this problem of deformation, it is currently advisable
+//       to apply the smallest "near" value possible in your projection matrix.
+static void
+pf_clip3d_triangle_INTERNAL(
+    const pf_renderer3d_t* rn,
+    pf_vertex3d_t* out_vertices,
+    pf_vec4_t out_homogeneous[],
+    size_t* out_vertices_count)
+{
+    (void)rn;
+
+    pf_vec4_t input_homogen[PF_MAX_CLIPPED_POLYGON_VERTICES];
+    pf_vertex3d_t input_vt[PF_MAX_CLIPPED_POLYGON_VERTICES];
+    int_fast8_t input_count;
+
+    // CLIP W
+    memcpy(input_homogen, out_homogeneous, (*out_vertices_count) * sizeof(pf_vec4_t));
+    memcpy(input_vt, out_vertices, (*out_vertices_count) * sizeof(pf_vertex3d_t));
+    input_count = *out_vertices_count;
+    *out_vertices_count = 0;
+
+    pf_vec4_t* prev_homogen = &input_homogen[input_count - 1];
+    pf_vertex3d_t* prev_vt = &input_vt[input_count - 1];
+
+    int_fast8_t prevDot = ((*prev_homogen)[3] < PF_EPSILON) ? -1 : 1;
+
+    for (int_fast8_t i = 0; i < input_count; ++i) {
+        int_fast8_t currDot = (input_homogen[i][3] < PF_EPSILON) ? -1 : 1;
+
+        if (prevDot * currDot < 0) {
+            float t = (PF_EPSILON - (*prev_homogen)[3]) / (input_homogen[i][3] - (*prev_homogen)[3]);
+            pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
+            pf_vertex3d_lerp(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
+            (*out_vertices_count)++;
+        }
+
+        if (currDot > 0) {
+            pf_vec4_copy(out_homogeneous[*out_vertices_count], input_homogen[i]);
+            out_vertices[*out_vertices_count] = input_vt[i];
+            (*out_vertices_count)++;
+        }
+
+        prev_homogen = &input_homogen[i];
+        prev_vt = &input_vt[i];
+        prevDot = currDot;
+    }
+
+    if (*out_vertices_count == 0) {
+        return;
+    }
+
+    // CLIP XYZ
+    for (int_fast8_t iAxis = 0; iAxis < 3; iAxis++) {
+        pf_vec4_t input_homogen[PF_MAX_CLIPPED_POLYGON_VERTICES];
+        pf_vertex3d_t input_vt[PF_MAX_CLIPPED_POLYGON_VERTICES];
+        int_fast8_t input_count;
+
+        memcpy(input_homogen, out_homogeneous, (*out_vertices_count) * sizeof(pf_vec4_t));
+        memcpy(input_vt, out_vertices, (*out_vertices_count) * sizeof(pf_vertex3d_t));
+        input_count = *out_vertices_count;
+        *out_vertices_count = 0;
+
+        pf_vec4_t* prev_homogen = &input_homogen[input_count - 1];
+        pf_vertex3d_t* prev_vt = &input_vt[input_count - 1];
+
+        int_fast8_t prevDot = ((*prev_homogen)[iAxis] <= (*prev_homogen)[3]) ? 1 : -1;
+
+        for (int_fast8_t i = 0; i < input_count; ++i) {
+            int_fast8_t currDot = (input_homogen[i][iAxis] <= input_homogen[i][3]) ? 1 : -1;
+
+            if (prevDot * currDot <= 0) {
+                float t = (*prev_homogen)[3] - (*prev_homogen)[iAxis];
+                t /= t - (input_homogen[i][3] - input_homogen[i][iAxis]);
+                pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
+                pf_vertex3d_lerp(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
+                (*out_vertices_count)++;
+            }
+
+            if (currDot > 0) {
+                pf_vec4_copy(out_homogeneous[*out_vertices_count], input_homogen[i]);
+                out_vertices[*out_vertices_count] = input_vt[i];
+                (*out_vertices_count)++;
+            }
+
+            prev_homogen = &input_homogen[i];
+            prev_vt = &input_vt[i];
+            prevDot = currDot;
+        }
+
+        if (*out_vertices_count == 0) {
+            return;
+        }
+
+        memcpy(input_homogen, out_homogeneous, (*out_vertices_count) * sizeof(pf_vec4_t));
+        memcpy(input_vt, out_vertices, (*out_vertices_count) * sizeof(pf_vertex3d_t));
+        input_count = *out_vertices_count;
+        *out_vertices_count = 0;
+
+        prev_homogen = &input_homogen[input_count - 1];
+        prev_vt = &input_vt[input_count - 1];
+        prevDot = (-(*prev_homogen)[iAxis] <= (*prev_homogen)[3]) ? 1 : -1;
+
+        for (int_fast8_t i = 0; i < input_count; ++i) {
+            int_fast8_t currDot = (-input_homogen[i][iAxis] <= input_homogen[i][3]) ? 1 : -1;
+
+            if (prevDot * currDot <= 0) {
+                float t = (*prev_homogen)[3] + (*prev_homogen)[iAxis];
+                t /= t - (input_homogen[i][3] + input_homogen[i][iAxis]);
+                pf_vec4_lerp_r(out_homogeneous[*out_vertices_count], *prev_homogen, input_homogen[i], t);
+                pf_vertex3d_lerp(&out_vertices[*out_vertices_count], prev_vt, &input_vt[i], t);
+                (*out_vertices_count)++;
+            }
+
+            if (currDot > 0) {
+                pf_vec4_copy(out_homogeneous[*out_vertices_count], input_homogen[i]);
+                out_vertices[*out_vertices_count] = input_vt[i];
+                (*out_vertices_count)++;
+            }
+
+            prev_homogen = &input_homogen[i];
+            prev_vt = &input_vt[i];
+            prevDot = currDot;
+        }
+
+        if (*out_vertices_count == 0) {
+            return;
+        }
+    }
+}
 
 /* Internal Rendering Functions */
 
 void
 pf_renderer3d_triangle_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc,
-    pf_proc3d_rasterizer_fn rast_proc,
-    pf_proc3d_fragment_fn frag_proc,
-    void* attr)
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_triangle_t* proc)
 {
     /* Copy vertices, the clipping step may result in more vertex than expected */
 
@@ -380,13 +508,13 @@ pf_renderer3d_triangle_INTERNAL(
 
     /* Transform vertices */
 
-    vert_proc(&vertices[0], homogens[0], mat_model, mat_normal, mat_mvp, attr);
-    vert_proc(&vertices[1], homogens[1], mat_model, mat_normal, mat_mvp, attr);
-    vert_proc(&vertices[2], homogens[2], mat_model, mat_normal, mat_mvp, attr);
+    proc->vertex(&vertices[0], homogens[0], mat_model, mat_normal, mat_mvp, proc->uniforms, proc->varying);
+    proc->vertex(&vertices[1], homogens[1], mat_model, mat_normal, mat_mvp, proc->uniforms, proc->varying);
+    proc->vertex(&vertices[2], homogens[2], mat_model, mat_normal, mat_mvp, proc->uniforms, proc->varying);
 
     /* Clip triangle */
 
-    clip_proc(rn, vertices, homogens, &vertices_count);
+    pf_clip3d_triangle_INTERNAL(rn, vertices, homogens, &vertices_count);
 
     if (vertices_count < 3) {
         return;
@@ -395,7 +523,7 @@ pf_renderer3d_triangle_INTERNAL(
     /* Projection to screen */
 
     int screen_pos[PF_MAX_CLIPPED_POLYGON_VERTICES][2] = { 0 };
-    proj_proc(rn, vertices, homogens, vertices_count, screen_pos);
+    proc->screen_projection(rn, vertices, homogens, vertices_count, screen_pos, proc->varying);
 
     /* Rasterize triangles */
 

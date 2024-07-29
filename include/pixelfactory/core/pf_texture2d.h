@@ -49,7 +49,7 @@ typedef struct pf_texture2d {
 PFAPI pf_texture2d_t
 pf_texture2d_create(
     void* pixels, uint32_t w, uint32_t h,
-    pf_pixelformat_t format);
+    pf_pixelformat_e format);
 
 PFAPI void
 pf_texture2d_delete(

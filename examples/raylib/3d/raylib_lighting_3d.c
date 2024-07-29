@@ -15,12 +15,13 @@ model_frag_proc(
     struct pf_renderer3d* rn,
     pf_vertex3d_t* vertex,
     pf_color_t* out_color,
-    const void* attr)
+    const void* uniforms,
+    void* varying)
 {
     (void)rn;
-    (void)vertex;
+    (void)varying;
 
-    const uniforms_t* uniforms = attr;
+    const uniforms_t* u = uniforms;
 
     // constants
     const pf_vec3_t light_pos = { 10.0f, 10.0f, 10.0f };
@@ -31,7 +32,7 @@ model_frag_proc(
     pf_vec3_normalize_r(N, vertex->normal);
 
     pf_vec3_t V;
-    pf_vec3_direction_r(V, uniforms->cam_pos, vertex->position);
+    pf_vec3_direction_r(V, u->cam_pos, vertex->position);
 
     pf_vec3_t L;
     pf_vec3_direction_r(L, light_pos, vertex->position);
@@ -40,7 +41,7 @@ model_frag_proc(
     pf_vec3_neg_r(nL, L);
 
     // model color
-    pf_color_t final_color = *(pf_color_t*)&uniforms->material.maps[MATERIAL_MAP_ALBEDO].color;
+    pf_color_t final_color = *(pf_color_t*)&u->material.maps[MATERIAL_MAP_ALBEDO].color;
 
     // diffuse
     float NdotL = PF_MAX(pf_vec3_dot(N, L), 0.0f);
@@ -143,8 +144,10 @@ int main(void)
 
         // Rendering vertex buffers
         for (int i = 0; i < model.meshCount; i++) {
-            uniforms.material = model.materials[model.meshMaterial[i]];
-            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, NULL, model_frag_proc, &uniforms);
+            pf_proc3d_generic_t proc = { 0 };
+            proc.fragment = model_frag_proc;
+            proc.uniforms = &model.materials[model.meshMaterial[i]];
+            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
         }
 
         // Updating the texture with the new buffer content

@@ -24,20 +24,16 @@
 void
 pf_renderer3d_line_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc,
-    pf_proc3d_fragment_fn frag_proc,
-    void* attr);
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
+    const pf_mat4_t mat_mvp, pf_proc3d_generic_t* proc);
 
 
 /* Public API Functions */
 
 void
 pf_renderer3d_line(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_mat4_t transform,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
-    void* attr)
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2,
+    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -54,57 +50,23 @@ pf_renderer3d_line(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
+    pf_proc3d_generic_t processor = { 0 };
+    processor.vertex = pf_proc3d_vertex_default;
+    processor.fragment = pf_proc3d_fragment_default;
 
-    pf_renderer3d_line_INTERNAL(rn, v1, v2, 0, mat_model, mat_normal, mat_mvp, vert_proc,
-        pf_proc3d_clip_line, pf_proc3d_screen_projection_default, frag_proc, attr);
-}
-
-void
-pf_renderer3d_line_ex(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_mat4_t transform,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc,
-    pf_proc3d_fragment_fn frag_proc,
-    void* attr)
-{
-    /* Preparation of matrices */
-
-    pf_mat4_t mat_model;
-    pf_mat4_t mat_normal;
-    if (transform == NULL) {
-        pf_mat4_identity(mat_model);
-        pf_mat4_identity(mat_normal);
-    } else {
-        pf_mat4_copy(mat_model, transform);
-        pf_mat4_inverse(mat_normal, mat_model);
-        pf_mat4_transpose(mat_normal, mat_normal);
+    if (proc != NULL) {
+        if (proc->vertex != NULL) processor.vertex = proc->vertex;
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
     }
 
-    pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
-
-    /* Set default processors if not set */
-
-    if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_line;
-    if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_default;
-    if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
-
-    /* Triangle rasterization */
-
-    pf_renderer3d_line_INTERNAL(rn, v1, v2, 0,
-        mat_model, mat_normal, mat_mvp, vert_proc,
-        clip_proc, proj_proc, frag_proc, attr);
+    pf_renderer3d_line_INTERNAL(rn, v1, v2, 0, mat_model, mat_normal, mat_mvp, &processor);
 }
 
 void
 pf_renderer3d_line_thick(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick, const pf_mat4_t transform,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
-    void* attr)
+    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick,
+    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -121,48 +83,15 @@ pf_renderer3d_line_thick(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
+    pf_proc3d_generic_t processor = { 0 };
+    processor.vertex = pf_proc3d_vertex_default;
+    processor.fragment = pf_proc3d_fragment_default;
 
-    pf_renderer3d_line_INTERNAL(rn, v1, v2, thick, mat_model, mat_normal, mat_mvp, vert_proc,
-        pf_proc3d_clip_line, pf_proc3d_screen_projection_default, frag_proc, attr);
-}
-
-void
-pf_renderer3d_line_thick_ex(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick, const pf_mat4_t transform,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc,
-    pf_proc3d_fragment_fn frag_proc,
-    void* attr)
-{
-    /* Preparation of matrices */
-
-    pf_mat4_t mat_model;
-    pf_mat4_t mat_normal;
-    if (transform == NULL) {
-        pf_mat4_identity(mat_model);
-        pf_mat4_identity(mat_normal);
-    } else {
-        pf_mat4_copy(mat_model, transform);
-        pf_mat4_inverse(mat_normal, mat_model);
-        pf_mat4_transpose(mat_normal, mat_normal);
+    if (proc != NULL) {
+        if (proc->vertex != NULL) processor.vertex = proc->vertex;
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
     }
 
-    pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
-
-    /* Set default processors if not set */
-
-    if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_line;
-    if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_default;
-    if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
-
-    /* Triangle rasterization */
-
-    pf_renderer3d_line_INTERNAL(rn, v1, v2, thick,
-        mat_model, mat_normal, mat_mvp, vert_proc,
-        clip_proc, proj_proc, frag_proc, attr);
+    pf_renderer3d_line_INTERNAL(rn, v1, v2, thick, mat_model, mat_normal, mat_mvp, &processor);
 }

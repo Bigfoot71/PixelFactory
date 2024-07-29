@@ -264,11 +264,24 @@ pf_renderer2d_line_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr)
+    pf_proc2d_generic_t* proc)
 {
+    /* Transformation */
+
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
+
+    /* Setup processor */
+
+    pf_proc2d_generic_t processor = { 0 };
+    processor.fragment = pf_proc2d_fragment_default;
+
+    if (proc != NULL) {
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    }
+
+    /* Rendering */
 
     if (rn->blend != NULL) {
         PF_LINE_TRAVEL({
@@ -282,7 +295,7 @@ pf_renderer2d_line_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
@@ -297,7 +310,7 @@ pf_renderer2d_line_map(
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, attr);
+            processor.fragment(rn, &vertex, &final_color, processor.uniforms, NULL);
             *ptr = final_color;
         })
     }
@@ -342,13 +355,12 @@ pf_renderer2d_line_thick_map(
     int x1, int y1,
     int x2, int y2,
     int thick,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr)
+    pf_proc2d_generic_t* proc)
 {
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
     pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
 
     PF_LINE_THICK_TRAVEL({
-        pf_renderer2d_line_map(rn, x1, y1, x2, y2, frag_proc, attr);
+        pf_renderer2d_line_map(rn, x1, y1, x2, y2, proc);
     })
 }

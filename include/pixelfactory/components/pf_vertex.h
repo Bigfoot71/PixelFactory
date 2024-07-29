@@ -24,12 +24,24 @@
 #include "../math/pf_vec4.h"
 #include "pf_color.h"
 
+/* Vertex Types */
+
 typedef struct {
     pf_vec2_t position;
     pf_vec2_t texcoord;
     pf_color_t color;
     uint32_t index;
 } pf_vertex2d_t;
+
+typedef struct {
+    pf_vec3_t position;
+    pf_vec2_t texcoord;
+    pf_vec3_t normal;
+    pf_color_t color;
+    uint32_t index;
+} pf_vertex3d_t;
+
+/* Vertex Buffer Types */
 
 typedef struct {
     float* positions;
@@ -41,14 +53,6 @@ typedef struct {
 } pf_vertexbuffer2d_t;
 
 typedef struct {
-    pf_vec3_t position;
-    pf_vec2_t texcoord;
-    pf_vec3_t normal;
-    pf_color_t color;
-    uint32_t index;
-} pf_vertex3d_t;
-
-typedef struct {
     float* positions;
     float* texcoords;
     float* normals;
@@ -57,5 +61,14 @@ typedef struct {
     uint32_t num_vertices;
     uint32_t num_indices;
 } pf_vertexbuffer3d_t;
+
+/* Helper Functions */
+
+void
+pf_vertex3d_lerp(
+    pf_vertex3d_t* restrict result,
+    const pf_vertex3d_t* restrict start,
+    const pf_vertex3d_t* restrict end,
+    float t);
 
 #endif //PF_VERTEX_H

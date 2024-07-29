@@ -12,12 +12,14 @@ model_frag_proc(
     struct pf_renderer3d* rn,
     pf_vertex3d_t* vertex,
     pf_color_t* out_color,
-    const void* attr)
+    const void* uniforms,
+    void* varying)
 {
     (void)rn;
     (void)vertex;
+    (void)varying;
 
-    *out_color = *(pf_color_t*)&((Material*)attr)->maps[MATERIAL_MAP_ALBEDO].color;
+    *out_color = *(pf_color_t*)&((Material*)uniforms)->maps[MATERIAL_MAP_ALBEDO].color;
 }
 
 int main(void)
@@ -88,8 +90,10 @@ int main(void)
 
         // Rendering vertex buffers
         for (int i = 0; i < model.meshCount; i++) {
-            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, NULL, model_frag_proc,
-                &model.materials[model.meshMaterial[i]]);
+            pf_proc3d_generic_t proc = { 0 };
+            proc.fragment = model_frag_proc;
+            proc.uniforms = &model.materials[model.meshMaterial[i]];
+            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
         }
 
         // Updating the texture with the new buffer content

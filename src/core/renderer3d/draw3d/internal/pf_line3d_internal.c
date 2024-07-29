@@ -202,57 +202,109 @@
 
 /* Internal Pixel Code Macros */
 
-#define PF_PIXEL_CODE_NOBLEND()                                                         \
-    pf_vertex3d_t vertex;                                                               \
-    pf_vertex3d_lerp_INTERNAL(&vertex, &vertices[0], &vertices[1], t);                  \
-    pf_color_t *ptr = rn->fb.buffer + offset;                                           \
-    pf_color_t final_color = *ptr;                                                      \
-    frag_proc(rn, &vertex, &final_color, attr);                                         \
-    *ptr = final_color;                                                                 \
+#define PF_PIXEL_CODE_NOBLEND()                                         \
+    pf_vertex3d_t vertex;                                               \
+    pf_vertex3d_lerp(&vertex, &vertices[0], &vertices[1], t);           \
+    pf_color_t *ptr = rn->fb.buffer + offset;                           \
+    pf_color_t final_color = *ptr;                                      \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);    \
+    *ptr = final_color;
 
-#define PF_PIXEL_CODE_BLEND()                                                           \
-    pf_vertex3d_t vertex;                                                               \
-    pf_vertex3d_lerp_INTERNAL(&vertex, &vertices[0], &vertices[1], t);                  \
-    pf_color_t *ptr = rn->fb.buffer + offset;                                           \
-    pf_color_t final_color = *ptr;                                                      \
-    frag_proc(rn, &vertex, &final_color, attr);                                         \
-    *ptr = rn->blend(*ptr, final_color);                                                \
+#define PF_PIXEL_CODE_BLEND()                                           \
+    pf_vertex3d_t vertex;                                               \
+    pf_vertex3d_lerp(&vertex, &vertices[0], &vertices[1], t);           \
+    pf_color_t *ptr = rn->fb.buffer + offset;                           \
+    pf_color_t final_color = *ptr;                                      \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);    \
+    *ptr = rn->blend(*ptr, final_color);
 
 
-/* Internal Functions Declarations */
+/* Internal Clipping Function */
 
-// NOTE: Defined in pf_processors.c
+static uint8_t
+pf_clip3_coord_line_INTERNAL(float q, float p, float* t1, float* t2)
+{
+    if (fabsf(p) < PF_EPSILON) {
+        // Check if the line is entirely outside the window
+        if (q < -PF_EPSILON) return 0;  // Completely outside
+        return 1;                       // Completely inside or on the edges
+    }
+
+    const float r = q / p;
+
+    if (p < 0)  {
+        if (r > *t2) return 0;
+        if (r > *t1) *t1 = r;
+    } else {
+        if (r < *t1) return 0;
+        if (r < *t2) *t2 = r;
+    }
+
+    return 1;
+}
+
 void
-pf_vertex3d_lerp_INTERNAL(
-    pf_vertex3d_t* restrict result,
-    const pf_vertex3d_t* restrict start,
-    const pf_vertex3d_t* restrict end,
-    float t);
+pf_clip3d_line_INTERNAL(
+    const struct pf_renderer3d* rn,
+    pf_vertex3d_t* out_vertices,
+    pf_vec4_t out_homogeneous[],
+    size_t* out_vertices_count)
+{
+    (void)rn;
+    (void)out_vertices;
 
+    float t1 = 0, t2 = 1;
+
+    pf_vec4_t delta;
+    pf_vec4_sub_r(delta, out_homogeneous[1], out_homogeneous[0]);
+
+    if (!pf_clip3_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][0], -delta[3] + delta[0], &t1, &t2) ||
+        !pf_clip3_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][0], -delta[3] - delta[0], &t1, &t2) ||
+        !pf_clip3_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][1], -delta[3] + delta[1], &t1, &t2) ||
+        !pf_clip3_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][1], -delta[3] - delta[1], &t1, &t2) ||
+        !pf_clip3_coord_line_INTERNAL(out_homogeneous[0][3] - out_homogeneous[0][2], -delta[3] + delta[2], &t1, &t2) ||
+        !pf_clip3_coord_line_INTERNAL(out_homogeneous[0][3] + out_homogeneous[0][2], -delta[3] - delta[2], &t1, &t2))
+    {
+        *out_vertices_count = 0;
+        return;
+    }
+
+    if (t2 < 1)
+    {
+        pf_vec4_t d;
+        pf_vec4_scale_r(d, delta, t2);
+        pf_vec4_add_r(out_homogeneous[1], out_homogeneous[0], d);
+    }
+
+    if (t1 > 0)
+    {
+        pf_vec4_t d;
+        pf_vec4_scale_r(d, delta, t1);
+        pf_vec4_add(out_homogeneous[0], out_homogeneous[0], d);
+    }
+}
 
 /* Internal Rendering Functions */
 
 void
 pf_renderer3d_line_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc,
-    pf_proc3d_fragment_fn frag_proc,
-    void* attr)
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
+    const pf_mat4_t mat_mvp, pf_proc3d_generic_t* proc)
 {
     pf_vertex3d_t vertices[2] = { *v1, *v2 };
     pf_vec4_t homogens[2] = { 0 };
     int screen_pos[2][2] = { 0 };
     size_t num = 2;
 
-    vert_proc(&vertices[0], homogens[0], mat_model, mat_normal, mat_mvp, attr);
-    vert_proc(&vertices[1], homogens[1], mat_model, mat_normal, mat_mvp, attr);
+    proc->vertex(&vertices[0], homogens[0], mat_model, mat_normal, mat_mvp, proc->uniforms, NULL);
+    proc->vertex(&vertices[1], homogens[1], mat_model, mat_normal, mat_mvp, proc->uniforms, NULL);
 
-    clip_proc(rn, vertices, homogens, &num);
+    pf_clip3d_line_INTERNAL(rn, vertices, homogens, &num);
     if (num != 2) return;
 
-    proj_proc(rn, vertices, homogens, num, screen_pos);
+    pf_proc3d_screen_projection_default(
+        rn, vertices, homogens, num, screen_pos, NULL);
 
     int x1 = screen_pos[0][0];
     int y1 = screen_pos[0][1];

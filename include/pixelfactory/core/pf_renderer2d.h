@@ -57,20 +57,7 @@ pf_renderer2d_vertex_buffer(
     pf_renderer2d_t* rn,
     const pf_vertexbuffer2d_t* vb,
     const pf_mat3_t transform,
-    pf_proc2d_vertex_fn vert_proc,
-    pf_proc2d_fragment_fn frag_proc,
-    void* attr);
-
-PFAPI void
-pf_renderer2d_vertex_buffer_ex(
-    pf_renderer2d_t* rn,
-    const pf_vertexbuffer2d_t* vb,
-    const pf_mat3_t transform,
-    pf_proc2d_vertex_fn vert_proc,
-    pf_proc2d_rasterizer_fn rast_proc,
-    pf_proc2d_fragment_fn frag_proc,
-    void* attr);
-
+    pf_proc2d_triangle_t* proc);
 
 /* Renderer 2D Shapes Drawing Functions */
 
@@ -94,8 +81,7 @@ pf_renderer2d_line_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_line_thick(
@@ -120,8 +106,7 @@ pf_renderer2d_line_thick_map(
     int x1, int y1,
     int x2, int y2,
     int thick,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_rect(
@@ -145,8 +130,7 @@ pf_renderer2d_rect_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_rect_lines(
@@ -170,8 +154,7 @@ pf_renderer2d_rect_lines_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_rect_lines_thick(
@@ -197,8 +180,7 @@ pf_renderer2d_rect_lines_thick_map(
     int x1, int y1,
     int x2, int y2,
     int thick,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_point(
@@ -218,7 +200,7 @@ pf_renderer2d_circle_gradient(
 PFAPI void
 pf_renderer2d_circle_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_fragment_fn frag_proc, const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_circle_lines(
@@ -228,7 +210,7 @@ pf_renderer2d_circle_lines(
 PFAPI void
 pf_renderer2d_circle_lines_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_fragment_fn frag_proc, const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_circle_lines_thick(
@@ -238,7 +220,7 @@ pf_renderer2d_circle_lines_thick(
 PFAPI void
 pf_renderer2d_circle_lines_thick_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius, int thick,
-    pf_proc2d_fragment_fn frag_proc, const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_triangle(
@@ -264,8 +246,7 @@ pf_renderer2d_triangle_map(
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_triangle_lines(
@@ -291,8 +272,7 @@ pf_renderer2d_triangle_lines_map(
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_triangle_fan(
@@ -304,8 +284,7 @@ PFAPI void
 pf_renderer2d_triangle_fan_map(
     pf_renderer2d_t* rn,
     int* points, int count,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_triangle_fan_lines(
@@ -323,8 +302,7 @@ PFAPI void
 pf_renderer2d_triangle_strip_map(
     pf_renderer2d_t* rn,
     int* points, int count,
-    pf_proc2d_fragment_fn frag_proc,
-    const void* attr);
+    pf_proc2d_generic_t* proc);
 
 PFAPI void
 pf_renderer2d_triangle_strip_lines(

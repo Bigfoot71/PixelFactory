@@ -17,6 +17,7 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
+#include "pixelfactory/components/pf_processors.h"
 #include "pixelfactory/core/pf_renderer3d.h"
 #include <string.h>
 
@@ -25,12 +26,7 @@
 void
 pf_renderer3d_triangle_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp,
-    pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc,
-    pf_proc3d_rasterizer_fn rast_proc,
-    pf_proc3d_fragment_fn frag_proc,
-    void* attr);
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_triangle_t* proc);
 
 
 /* Triangle rasterization functions */
@@ -38,8 +34,7 @@ pf_renderer3d_triangle_INTERNAL(
 void
 pf_renderer3d_triangle(
     pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t transform, pf_proc3d_vertex_fn vert_proc, pf_proc3d_fragment_fn frag_proc,
-    void* attr)
+    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -56,26 +51,27 @@ pf_renderer3d_triangle(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
+    pf_proc3d_triangle_t processor = { 0 };
+    processor.vertex = pf_proc3d_vertex_default;
+    processor.fragment = pf_proc3d_fragment_default;
+    processor.rasterizer = pf_proc3d_rasterizer_perspective_correct;
+    processor.screen_projection = pf_proc3d_screen_projection_perspective_correct;
+
+    if (proc != NULL) {
+        if (proc->vertex != NULL) processor.vertex = proc->vertex;
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    }
 
     pf_renderer3d_triangle_INTERNAL(
-        rn, v1, v2, v3, mat_model, mat_normal, mat_mvp, vert_proc, pf_proc3d_clip_triangle,
-        pf_proc3d_screen_projection_perspective_correct,
-        pf_proc3d_rasterizer_perspective_correct,
-        frag_proc, attr);
+        rn, v1, v2, v3, mat_model, mat_normal, mat_mvp, &processor);
 }
 
 void
 pf_renderer3d_triangle_ex(
     pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t transform, pf_proc3d_vertex_fn vert_proc, pf_proc3d_clip_fn clip_proc,
-    pf_proc3d_screen_projection_fn proj_proc, pf_proc3d_rasterizer_fn rast_proc,
-    pf_proc3d_fragment_fn frag_proc,
-    void* attr)
+    const pf_mat4_t transform, pf_proc3d_triangle_t* proc)
 {
-    /* Preparation of matrices */
-
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
     if (transform == NULL) {
@@ -91,19 +87,21 @@ pf_renderer3d_triangle_ex(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    /* Set default processors if not set */
+    pf_proc3d_triangle_t processor = { 0 };
+    processor.vertex = pf_proc3d_vertex_default;
+    processor.fragment = pf_proc3d_fragment_default;
+    processor.rasterizer = pf_proc3d_rasterizer_perspective_correct;
+    processor.screen_projection = pf_proc3d_screen_projection_perspective_correct;
 
-    if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_triangle;
-    if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_perspective_correct;
-    if (rast_proc == NULL) rast_proc = pf_proc3d_rasterizer_perspective_correct;
-    if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
-
-    /* Triangle rasterization */
+    if (proc != NULL) {
+        if (proc->vertex != NULL) processor.vertex = proc->vertex;
+        if (proc->fragment != NULL) processor.fragment = proc->fragment;
+        if (proc->rasterizer != NULL) processor.rasterizer = proc->rasterizer;
+        if (proc->screen_projection != NULL) processor.screen_projection = proc->screen_projection;
+        if (proc->varying != NULL) processor.varying = proc->varying;
+        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    }
 
     pf_renderer3d_triangle_INTERNAL(
-        rn, v1, v2, v3, mat_model, mat_normal, mat_mvp, vert_proc, pf_proc3d_clip_triangle,
-        pf_proc3d_screen_projection_perspective_correct,
-        pf_proc3d_rasterizer_perspective_correct,
-        frag_proc, attr);
+        rn, v1, v2, v3, mat_model, mat_normal, mat_mvp, &processor);
 }

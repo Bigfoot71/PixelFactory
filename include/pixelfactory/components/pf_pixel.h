@@ -40,7 +40,7 @@ typedef enum {
     PF_PIXELFORMAT_R16,
     PF_PIXELFORMAT_RGB161616,
     PF_PIXELFORMAT_RGBA16161616,
-} pf_pixelformat_t;
+} pf_pixelformat_e;
 
 
 /* Pixel Getters */
@@ -198,11 +198,11 @@ void
 pf_pixel_default_getter_setter(
     pf_pixel_getter_fn* getter,
     pf_pixel_setter_fn* setter,
-    pf_pixelformat_t format);
+    pf_pixelformat_e format);
 
 size_t
 pf_pixel_get_bytes(
-    pf_pixelformat_t format);
+    pf_pixelformat_e format);
 
 
 #endif //PF_PIXEL_H

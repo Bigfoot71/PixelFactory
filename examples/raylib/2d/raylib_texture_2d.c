@@ -4,10 +4,10 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
-void frag_proc(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_color, const void* attr)
+void frag_proc(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_color, const void* uniforms, void* varying)
 {
     (void)rn;
-    (void)out_color;
+    (void)varying;
 
     float u = 0.5f + (vertex->texcoord[0] - 0.5f) * 1.5f;
     float v = 0.5f + (vertex->texcoord[1] - 0.5f) * 1.5f;
@@ -17,7 +17,7 @@ void frag_proc(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_
         (float[2]) { u, v }, (float[2]) { 0.5f, 0.5f });
 
     if (dist < 0.5f) {
-        *out_color = ((pf_texture2d_t*)attr)->sampler(attr, u, v);
+        *out_color = ((pf_texture2d_t*)uniforms)->sampler(uniforms, u, v);
     }
 }
 

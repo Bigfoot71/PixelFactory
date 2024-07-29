@@ -13,7 +13,7 @@ typedef struct {
 } Uniforms;
 
 static bool WallCollision(Camera3D* camera, const Image* imMap);
-static void FragProcModel(struct pf_renderer3d* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* attr);
+static void FragProcModel(struct pf_renderer3d* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* uniforms, void* varying);
 static void RendererMap(pf_renderer3d_t* rn, pf_color_t* outColor, float* outDepth, int x, int y, float u, float v);
 
 int main(void)
@@ -111,7 +111,10 @@ int main(void)
 
         pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
         for (int i = 0; i < model.meshCount; i++) {
-            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, NULL, FragProcModel, &uniforms);
+            pf_proc3d_generic_t proc = { 0 };
+            proc.fragment = FragProcModel;
+            proc.uniforms = &uniforms;
+            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
         }
         pf_renderer3d_map(&rn, RendererMap);
 
@@ -202,11 +205,13 @@ bool WallCollision(Camera3D* camera, const Image* imMap)
     return (adx > 0 && ady > 0);
 }
 
-void FragProcModel(pf_renderer3d_t* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* attr)
+void FragProcModel(pf_renderer3d_t* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* uniforms, void* varying)
 {
     (void)rn;
-    const Uniforms* uniforms = attr;
-    *outColor = uniforms->texture.sampler(attr,
+    (void)varying;
+
+    const Uniforms* u = uniforms;
+    *outColor = u->texture.sampler(&u->texture,
         vertex->texcoord[0], vertex->texcoord[1]);
 }
 

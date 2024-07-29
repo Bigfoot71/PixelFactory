@@ -23,7 +23,7 @@
 pf_texture2d_t
 pf_texture2d_create(
     void* pixels, uint32_t w, uint32_t h,
-    pf_pixelformat_t format)
+    pf_pixelformat_e format)
 {
     pf_texture2d_t texture = { 0 };
     if (w == 0 || h == 0) return texture;
@@ -54,7 +54,7 @@ pf_texture2d_create(
 pf_texture2d_t
 pf_texture2d_create_with_copy(
     void* pixels, uint32_t w, uint32_t h,
-    pf_pixelformat_t format)
+    pf_pixelformat_e format)
 {
     pf_texture2d_t texture = { 0 };
     if (w == 0 || h == 0) return texture;
