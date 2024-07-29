@@ -58,7 +58,7 @@ pf_renderer3d_line(
     if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
 
     pf_renderer3d_line_INTERNAL(rn, v1, v2, 0, mat_model, mat_normal, mat_mvp, vert_proc,
-        pf_proc3d_clip_point, pf_proc3d_screen_projection_default, frag_proc, attr);
+        pf_proc3d_clip_line, pf_proc3d_screen_projection_default, frag_proc, attr);
 }
 
 void
@@ -89,7 +89,7 @@ pf_renderer3d_line_ex(
     /* Set default processors if not set */
 
     if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_point;
+    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_line;
     if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_default;
     if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
 
@@ -125,7 +125,7 @@ pf_renderer3d_line_thick(
     if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
 
     pf_renderer3d_line_INTERNAL(rn, v1, v2, thick, mat_model, mat_normal, mat_mvp, vert_proc,
-        pf_proc3d_clip_point, pf_proc3d_screen_projection_default, frag_proc, attr);
+        pf_proc3d_clip_line, pf_proc3d_screen_projection_default, frag_proc, attr);
 }
 
 void
@@ -156,7 +156,7 @@ pf_renderer3d_line_thick_ex(
     /* Set default processors if not set */
 
     if (vert_proc == NULL) vert_proc = pf_proc3d_vertex_default;
-    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_point;
+    if (clip_proc == NULL) clip_proc = pf_proc3d_clip_line;
     if (proj_proc == NULL) proj_proc = pf_proc3d_screen_projection_default;
     if (frag_proc == NULL) frag_proc = pf_proc3d_fragment_default;
 
