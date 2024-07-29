@@ -346,6 +346,26 @@ pf_renderer2d_texture2d_ex_map(
     pf_proc2d_fragment_fn frag_proc);
 
 PFAPI void
+pf_renderer2d_texture2d_rec(
+    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+    const int* src_rect, const int* dst_rect,
+    float r, int ox, int oy);
+
+PFAPI void
+pf_renderer2d_texture2d_rec_tint(
+    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+    const int* src_rect, const int* dst_rect,
+    float r, int ox, int oy,
+    pf_color_t tint);
+
+PFAPI void
+pf_renderer2d_texture2d_rec_map(
+    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+    const int* src_rect, const int* dst_rect,
+    float r, int ox, int oy,
+    pf_proc2d_fragment_fn frag_proc);
+
+PFAPI void
 pf_renderer2d_texture2d_mat(
     pf_renderer2d_t* rn,
     const pf_texture2d_t* tex,

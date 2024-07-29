@@ -40,25 +40,42 @@
         }                                                                           \
     }
 
+#define PF_TRAVEL_TEXTURE2D_REC(PIXEL_CODE)                                         \
+    for (int y = ymin; y <= ymax; ++y) {                                            \
+        float u = u_start;                                                          \
+        float v = v_start + iv * (y - ymin);                                        \
+        size_t y_offset = y * rn->fb.w;                                             \
+        for (int x = xmin; x <= xmax; ++x) {                                        \
+            size_t offset = y_offset + x;                                           \
+            PIXEL_CODE                                                              \
+            u += iu;                                                                \
+        }                                                                           \
+    }
+
+#define PF_TRAVEL_TEXTURE2D_REC_OMP(PIXEL_CODE)                                     \
+    _Pragma("omp parallel for                                                       \
+        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TEXTURE_RN2D_SIZE_THRESHOLD)")  \
+    PF_TRAVEL_TEXTURE2D_REC(PIXEL_CODE)
+
 #define PF_PREPARE_TEXTURE2D_MAT()                                                  \
     pf_framebuffer_t* fb = &rn->fb;                                                 \
-    pf_mat3_t invTransform;                                                         \
-    pf_mat3_inverse(invTransform, transform);                                       \
+    pf_mat3_t inv_transform;                                                        \
+    pf_mat3_inverse(inv_transform, transform);                                      \
     PF_MATH_FLOAT corners[4][2] = {                                                 \
         {0, 0}, {tex->w, 0},                                                        \
         {tex->w, tex->h}, {0, tex->h}                                               \
     };                                                                              \
-    PF_MATH_FLOAT transformedCorners[4][2];                                         \
+    PF_MATH_FLOAT transformed_corners[4][2];                                        \
     for (int i = 0; i < 4; ++i) {                                                   \
-        pf_vec2_transform(transformedCorners[i], corners[i], transform);            \
+        pf_vec2_transform(transformed_corners[i], corners[i], transform);           \
     }                                                                               \
     float xmin = FLT_MAX, ymin = FLT_MAX;                                           \
     float xmax = -FLT_MAX, ymax = -FLT_MAX;                                         \
     for (int i = 0; i < 4; ++i) {                                                   \
-        if (transformedCorners[i][0] < xmin) xmin = transformedCorners[i][0];       \
-        if (transformedCorners[i][0] > xmax) xmax = transformedCorners[i][0];       \
-        if (transformedCorners[i][1] < ymin) ymin = transformedCorners[i][1];       \
-        if (transformedCorners[i][1] > ymax) ymax = transformedCorners[i][1];       \
+        if (transformed_corners[i][0] < xmin) xmin = transformed_corners[i][0];     \
+        if (transformed_corners[i][0] > xmax) xmax = transformed_corners[i][0];     \
+        if (transformed_corners[i][1] < ymin) ymin = transformed_corners[i][1];     \
+        if (transformed_corners[i][1] > ymax) ymax = transformed_corners[i][1];     \
     }                                                                               \
     int x1 = PF_CLAMP((int)floorf(xmin), 0, (int)fb->w - 1);                        \
     int y1 = PF_CLAMP((int)floorf(ymin), 0, (int)fb->h - 1);                        \
@@ -66,16 +83,16 @@
     int y2 = PF_CLAMP((int)ceilf(ymax), 0, (int)fb->h - 1);                         \
     if (x1 > x2) PF_SWAP(x1, x2);                                                   \
     if (y1 > y2) PF_SWAP(y1, y2);                                                   \
-    float inv00 = invTransform[0], inv01 = invTransform[1], inv02 = invTransform[2];\
-    float inv10 = invTransform[3], inv11 = invTransform[4], inv12 = invTransform[5];\
+    float inv00 = inv_transform[0], inv01 = inv_transform[1], inv02 = inv_transform[2];\
+    float inv10 = inv_transform[3], inv11 = inv_transform[4], inv12 = inv_transform[5];\
 
 #define PF_TRAVEL_TEXTURE2D_MAT(PIXEL_CODE)                                         \
     for (int y = y1; y <= y2; ++y) {                                                \
         for (int x = x1; x <= x2; ++x) {                                            \
             float tx = inv00 * x + inv01 * y + inv02;                               \
             float ty = inv10 * x + inv11 * y + inv12;                               \
-            float u = (tx - tex->tx) / tex->w;                                      \
-            float v = (ty - tex->ty) / tex->h;                                      \
+            float u = (tx - tex->tx) * tex->tx;                                     \
+            float v = (ty - tex->ty) * tex->ty;                                      \
             if (u >= 0.0f && u <= 1.0f && v >= 0.0f && v <= 1.0f) {                 \
                 PIXEL_CODE                                                          \
             }                                                                       \
@@ -132,32 +149,34 @@ pf_renderer2d_texture2d_ex(
     float r, int ox, int oy)
 {
     pf_mat3_t transform;
-    pf_mat3_t temp;
+    {
+        pf_mat3_t temp;
 
-    // Initialiser la matrice en identité
-    pf_mat3_identity(transform);
+        // Initialize the identity matrix
+        pf_mat3_identity(transform);
 
-    // Traduction pour positionner l'objet à (x, y)
-    pf_mat3_translate(temp, x - ox, y - oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Translation to position the object at (x, y)
+        pf_mat3_translate(temp, x - ox, y - oy);
+        pf_mat3_mul(transform, transform, temp);
 
-    // Rotation autour du point (ox, oy)
-    pf_mat3_translate(temp, ox, oy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_rotate(temp, r);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_translate(temp, -ox, -oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Rotation around point (ox, oy)
+        pf_mat3_translate(temp, ox, oy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_rotate(temp, r);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_translate(temp, -ox, -oy);
+        pf_mat3_mul(transform, transform, temp);
 
-    // Mise à l'échelle par (sx, sy)
-    pf_mat3_translate(temp, ox, oy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_scale(temp, sx, sy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_translate(temp, -ox, -oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Scaling by (sx, sy)
+        pf_mat3_translate(temp, ox, oy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_scale(temp, sx, sy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_translate(temp, -ox, -oy);
+        pf_mat3_mul(transform, transform, temp);
+    }
 
-    // Appel à la fonction ex avec la matrice de transformation complète
+    // Calling the ex function with the full transformation matrix
     pf_renderer2d_texture2d_mat(rn, tex, transform);
 }
 
@@ -169,32 +188,34 @@ pf_renderer2d_texture2d_ex_tint(
     pf_color_t tint)
 {
     pf_mat3_t transform;
-    pf_mat3_t temp;
+    {
+        pf_mat3_t temp;
 
-    // Initialiser la matrice en identité
-    pf_mat3_identity(transform);
+        // Initialize the identity matrix
+        pf_mat3_identity(transform);
 
-    // Traduction pour positionner l'objet à (x, y)
-    pf_mat3_translate(temp, x - ox, y - oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Translation to position the object at (x, y)
+        pf_mat3_translate(temp, x - ox, y - oy);
+        pf_mat3_mul(transform, transform, temp);
 
-    // Rotation autour du point (ox, oy)
-    pf_mat3_translate(temp, ox, oy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_rotate(temp, r);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_translate(temp, -ox, -oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Rotation around point (ox, oy)
+        pf_mat3_translate(temp, ox, oy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_rotate(temp, r);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_translate(temp, -ox, -oy);
+        pf_mat3_mul(transform, transform, temp);
 
-    // Mise à l'échelle par (sx, sy)
-    pf_mat3_translate(temp, ox, oy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_scale(temp, sx, sy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_translate(temp, -ox, -oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Scaling by (sx, sy)
+        pf_mat3_translate(temp, ox, oy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_scale(temp, sx, sy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_translate(temp, -ox, -oy);
+        pf_mat3_mul(transform, transform, temp);
+    }
 
-    // Appel à la fonction ex avec la matrice de transformation complète
+    // Calling the ex function with the full transformation matrix
     pf_renderer2d_texture2d_mat_tint(rn, tex, transform, tint);
 }
 
@@ -206,33 +227,347 @@ pf_renderer2d_texture2d_ex_map(
     pf_proc2d_fragment_fn frag_proc)
 {
     pf_mat3_t transform;
-    pf_mat3_t temp;
+    {
+        pf_mat3_t temp;
 
-    // Initialiser la matrice en identité
-    pf_mat3_identity(transform);
+        // Initialize the identity matrix
+        pf_mat3_identity(transform);
 
-    // Traduction pour positionner l'objet à (x, y)
-    pf_mat3_translate(temp, x - ox, y - oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Translation to position the object at (x, y)
+        pf_mat3_translate(temp, x - ox, y - oy);
+        pf_mat3_mul(transform, transform, temp);
 
-    // Rotation autour du point (ox, oy)
-    pf_mat3_translate(temp, ox, oy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_rotate(temp, r);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_translate(temp, -ox, -oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Rotation around point (ox, oy)
+        pf_mat3_translate(temp, ox, oy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_rotate(temp, r);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_translate(temp, -ox, -oy);
+        pf_mat3_mul(transform, transform, temp);
 
-    // Mise à l'échelle par (sx, sy)
-    pf_mat3_translate(temp, ox, oy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_scale(temp, sx, sy);
-    pf_mat3_mul(transform, transform, temp);
-    pf_mat3_translate(temp, -ox, -oy);
-    pf_mat3_mul(transform, transform, temp);
+        // Scaling by (sx, sy)
+        pf_mat3_translate(temp, ox, oy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_scale(temp, sx, sy);
+        pf_mat3_mul(transform, transform, temp);
+        pf_mat3_translate(temp, -ox, -oy);
+        pf_mat3_mul(transform, transform, temp);
+    }
 
-    // Appel à la fonction ex avec la matrice de transformation complète
+    // Calling the ex function with the full transformation matrix
     pf_renderer2d_texture2d_mat_map(rn, tex, transform, frag_proc);
+}
+
+// TODO: It would be more ideal if the function was implemented without having to render via vertexbuffers
+void
+pf_renderer2d_texture2d_rec(
+    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+    const int* src_rect, const int* dst_rect,
+    float r, int ox, int oy)
+{
+    static const uint16_t indices[6] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    /* Compute vertices */
+
+    pf_vec2_t positions[4] = {
+        { dst_rect[0], dst_rect[1] },   // Top Left
+        { dst_rect[0], dst_rect[3] },   // Bottom Left
+        { dst_rect[2], dst_rect[3] },   // Bottom Right
+        { dst_rect[2], dst_rect[1] }    // Top Right
+    };
+
+    if (r != 0) {
+        float rs = sinf(r);
+        float rc = cosf(r);
+
+        for (int i = 0; i < 4; i++) {
+            float dx = positions[i][0] - ox;
+            float dy = positions[i][1] - oy;
+
+            positions[i][0] = ox + (dx * rc - dy * rs);
+            positions[i][1] = oy + (dx * rs + dy * rc);
+        }
+    }
+
+    /* Compute texcoords */
+
+    pf_vec2_t texcoords[4] = { 0 };
+    {
+        uint8_t x_flip = 0;
+        float src_x = src_rect[0];
+        float src_y = src_rect[1];
+        float src_w = src_rect[2] - src_rect[0];
+        float src_h = src_rect[3] - src_rect[1];
+
+        if (src_w < 0) x_flip = 1, src_w *= -1;
+        if (src_h < 0) src_y -= src_h;
+
+        if (x_flip) {
+            texcoords[0][0] = (src_x + src_w) * tex->tx;
+            texcoords[0][1] = src_y * tex->ty;
+
+            texcoords[1][0] = (src_x + src_w) * tex->tx;
+            texcoords[1][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[2][0] = src_x * tex->tx;
+            texcoords[2][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[3][0] = src_x * tex->tx;
+            texcoords[3][1] = src_y * tex->ty;
+        } else {
+            texcoords[0][0] = src_x * tex->tx;
+            texcoords[0][1] = src_y * tex->ty;
+
+            texcoords[1][0] = src_x * tex->tx;
+            texcoords[1][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[2][0] = (src_x + src_w) * tex->tx;
+            texcoords[2][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[3][0] = (src_x + src_w) * tex->tx;
+            texcoords[3][1] = src_y * tex->ty;
+        }
+    }
+
+    /* Rendering */
+
+    const struct {
+        float* positions;
+        float* texcoords;
+        pf_color_t* colors;
+        const uint16_t* indices;
+        uint32_t num_vertices;
+        uint32_t num_indices;
+    } vb = {
+        .positions = (float*)positions,
+        .texcoords = (float*)texcoords,
+        .colors = NULL,
+        .indices = indices,
+        .num_vertices = 4,
+        .num_indices = 6
+    };
+
+    pf_proc2d_triangle_t proc = { 0 };
+    proc.fragment = pf_proc2d_fragment_texture_as_uniform;
+    proc.uniforms = tex;
+
+    pf_renderer2d_vertex_buffer(rn,
+        (const pf_vertexbuffer2d_t*)(&vb),
+        rn->mat_view, &proc);
+}
+
+// TODO: It would be more ideal if the function was implemented without having to render via vertexbuffers
+void
+pf_renderer2d_texture2d_rec_tint(
+    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+    const int* src_rect, const int* dst_rect,
+    float r, int ox, int oy,
+    pf_color_t tint)
+{
+    static const uint16_t indices[6] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    /* Compute vertices */
+
+    pf_vec2_t positions[4] = {
+        { dst_rect[0], dst_rect[1] },   // Top Left
+        { dst_rect[0], dst_rect[3] },   // Bottom Left
+        { dst_rect[2], dst_rect[3] },   // Bottom Right
+        { dst_rect[2], dst_rect[1] }    // Top Right
+    };
+
+    if (r != 0) {
+        float rs = sinf(r);
+        float rc = cosf(r);
+
+        for (int i = 0; i < 4; i++) {
+            float dx = positions[i][0] - ox;
+            float dy = positions[i][1] - oy;
+
+            positions[i][0] = ox + (dx * rc - dy * rs);
+            positions[i][1] = oy + (dx * rs + dy * rc);
+        }
+    }
+
+    /* Compute texcoords */
+
+    pf_vec2_t texcoords[4] = { 0 };
+    {
+        uint8_t x_flip = 0;
+        float src_x = src_rect[0];
+        float src_y = src_rect[1];
+        float src_w = src_rect[2] - src_rect[0];
+        float src_h = src_rect[3] - src_rect[1];
+
+        if (src_w < 0) x_flip = 1, src_w *= -1;
+        if (src_h < 0) src_y -= src_h;
+
+        if (x_flip) {
+            texcoords[0][0] = (src_x + src_w) * tex->tx;
+            texcoords[0][1] = src_y * tex->ty;
+
+            texcoords[1][0] = (src_x + src_w) * tex->tx;
+            texcoords[1][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[2][0] = src_x * tex->tx;
+            texcoords[2][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[3][0] = src_x * tex->tx;
+            texcoords[3][1] = src_y * tex->ty;
+        } else {
+            texcoords[0][0] = src_x * tex->tx;
+            texcoords[0][1] = src_y * tex->ty;
+
+            texcoords[1][0] = src_x * tex->tx;
+            texcoords[1][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[2][0] = (src_x + src_w) * tex->tx;
+            texcoords[2][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[3][0] = (src_x + src_w) * tex->tx;
+            texcoords[3][1] = src_y * tex->ty;
+        }
+    }
+
+    /* Colors */
+
+    pf_color_t colors[4] = {
+        tint, tint,
+        tint, tint
+    };
+
+    /* Rendering */
+
+    const struct {
+        float* positions;
+        float* texcoords;
+        pf_color_t* colors;
+        const uint16_t* indices;
+        uint32_t num_vertices;
+        uint32_t num_indices;
+    } vb = {
+        .positions = (float*)positions,
+        .texcoords = (float*)texcoords,
+        .colors = colors,
+        .indices = indices,
+        .num_vertices = 4,
+        .num_indices = 6
+    };
+
+    pf_proc2d_triangle_t proc = { 0 };
+    proc.fragment = pf_proc2d_fragment_texture_as_uniform;
+    proc.uniforms = tex;
+
+    pf_renderer2d_vertex_buffer(rn,
+        (const pf_vertexbuffer2d_t*)(&vb),
+        rn->mat_view, &proc);
+}
+
+// TODO: It would be more ideal if the function was implemented without having to render via vertexbuffers
+void
+pf_renderer2d_texture2d_rec_map(
+    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+    const int* src_rect, const int* dst_rect,
+    float r, int ox, int oy,
+    pf_proc2d_fragment_fn frag_proc)
+{
+    static const uint16_t indices[6] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    /* Compute vertices */
+
+    pf_vec2_t positions[4] = {
+        { dst_rect[0], dst_rect[1] },   // Top Left
+        { dst_rect[0], dst_rect[3] },   // Bottom Left
+        { dst_rect[2], dst_rect[3] },   // Bottom Right
+        { dst_rect[2], dst_rect[1] }    // Top Right
+    };
+
+    if (r != 0) {
+        float rs = sinf(r);
+        float rc = cosf(r);
+
+        for (int i = 0; i < 4; i++) {
+            float dx = positions[i][0] - ox;
+            float dy = positions[i][1] - oy;
+
+            positions[i][0] = ox + (dx * rc - dy * rs);
+            positions[i][1] = oy + (dx * rs + dy * rc);
+        }
+    }
+
+    /* Compute texcoords */
+
+    pf_vec2_t texcoords[4] = { 0 };
+    {
+        uint8_t x_flip = 0;
+        float src_x = src_rect[0];
+        float src_y = src_rect[1];
+        float src_w = src_rect[2] - src_rect[0];
+        float src_h = src_rect[3] - src_rect[1];
+
+        if (src_w < 0) x_flip = 1, src_w *= -1;
+        if (src_h < 0) src_y -= src_h;
+
+        if (x_flip) {
+            texcoords[0][0] = (src_x + src_w) * tex->tx;
+            texcoords[0][1] = src_y * tex->ty;
+
+            texcoords[1][0] = (src_x + src_w) * tex->tx;
+            texcoords[1][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[2][0] = src_x * tex->tx;
+            texcoords[2][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[3][0] = src_x * tex->tx;
+            texcoords[3][1] = src_y * tex->ty;
+        } else {
+            texcoords[0][0] = src_x * tex->tx;
+            texcoords[0][1] = src_y * tex->ty;
+
+            texcoords[1][0] = src_x * tex->tx;
+            texcoords[1][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[2][0] = (src_x + src_w) * tex->tx;
+            texcoords[2][1] = (src_y + src_h) * tex->ty;
+
+            texcoords[3][0] = (src_x + src_w) * tex->tx;
+            texcoords[3][1] = src_y * tex->ty;
+        }
+    }
+
+    /* Rendering */
+
+    const struct {
+        float* positions;
+        float* texcoords;
+        pf_color_t* colors;
+        const uint16_t* indices;
+        uint32_t num_vertices;
+        uint32_t num_indices;
+    } vb = {
+        .positions = (float*)positions,
+        .texcoords = (float*)texcoords,
+        .colors = NULL,
+        .indices = indices,
+        .num_vertices = 4,
+        .num_indices = 6
+    };
+
+    pf_proc2d_triangle_t proc = { 0 };
+    proc.fragment = frag_proc;
+    proc.uniforms = tex;
+
+    pf_renderer2d_vertex_buffer(rn,
+        (const pf_vertexbuffer2d_t*)(&vb),
+        rn->mat_view, &proc);
 }
 
 void
