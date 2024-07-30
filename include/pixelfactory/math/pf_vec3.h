@@ -21,6 +21,7 @@
 #define PF_MATH_VEC3_H
 
 #include "pf_math.h"
+#include "pf_mat3.h"
 #include "pf_mat4.h"
 
 typedef PF_MATH_FLOAT pf_vec3_t[3];
@@ -598,6 +599,32 @@ pf_vec3_bary_v_r(
     {
         dst[i] = w[0]*v1[i] + w[1]*v2[i] + w[2]*v3[i];
     }
+}
+
+static inline void
+pf_vec3_transform_mat3(
+    pf_vec3_t dst,
+    const pf_vec3_t v,
+    const pf_mat3_t mat)
+{
+    pf_vec3_t tmp = {
+        mat[0]*v[0] + mat[3]*v[1] + mat[6]*v[2],
+        mat[1]*v[0] + mat[4]*v[1] + mat[7]*v[2],
+        mat[2]*v[0] + mat[5]*v[1] + mat[8]*v[2]
+    };
+
+    memcpy(dst, tmp, sizeof(pf_vec3_t));
+}
+
+static inline void
+pf_vec3_transform_mat3_r(
+    PF_MATH_FLOAT* restrict dst,
+    const pf_vec3_t v,
+    const pf_mat3_t mat)
+{
+    dst[0] = mat[0]*v[0] + mat[3]*v[1] + mat[6]*v[2];
+    dst[1] = mat[1]*v[0] + mat[4]*v[1] + mat[7]*v[2];
+    dst[2] = mat[2]*v[0] + mat[5]*v[1] + mat[8]*v[2];
 }
 
 static inline void
