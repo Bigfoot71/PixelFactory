@@ -165,21 +165,36 @@ pf_vertex_lerp(
     const pf_vertex_t* restrict end,
     float t)
 {
+#define PF_VERTEX_LERP_CASE(TYPE, CTYPE)                        \
+    case TYPE:                                                  \
+        for (int_fast8_t j = 0; j < c_count; ++j) {             \
+            CTYPE val1 = e1->value[j].v_##CTYPE;                \
+            CTYPE val2 = e2->value[j].v_##CTYPE;                \
+            er->value[j].v_##CTYPE = val1 + t * (val2 - val1);  \
+        }                                                       \
+    break;
+
     for (uint32_t i = 0; i < PF_MAX_ATTRIBUTES; ++i) {
-        const pf_attrib_elem_t* e_start = &start->elements[i];
-        const pf_attrib_elem_t* e_end = &end->elements[i];
+        const pf_attrib_elem_t* e1 = &start->elements[i];
+        const pf_attrib_elem_t* e2 = &end->elements[i];
         pf_attrib_elem_t* er = &result->elements[i];
-        er->used = (e_start->used && e_end->used);
+        er->used = (e1->used && e2->used);
 
         if (er->used) {
-            int_fast8_t c_count = PF_MIN(e_start->comp, e_end->comp);
-            er->type = e_start->type;
+            int_fast8_t c_count = PF_MIN(e1->comp, e2->comp);
+            er->type = e1->type;
             er->comp = c_count;
 
-            for (int_fast8_t j = 0; j < c_count; ++j) {
-                float v_start = pf_attrib_elem_get_comp_f(e_start, j);
-                float v_end = pf_attrib_elem_get_comp_f(e_end, j);
-                pf_attrib_elem_set_comp_f(er, j, v_start + t * (v_end - v_start));
+            switch (er->type) {
+                PF_VERTEX_LERP_CASE(PF_UNSIGNED_BYTE, uint8_t)
+                PF_VERTEX_LERP_CASE(PF_BYTE, int8_t)
+                PF_VERTEX_LERP_CASE(PF_UNSIGNED_SHORT, uint16_t)
+                PF_VERTEX_LERP_CASE(PF_SHORT, int16_t)
+                PF_VERTEX_LERP_CASE(PF_UNSIGNED_INT, uint32_t)
+                PF_VERTEX_LERP_CASE(PF_INT, int32_t)
+                PF_VERTEX_LERP_CASE(PF_FLOAT, float)
+                default:
+                    break;
             }
         }
     }
@@ -193,6 +208,16 @@ pf_vertex_bary(
     const pf_vertex_t* restrict v3,
     float w1, float w2, float w3)
 {
+#define PF_VERTEX_BARY_CASE(TYPE, CTYPE)                    \
+    case TYPE:                                              \
+        for (int_fast8_t j = 0; j < c_count; ++j) {         \
+            CTYPE val1 = e1->value[j].v_##CTYPE * w1;       \
+            CTYPE val2 = e2->value[j].v_##CTYPE * w2;       \
+            CTYPE val3 = e3->value[j].v_##CTYPE * w3;       \
+            er->value[j].v_##CTYPE = val1 + val2 + val3;    \
+        }                                                   \
+    break;
+
     for (uint32_t i = 0; i < PF_MAX_ATTRIBUTES; ++i) {
         const pf_attrib_elem_t* e1 = &v1->elements[i];
         const pf_attrib_elem_t* e2 = &v2->elements[i];
@@ -201,16 +226,20 @@ pf_vertex_bary(
         er->used = e1->used && e2->used && e3->used;
 
         if (er->used) {
-            int_fast8_t c_count = PF_MIN(e1->comp, e2->comp);
-            c_count = PF_MIN(c_count, e3->comp);
+            int_fast8_t c_count = PF_MIN(PF_MIN(e1->comp, e2->comp), e3->comp);
             er->type = e1->type;
             er->comp = c_count;
 
-            for (int_fast8_t j = 0; j < c_count; ++j) {
-                float val1 = pf_attrib_elem_get_comp_f(e1, j);
-                float val2 = pf_attrib_elem_get_comp_f(e2, j);
-                float val3 = pf_attrib_elem_get_comp_f(e3, j);
-                pf_attrib_elem_set_comp_f(er, j, val1 * w1 + val2 * w2 + val3 * w3);
+            switch (er->type) {
+                PF_VERTEX_BARY_CASE(PF_UNSIGNED_BYTE, uint8_t)
+                PF_VERTEX_BARY_CASE(PF_BYTE, int8_t)
+                PF_VERTEX_BARY_CASE(PF_UNSIGNED_SHORT, uint16_t)
+                PF_VERTEX_BARY_CASE(PF_SHORT, int16_t)
+                PF_VERTEX_BARY_CASE(PF_UNSIGNED_INT, uint32_t)
+                PF_VERTEX_BARY_CASE(PF_INT, int32_t)
+                PF_VERTEX_BARY_CASE(PF_FLOAT, float)
+                default:
+                    break;
             }
         }
     }
