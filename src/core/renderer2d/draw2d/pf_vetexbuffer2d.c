@@ -91,8 +91,6 @@ pf_renderer2d_vertex_buffer(
     const pf_mat3_t transform,
     pf_proc2d_t* proc)
 {
-    if (vb->num_attributes == 0) return;
-
     /* Preparation of matrices */
 
     pf_mat3_t mat;
@@ -140,10 +138,13 @@ pf_renderer2d_vertex_buffer(
         pf_vertex_t v2 = { 0 };
         pf_vertex_t v3 = { 0 };
 
-        for (uint32_t j = 0; j < vb->num_attributes; ++j) {
-            v1.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_1);
-            v2.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_2);
-            v3.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_3);
+        for (uint32_t j = 0; j < PF_MAX_ATTRIBUTES; ++j) {
+            const pf_attribute_t* attr = &vb->attributes[j];
+            if (attr->used != 0) {
+                v1.elements[j] = pf_attribute_get_elem(attr, index_1);
+                v2.elements[j] = pf_attribute_get_elem(attr, index_2);
+                v3.elements[j] = pf_attribute_get_elem(attr, index_3);
+            }
         }
 
         /* Transform Vertices */

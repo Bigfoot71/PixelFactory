@@ -124,8 +124,5 @@ pf_proc3d_fragment_default(
     (void)rn;
     (void)uniforms;
 
-    out_color->a[0] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[0].v_uint8_t;
-    out_color->a[1] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[1].v_uint8_t;
-    out_color->a[2] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[2].v_uint8_t;
-    out_color->a[3] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[3].v_uint8_t;
+    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, out_color);
 }

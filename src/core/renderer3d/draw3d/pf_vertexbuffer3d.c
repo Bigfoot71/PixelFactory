@@ -55,8 +55,6 @@ pf_renderer3d_vertex_buffer_ex(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
     const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    if (vb->num_attributes == 0) return;
-
     /* Preparation of matrices */
 
     pf_mat4_t mat_model;
@@ -107,14 +105,13 @@ pf_renderer3d_vertex_buffer_ex(
         pf_vertex_t v2 = { 0 };
         pf_vertex_t v3 = { 0 };
 
-        v1.num_elements = vb->num_attributes;
-        v2.num_elements = vb->num_attributes;
-        v3.num_elements = vb->num_attributes;
-
-        for (uint32_t j = 0; j < vb->num_attributes; ++j) {
-            v1.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_1);
-            v2.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_2);
-            v3.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_3);
+        for (uint32_t j = 0; j < PF_MAX_ATTRIBUTES; ++j) {
+            const pf_attribute_t* attr = &vb->attributes[j];
+            if (attr->used != 0) {
+                v1.elements[j] = pf_attribute_get_elem(attr, index_1);
+                v2.elements[j] = pf_attribute_get_elem(attr, index_2);
+                v3.elements[j] = pf_attribute_get_elem(attr, index_3);
+            }
         }
 
         pf_renderer3d_triangle_INTERNAL(
@@ -135,8 +132,6 @@ pf_renderer3d_vertex_buffer_points_thick(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float radius,
     const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    if (vb->num_attributes == 0) return;
-
     /* Preparation of matrices */
 
     pf_mat4_t mat_model;
@@ -177,8 +172,11 @@ pf_renderer3d_vertex_buffer_points_thick(
 
         pf_vertex_t vertex = { 0 };
 
-        for (uint32_t j = 0; j < vb->num_attributes; ++j) {
-            vertex.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index);
+        for (uint32_t j = 0; j < PF_MAX_ATTRIBUTES; ++j) {
+            const pf_attribute_t* attr = &vb->attributes[j];
+            if (attr->used != 0) {
+                vertex.elements[j] = pf_attribute_get_elem(attr, index);
+            }
         }
 
         pf_renderer3d_point_INTERNAL(
@@ -199,8 +197,6 @@ pf_renderer3d_vertex_buffer_lines_thick(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float thick,
     const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    if (vb->num_attributes == 0) return;
-
     /* Preparation of matrices */
 
     pf_mat4_t mat_model;
@@ -256,9 +252,12 @@ pf_renderer3d_vertex_buffer_lines_thick(
             pf_vertex_t v1 = { 0 };
             pf_vertex_t v2 = { 0 };
 
-            for (uint32_t j = 0; j < vb->num_attributes; ++j) {
-                v1.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_1);
-                v2.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_2);
+            for (uint32_t j = 0; j < PF_MAX_ATTRIBUTES; ++j) {
+                const pf_attribute_t* attr = &vb->attributes[j];
+                if (attr->used != 0) {
+                    v1.elements[j] = pf_attribute_get_elem(attr, index_1);
+                    v2.elements[j] = pf_attribute_get_elem(attr, index_2);
+                }
             }
 
             pf_renderer3d_line_INTERNAL(

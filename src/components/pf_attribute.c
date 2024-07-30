@@ -55,6 +55,7 @@ pf_attribute_get_elem(const pf_attribute_t* attr, size_t index)
 
     result.type = attr->type;
     result.comp = attr->comp;
+    result.used = attr->used;
 
     return result;
 }

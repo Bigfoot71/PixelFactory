@@ -28,16 +28,19 @@ pf_vertex_create_2d(
 {
     pf_vertex_t vertex = { 0 };
 
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 2;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = x;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = y;
 
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[0].v_float = u;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[1].v_float = v;
 
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[0].v_uint8_t = color.a[0];
@@ -55,19 +58,21 @@ pf_vertex_create_3d(
     pf_color_t color)
 {
     pf_vertex_t vertex = { 0 };
-    vertex.num_elements = 3;
 
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = x;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = y;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = z;
 
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[0].v_float = u;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[1].v_float = v;
 
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[0].v_uint8_t = color.a[0];
@@ -160,29 +165,24 @@ pf_vertex_lerp(
     const pf_vertex_t* restrict end,
     float t)
 {
-    uint32_t e_count = PF_MIN(start->num_elements, end->num_elements);
-
-#ifdef _OPENMP
-#   pragma omp simd
-#endif //_OPENMP
-    for (uint32_t i = 0; i < e_count; ++i) {
+    for (uint32_t i = 0; i < PF_MAX_ATTRIBUTES; ++i) {
         const pf_attrib_elem_t* e_start = &start->elements[i];
         const pf_attrib_elem_t* e_end = &end->elements[i];
-
-        int_fast8_t c_count = PF_MIN(e_start->comp, e_end->comp);
-
         pf_attrib_elem_t* er = &result->elements[i];
-        er->type = e_start->type;
-        er->comp = c_count;
+        er->used = (e_start->used && e_end->used);
 
-        for (int_fast8_t j = 0; j < c_count; ++j) {
-            float v_start = pf_attrib_elem_get_comp_f(e_start, j);
-            float v_end = pf_attrib_elem_get_comp_f(e_end, j);
-            pf_attrib_elem_set_comp_f(er, j, v_start + t * (v_end - v_start));
+        if (er->used) {
+            int_fast8_t c_count = PF_MIN(e_start->comp, e_end->comp);
+            er->type = e_start->type;
+            er->comp = c_count;
+
+            for (int_fast8_t j = 0; j < c_count; ++j) {
+                float v_start = pf_attrib_elem_get_comp_f(e_start, j);
+                float v_end = pf_attrib_elem_get_comp_f(e_end, j);
+                pf_attrib_elem_set_comp_f(er, j, v_start + t * (v_end - v_start));
+            }
         }
     }
-
-    result->num_elements = e_count;
 }
 
 void
@@ -193,33 +193,27 @@ pf_vertex_bary(
     const pf_vertex_t* restrict v3,
     float w1, float w2, float w3)
 {
-    uint32_t e_count = PF_MIN(v1->num_elements, v2->num_elements);
-    e_count = PF_MIN(e_count, v3->num_elements);
-
-#ifdef _OPENMP
-#   pragma omp simd
-#endif //_OPENMP
-    for (uint32_t i = 0; i < e_count; ++i) {
+    for (uint32_t i = 0; i < PF_MAX_ATTRIBUTES; ++i) {
         const pf_attrib_elem_t* e1 = &v1->elements[i];
         const pf_attrib_elem_t* e2 = &v2->elements[i];
         const pf_attrib_elem_t* e3 = &v3->elements[i];
-
-        int_fast8_t c_count = PF_MIN(e1->comp, e2->comp);
-        c_count = PF_MIN(c_count, e3->comp);
-
         pf_attrib_elem_t* er = &result->elements[i];
-        er->type = e1->type;
-        er->comp = c_count;
+        er->used = e1->used && e2->used && e3->used;
 
-        for (int_fast8_t j = 0; j < c_count; ++j) {
-            float val1 = pf_attrib_elem_get_comp_f(e1, j);
-            float val2 = pf_attrib_elem_get_comp_f(e2, j);
-            float val3 = pf_attrib_elem_get_comp_f(e3, j);
-            pf_attrib_elem_set_comp_f(er, j, val1 * w1 + val2 * w2 + val3 * w3);
+        if (er->used) {
+            int_fast8_t c_count = PF_MIN(e1->comp, e2->comp);
+            c_count = PF_MIN(c_count, e3->comp);
+            er->type = e1->type;
+            er->comp = c_count;
+
+            for (int_fast8_t j = 0; j < c_count; ++j) {
+                float val1 = pf_attrib_elem_get_comp_f(e1, j);
+                float val2 = pf_attrib_elem_get_comp_f(e2, j);
+                float val3 = pf_attrib_elem_get_comp_f(e3, j);
+                pf_attrib_elem_set_comp_f(er, j, val1 * w1 + val2 * w2 + val3 * w3);
+            }
         }
     }
-
-    result->num_elements = e_count;
 }
 
 /* Helper Vertex Buffer Functions */
@@ -238,7 +232,7 @@ pf_vertex_buffer_create_2d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 2;
-        vb.num_attributes++;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
     }
 
     if (texcoords != NULL) {
@@ -246,7 +240,7 @@ pf_vertex_buffer_create_2d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-        vb.num_attributes++;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
     }
 
     if (colors != NULL) {
@@ -254,7 +248,7 @@ pf_vertex_buffer_create_2d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-        vb.num_attributes++;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
     }
 
     vb.num_vertices = num_vertices;
@@ -277,7 +271,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
-        vb.num_attributes++;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
     }
 
     if (texcoords != NULL) {
@@ -285,7 +279,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-        vb.num_attributes++;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
     }
 
     if (normals != NULL) {
@@ -293,7 +287,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].comp = 3;
-        vb.num_attributes++;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].used = 1;
     }
 
     if (colors != NULL) {
@@ -301,7 +295,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-        vb.num_attributes++;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
     }
 
     vb.num_vertices = num_vertices;

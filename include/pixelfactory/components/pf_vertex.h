@@ -29,7 +29,6 @@
 
 typedef struct {
     pf_attrib_elem_t elements[PF_MAX_ATTRIBUTES];
-    uint32_t num_elements;
 } pf_vertex_t;
 
 /* Vertex Buffer Types */
@@ -37,7 +36,6 @@ typedef struct {
 typedef struct {
     pf_attribute_t attributes[PF_MAX_ATTRIBUTES];
     uint16_t* indices;
-    uint32_t num_attributes;
     uint32_t num_vertices;
     uint32_t num_indices;
 } pf_vertex_buffer_t;

@@ -38,6 +38,7 @@ typedef struct {
     size_t      size;
     pf_type_e   type;
     uint8_t     comp;
+    uint8_t     used;
 } pf_attribute_t;
 
 /* Attribute Element Type */
@@ -56,6 +57,7 @@ typedef struct {
     pf_attrib_value_t   value[4];
     pf_type_e           type;
     uint8_t             comp;
+    uint8_t             used;
 } pf_attrib_elem_t;
 
 /* Attribute Functions */
