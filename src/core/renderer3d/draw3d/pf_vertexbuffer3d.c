@@ -47,12 +47,7 @@ pf_renderer3d_vertex_buffer(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
     const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    pf_proc3d_t processor = { 0 };
-    processor.uniforms = proc->uniforms;
-    processor.fragment = proc->fragment;
-    processor.vertex = proc->vertex;
-
-    pf_renderer3d_vertex_buffer_ex(rn, vb, transform, &processor);
+    pf_renderer3d_vertex_buffer_ex(rn, vb, transform, proc);
 }
 
 PFAPI void
