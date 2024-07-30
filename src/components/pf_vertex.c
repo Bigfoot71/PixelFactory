@@ -115,18 +115,18 @@ pf_vertex_transform_vec_mat3(
 {
     switch (v->elements[element_index].comp) {
         case 2: {
-            pf_vec2_t position;
-            pf_attrib_elem_get_vec(&v->elements[element_index], position);
+            pf_vec2_t vec;
+            pf_attrib_elem_get_vec(&v->elements[element_index], vec);
 
-            pf_vec2_transform(position, position, transform);
-            pf_attrib_elem_set_vec(&v->elements[element_index], position);
+            pf_vec2_transform(vec, vec, transform);
+            pf_attrib_elem_set_vec(&v->elements[element_index], vec);
         } break;
         case 3: {
-            pf_vec3_t position;
-            pf_attrib_elem_get_vec(&v->elements[element_index], position);
+            pf_vec3_t vec;
+            pf_attrib_elem_get_vec(&v->elements[element_index], vec);
 
-            pf_vec3_transform_mat3(position, position, transform);
-            pf_attrib_elem_set_vec(&v->elements[element_index], position);
+            pf_vec3_transform_mat3(vec, vec, transform);
+            pf_attrib_elem_set_vec(&v->elements[element_index], vec);
         } break;
         default:
             break;
@@ -140,18 +140,18 @@ pf_vertex_transform_vec_mat4(
 {
     switch (v->elements[element_index].comp) {
         case 3: {
-            pf_vec3_t position;
-            pf_attrib_elem_get_vec(&v->elements[element_index], position);
+            pf_vec3_t vec;
+            pf_attrib_elem_get_vec(&v->elements[element_index], vec);
 
-            pf_vec3_transform(position, position, transform);
-            pf_attrib_elem_set_vec(&v->elements[element_index], position);
+            pf_vec3_transform(vec, vec, transform);
+            pf_attrib_elem_set_vec(&v->elements[element_index], vec);
         } break;
         case 4: {
-            pf_vec4_t position;
-            pf_attrib_elem_get_vec(&v->elements[element_index], position);
+            pf_vec4_t vec;
+            pf_attrib_elem_get_vec(&v->elements[element_index], vec);
 
-            pf_vec4_transform(position, position, transform);
-            pf_attrib_elem_set_vec(&v->elements[element_index], position);
+            pf_vec4_transform(vec, vec, transform);
+            pf_attrib_elem_set_vec(&v->elements[element_index], vec);
         } break;
         default:
             break;
