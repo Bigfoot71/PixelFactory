@@ -22,7 +22,7 @@
 
 /* Function Prototypes */
 
-typedef int (*pf_depth_test_fn)(
+typedef bool (*pf_depth_test_fn)(
     float, float);
 
 /* Depth Testing Functions Collection */

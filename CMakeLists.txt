@@ -42,6 +42,7 @@ endif()
 
 # Specify the include directory
 target_include_directories(${PROJECT_NAME} PUBLIC ${PF_ROOT_PATH}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PF_ROOT_PATH}/external)
 
 # Activate extensions if needed
 if(PF_EXT_TEXTURE2D)

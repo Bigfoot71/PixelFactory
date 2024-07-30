@@ -252,7 +252,7 @@ pfext_texture2d_gen_color(
         pf_simd_i_t vc = pf_simd_set1_i32(color.v);
         size_t i = 0;
         for (; i + PF_SIMD_SIZE - 1 < size; i += PF_SIMD_SIZE) {
-            pf_simd_store_i32((pf_simd_i_t*)(buffer + i), vc);
+            pf_simd_store_i32((pf_simd_i_t*)((int*)buffer + i), vc);
         }
         for (; i < size; ++i) {
             ((pf_color_t*)buffer)[i] = color;
