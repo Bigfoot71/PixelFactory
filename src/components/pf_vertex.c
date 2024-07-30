@@ -29,7 +29,7 @@ pf_vertex_create_2d(
 
     // Position
     pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
-    pos->used = 1;
+    pos->used = true;
     pos->comp = 2;
     pos->type = PF_FLOAT;
     pos->value[0].v_float = x;
@@ -37,7 +37,7 @@ pf_vertex_create_2d(
 
     // TexCoord
     pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
-    tex->used = 1;
+    tex->used = true;
     tex->comp = 2;
     tex->type = PF_FLOAT;
     tex->value[0].v_float = u;
@@ -45,7 +45,7 @@ pf_vertex_create_2d(
 
     // Color
     pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
-    col->used = 1;
+    col->used = true;
     col->comp = 4;
     col->type = PF_UNSIGNED_BYTE;
     for (int_fast8_t i = 0; i < 4; ++i) {
@@ -65,7 +65,7 @@ pf_vertex_create_3d(
 
     // Position
     pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
-    pos->used = 1;
+    pos->used = true;
     pos->comp = 3;
     pos->type = PF_FLOAT;
     pos->value[0].v_float = x;
@@ -74,7 +74,7 @@ pf_vertex_create_3d(
 
     // TexCoord
     pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
-    tex->used = 1;
+    tex->used = true;
     tex->comp = 2;
     tex->type = PF_FLOAT;
     tex->value[0].v_float = u;
@@ -82,7 +82,7 @@ pf_vertex_create_3d(
 
     // Color
     pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
-    col->used = 1;
+    col->used = true;
     col->comp = 4;
     col->type = PF_UNSIGNED_BYTE;
     for (int_fast8_t i = 0; i < 4; ++i) {
@@ -294,7 +294,7 @@ pf_vertex_buffer_create_2d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 2;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
     }
 
     if (texcoords != NULL) {
@@ -302,7 +302,7 @@ pf_vertex_buffer_create_2d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = true;
     }
 
     if (colors != NULL) {
@@ -310,7 +310,7 @@ pf_vertex_buffer_create_2d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
     }
 
     vb.num_vertices = num_vertices;
@@ -333,7 +333,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
     }
 
     if (texcoords != NULL) {
@@ -341,7 +341,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = true;
     }
 
     if (normals != NULL) {
@@ -349,7 +349,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].type = PF_FLOAT;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].comp = 3;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].used = 1;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].used = true;
     }
 
     if (colors != NULL) {
@@ -357,7 +357,7 @@ pf_vertex_buffer_create_3d(
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].size = num_vertices;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
         vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
+        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
     }
 
     vb.num_vertices = num_vertices;

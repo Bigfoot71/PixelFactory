@@ -54,7 +54,7 @@ pf_depthbuffer_delete(
     zb->w = zb->h = 0;
 }
 
-int
+bool
 pf_depthbuffer_is_valid(
     const pf_depthbuffer_t* zb)
 {

@@ -27,7 +27,7 @@
 
 typedef PF_MATH_FLOAT pf_mat3_t[3*3];
 
-static inline int
+static inline bool
 pf_mat3_is_zeroes(
     const pf_mat3_t mat)
 {
@@ -37,7 +37,7 @@ pf_mat3_is_zeroes(
     return 1;
 }
 
-static inline int
+static inline bool
 pf_mat3_is_identity(
     const pf_mat3_t mat)
 {

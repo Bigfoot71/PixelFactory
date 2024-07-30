@@ -44,7 +44,7 @@ PFAPI void
 pf_framebuffer_delete(
     pf_framebuffer_t* fb);
 
-PFAPI int
+PFAPI bool
 pf_framebuffer_is_valid(
     const pf_framebuffer_t* fb);
 

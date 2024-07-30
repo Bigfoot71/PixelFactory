@@ -88,7 +88,7 @@ pf_renderer3d_vertex_buffer_ex(
     /* Iterates through all vertices in the vertex buffer */
 
     const uint16_t* indices = vb->indices;
-    uint8_t has_indices = (indices != NULL);
+    bool has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
@@ -187,7 +187,7 @@ pf_renderer3d_vertex_buffer_points_thick(
     /* Iterates through all vertices in the vertex buffer */
 
     const uint16_t* indices = vb->indices;
-    uint8_t has_indices = (indices != NULL);
+    bool has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i++) {
@@ -252,7 +252,7 @@ pf_renderer3d_vertex_buffer_lines_thick(
     /* Iterates through all vertices in the vertex buffer */
 
     const uint16_t* indices = vb->indices;
-    uint8_t has_indices = (indices != NULL);
+    bool has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {

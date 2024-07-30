@@ -21,7 +21,7 @@
 #define PF_DEPTHBUFFER_H
 
 #include "../misc/pf_config.h"
-#include <stdint.h>
+#include "../misc/pf_stdinc.h"
 
 typedef struct {
     float* buffer;
@@ -38,7 +38,7 @@ PFAPI void
 pf_depthbuffer_delete(
     pf_depthbuffer_t* zb);
 
-PFAPI int
+PFAPI bool
 pf_depthbuffer_is_valid(
     const pf_depthbuffer_t* zb);
 

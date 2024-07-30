@@ -296,7 +296,7 @@ pf_renderer2d_texture2d_rec(
 
     pf_vec2_t texcoords[4] = { 0 };
     {
-        uint8_t x_flip = 0;
+        bool x_flip = 0;
         float src_x = src_rect[0];
         float src_y = src_rect[1];
         float src_w = src_rect[2] - src_rect[0];
@@ -398,7 +398,7 @@ pf_renderer2d_texture2d_rec_tint(
 
     pf_vec2_t texcoords[4] = { 0 };
     {
-        uint8_t x_flip = 0;
+        bool x_flip = 0;
         float src_x = src_rect[0];
         float src_y = src_rect[1];
         float src_w = src_rect[2] - src_rect[0];
@@ -507,7 +507,7 @@ pf_renderer2d_texture2d_rec_map(
 
     pf_vec2_t texcoords[4] = { 0 };
     {
-        uint8_t x_flip = 0;
+        bool x_flip = 0;
         float src_x = src_rect[0];
         float src_y = src_rect[1];
         float src_w = src_rect[2] - src_rect[0];

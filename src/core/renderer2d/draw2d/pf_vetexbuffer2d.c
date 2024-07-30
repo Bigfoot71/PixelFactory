@@ -115,7 +115,7 @@ pf_renderer2d_vertex_buffer(
     /* Iterates through all vertices in the vertex buffer */
 
     const uint16_t* indices = indices;
-    uint8_t has_indices = (vb->indices != NULL);
+    bool has_indices = (vb->indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {

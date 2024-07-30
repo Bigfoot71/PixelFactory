@@ -53,7 +53,7 @@ pf_framebuffer_delete(
     fb->w = fb->h = 0;
 }
 
-int
+bool
 pf_framebuffer_is_valid(
     const pf_framebuffer_t* fb)
 {
