@@ -152,7 +152,8 @@ int main(void)
             pf_proc3d_t proc = { 0 };
             proc.fragment = model_frag_proc;
             proc.vertex = pf_proc3d_vertex_normal_transform;
-            proc.uniforms = &model.materials[model.meshMaterial[i]];
+            uniforms.material = model.materials[model.meshMaterial[i]];
+            proc.uniforms = &uniforms;
             pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
         }
 
