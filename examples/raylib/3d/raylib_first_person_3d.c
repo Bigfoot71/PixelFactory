@@ -14,7 +14,6 @@ typedef struct {
 
 static bool WallCollision(Camera3D* camera, const Image* imMap);
 static void FragProcModel(struct pf_renderer3d* rn, pf_vertex_t* vertex, pf_color_t* outColor, const void* uniforms);
-static void RendererMap(pf_renderer3d_t* rn, pf_color_t* outColor, float* outDepth, int x, int y, float u, float v);
 
 int main(void)
 {
@@ -25,7 +24,6 @@ int main(void)
 
     // Create a rendering buffer in RAM
     pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
-    pf_mat4_perspective(rn.mat_proj, 45.0f, (float)rn.fb.w / rn.fb.h, 0.01f, 10.0f);
     rn.cull_mode = PF_CULL_BACK;
 
     // Create a raylib raylib texture to render buffer
@@ -54,8 +52,7 @@ int main(void)
         Mesh* mesh = &model.meshes[i];
 
         pfMeshes[i] = pf_vertex_buffer_create_3d(mesh->vertexCount,
-            mesh->vertices, mesh->texcoords, mesh->normals,
-            (pf_color_t*)mesh->colors);
+            mesh->vertices, mesh->texcoords, NULL, NULL);
 
         if (mesh->indices) {
             pfMeshes[i].num_indices = mesh->triangleCount * 3;
@@ -113,7 +110,6 @@ int main(void)
             proc.uniforms = &uniforms;
             pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
         }
-        pf_renderer3d_map(&rn, RendererMap);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -149,32 +145,35 @@ bool WallCollision(Camera3D* camera, const Image* imMap)
     Rectangle camRect = { .x = pos2D.x - 0.2f, .y = pos2D.y - 0.2f, .width = 0.4f, .height = 0.4f };
     Vector2 result_disp = { .x = 0, .y = 0 };
 
-    for (int y = fmaxf(rdPos2D.y - 1, 0); y <= yMax; y += 1)
-    {
-        for (int x = fmaxf(rdPos2D.x - 1, 0); x <= xMax; x += 1)
-        {
-            if ((x != rdPos2D.x || y != rdPos2D.y) && ((uint8_t*)imMap->data)[y * imMap->width + x] > 0)
-            {
-                Rectangle tileRec = { .x = x - 0.5f, .y = y - 0.5f, .width = 1.0f, .height = 1.0f };
+    for (int y = fmaxf(rdPos2D.y - 1, 0); y <= yMax; y++) {
+        for (int x = fmaxf(rdPos2D.x - 1, 0); x <= xMax; x++) {
+            if ((x != rdPos2D.x || y != rdPos2D.y) && ((uint8_t*)imMap->data)[y * imMap->width + x] > 0) {
+                Rectangle tileRec = {
+                    .x = x - 0.5f, .y = y - 0.5f,
+                    .width = 1.0f, .height = 1.0f
+                };
 
-                Vector2 dist = { .x = pos2D.x - x, .y = pos2D.y - y };
-                Vector2 minDist = { .x = (camRect.width + tileRec.width) * 0.5f, .y = (camRect.height + tileRec.height) * 0.5f };
+                Vector2 dist = {
+                    .x = pos2D.x - x,
+                    .y = pos2D.y - y
+                };
+
+                Vector2 minDist = {
+                    .x = (camRect.width + tileRec.width) * 0.5f,
+                    .y = (camRect.height + tileRec.height) * 0.5f
+                };
 
                 Vector2 collisionVec = { .x = 0, .y = 0 };
 
-                if (fabsf(dist.x) < minDist.x && fabsf(dist.y) < minDist.y)
-                {
+                if (fabsf(dist.x) < minDist.x && fabsf(dist.y) < minDist.y) {
                     Vector2 overlap = {
                         .x = minDist.x - fabsf(dist.x),
                         .y = minDist.y - fabsf(dist.y),
                     };
 
-                    if (overlap.x < overlap.y)
-                    {
+                    if (overlap.x < overlap.y) {
                         collisionVec.x = (dist.x > 0) ? overlap.x : -overlap.x;
-                    }
-                    else
-                    {
+                    } else {
                         collisionVec.y = (dist.y > 0) ? overlap.y : -overlap.y;
                     }
                 }
@@ -188,13 +187,10 @@ bool WallCollision(Camera3D* camera, const Image* imMap)
     float adx = fabsf(result_disp.x);
     float ady = fabsf(result_disp.y);
 
-    if (adx > ady)
-    {
+    if (adx > ady) {
         camera->position.x += result_disp.x;
         camera->target.x += result_disp.x;
-    }
-    else
-    {
+    } else {
         camera->position.z += result_disp.y;
         camera->target.z += result_disp.y;
     }
@@ -212,10 +208,4 @@ void FragProcModel(pf_renderer3d_t* rn, pf_vertex_t* vertex, pf_color_t* outColo
     pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
 
     *outColor = u->texture.sampler(&u->texture, texcoord[0], texcoord[1]);
-}
-
-void RendererMap(pf_renderer3d_t* rn, pf_color_t* outColor, float* outDepth, int x, int y, float u, float v)
-{
-    (void)rn, (void)x, (void)y, (void)u, (void)v;
-    *outColor = pf_color_lerpf(*outColor, PF_GRAY, PF_MIN(*outDepth, 10.0f) * 0.1f);
 }

@@ -435,7 +435,7 @@ pf_renderer2d_triangle_map(
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     // Transformation
     pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
@@ -564,7 +564,7 @@ pf_renderer2d_triangle_lines_map(
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     pf_renderer2d_line_map(rn, x1, y1, x2, y2, proc);
     pf_renderer2d_line_map(rn, x2, y2, x3, y3, proc);
@@ -592,7 +592,7 @@ void
 pf_renderer2d_triangle_fan_map(
     pf_renderer2d_t* rn,
     int* points, int count,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
@@ -651,7 +651,7 @@ void
 pf_renderer2d_triangle_strip_map(
     pf_renderer2d_t* rn,
     int* points, int count,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {

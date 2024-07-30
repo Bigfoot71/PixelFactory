@@ -98,7 +98,7 @@ pf_vertex_bary(
     const pf_vertex_t* restrict v1,
     const pf_vertex_t* restrict v2,
     const pf_vertex_t* restrict v3,
-    float w1, float w2, float w3);
+    const pf_vec3_t bary);
 
 /* Helper Vertex Buffer Functions */
 

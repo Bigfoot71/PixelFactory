@@ -24,20 +24,21 @@
 
 void
 pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
+    pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
 void
 pf_renderer3d_point_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
 void
 pf_renderer3d_line_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
 
 /* Public API Functions */
@@ -45,15 +46,15 @@ pf_renderer3d_line_INTERNAL(
 void
 pf_renderer3d_vertex_buffer(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     pf_renderer3d_vertex_buffer_ex(rn, vb, transform, proc);
 }
 
-PFAPI void
+void
 pf_renderer3d_vertex_buffer_ex(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     /* Preparation of matrices */
 
@@ -91,6 +92,9 @@ pf_renderer3d_vertex_buffer_ex(
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
+
+        pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES];
+
         uint32_t index_1 = i + 0;
         uint32_t index_2 = i + 1;
         uint32_t index_3 = i + 2;
@@ -101,28 +105,47 @@ pf_renderer3d_vertex_buffer_ex(
             index_3 = indices[index_3];
         }
 
-        pf_vertex_t v1 = { 0 };
-        pf_vertex_t v2 = { 0 };
-        pf_vertex_t v3 = { 0 };
-
         for (uint32_t j = 0; j < PF_MAX_ATTRIBUTES; ++j) {
             const pf_attribute_t* attr = &vb->attributes[j];
             if (attr->used != 0) {
-                v1.elements[j] = pf_attribute_get_elem(attr, index_1);
-                v2.elements[j] = pf_attribute_get_elem(attr, index_2);
-                v3.elements[j] = pf_attribute_get_elem(attr, index_3);
+#               define PF_GET_ATTRIB_ELEM(TYPE, CTYPE)                                                                      \
+                    case TYPE: {                                                                                            \
+                        for (int_fast8_t k = 0; k < attr->comp; ++k) {                                                      \
+                            vertices[0].elements[j].value[k].v_##CTYPE = ((CTYPE*)attr->buffer)[index_1 * attr->comp + k];  \
+                            vertices[1].elements[j].value[k].v_##CTYPE = ((CTYPE*)attr->buffer)[index_2 * attr->comp + k];  \
+                            vertices[2].elements[j].value[k].v_##CTYPE = ((CTYPE*)attr->buffer)[index_3 * attr->comp + k];  \
+                        }                                                                                                   \
+                    } break;
+                switch (attr->type) {
+                    PF_GET_ATTRIB_ELEM(PF_UNSIGNED_BYTE, uint8_t)
+                    PF_GET_ATTRIB_ELEM(PF_BYTE, int8_t)
+                    PF_GET_ATTRIB_ELEM(PF_UNSIGNED_SHORT, uint16_t)
+                    PF_GET_ATTRIB_ELEM(PF_SHORT, int16_t)
+                    PF_GET_ATTRIB_ELEM(PF_UNSIGNED_INT, uint32_t)
+                    PF_GET_ATTRIB_ELEM(PF_INT, int32_t)
+                    PF_GET_ATTRIB_ELEM(PF_FLOAT, float)
+                    default:
+                        break;
+                }
+#               undef PF_GET_ATTRIB_ELEM
+                for (int_fast8_t k = 0; k < 3; ++k) {
+                    vertices[k].elements[j].type = attr->type;
+                    vertices[k].elements[j].comp = attr->comp;
+                    vertices[k].elements[j].used = attr->used;
+                }
             }
         }
 
         pf_renderer3d_triangle_INTERNAL(
-            rn, &v1, &v2, &v3, mat_model, mat_normal, mat_mvp, &processor);
+            rn, vertices, mat_model, mat_normal,
+            mat_mvp, &processor);
     }
 }
 
-PFAPI void
+void
 pf_renderer3d_vertex_buffer_points(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     pf_renderer3d_vertex_buffer_points_thick(rn, vb, 0, transform, proc);
 }
@@ -130,7 +153,7 @@ pf_renderer3d_vertex_buffer_points(
 void
 pf_renderer3d_vertex_buffer_points_thick(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float radius,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     /* Preparation of matrices */
 
@@ -187,7 +210,7 @@ pf_renderer3d_vertex_buffer_points_thick(
 void
 pf_renderer3d_vertex_buffer_lines(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     pf_renderer3d_vertex_buffer_lines_thick(rn, vb, 0, transform, proc);
 }
@@ -195,7 +218,7 @@ pf_renderer3d_vertex_buffer_lines(
 void
 pf_renderer3d_vertex_buffer_lines_thick(
     pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float thick,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     /* Preparation of matrices */
 

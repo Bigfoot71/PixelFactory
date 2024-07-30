@@ -65,7 +65,7 @@ pf_renderer3d_triangle_interpolation_INTERNAL(
     pf_vec3_t bary,
     float z_depth)
 {
-    pf_vertex_bary(out_vertex, v1, v2, v3, bary[0], bary[1], bary[2]);
+    pf_vertex_bary(out_vertex, v1, v2, v3, bary);
 
     // TODO: Find a method to determine if we need to rescale
 

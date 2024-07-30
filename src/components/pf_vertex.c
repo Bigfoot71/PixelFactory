@@ -18,7 +18,6 @@
  */
 
 #include "pixelfactory/components/pf_vertex.h"
-#include <stdint.h>
 
 pf_vertex_t
 pf_vertex_create_2d(
@@ -28,25 +27,30 @@ pf_vertex_create_2d(
 {
     pf_vertex_t vertex = { 0 };
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 2;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = x;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = y;
+    // Position
+    pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+    pos->used = 1;
+    pos->comp = 2;
+    pos->type = PF_FLOAT;
+    pos->value[0].v_float = x;
+    pos->value[1].v_float = y;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[0].v_float = u;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[1].v_float = v;
+    // TexCoord
+    pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
+    tex->used = 1;
+    tex->comp = 2;
+    tex->type = PF_FLOAT;
+    tex->value[0].v_float = u;
+    tex->value[1].v_float = v;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[0].v_uint8_t = color.a[0];
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[1].v_uint8_t = color.a[1];
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[2].v_uint8_t = color.a[2];
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[3].v_uint8_t = color.a[3];
+    // Color
+    pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+    col->used = 1;
+    col->comp = 4;
+    col->type = PF_UNSIGNED_BYTE;
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        col->value[i].v_uint8_t = color.a[i];
+    }
 
     return vertex;
 }
@@ -59,26 +63,31 @@ pf_vertex_create_3d(
 {
     pf_vertex_t vertex = { 0 };
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = 1;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = x;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = y;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = z;
+    // Position
+    pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+    pos->used = 1;
+    pos->comp = 3;
+    pos->type = PF_FLOAT;
+    pos->value[0].v_float = x;
+    pos->value[1].v_float = y;
+    pos->value[2].v_float = z;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = 1;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_FLOAT;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[0].v_float = u;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].value[1].v_float = v;
+    // TexCoord
+    pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
+    tex->used = 1;
+    tex->comp = 2;
+    tex->type = PF_FLOAT;
+    tex->value[0].v_float = u;
+    tex->value[1].v_float = v;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = 1;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[0].v_uint8_t = color.a[0];
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[1].v_uint8_t = color.a[1];
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[2].v_uint8_t = color.a[2];
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[3].v_uint8_t = color.a[3];
+    // Color
+    pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+    col->used = 1;
+    col->comp = 4;
+    col->type = PF_UNSIGNED_BYTE;
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        col->value[i].v_uint8_t = color.a[i];
+    }
 
     return vertex;
 }
@@ -165,6 +174,17 @@ pf_vertex_lerp(
     const pf_vertex_t* restrict end,
     float t)
 {
+#if defined(_OPENMP)
+#define PF_VERTEX_LERP_CASE(TYPE, CTYPE)                        \
+    case TYPE:                                                  \
+        _Pragma("omp simd")                                     \
+        for (int_fast8_t j = 0; j < c_count; ++j) {             \
+            CTYPE val1 = e1->value[j].v_##CTYPE;                \
+            CTYPE val2 = e2->value[j].v_##CTYPE;                \
+            er->value[j].v_##CTYPE = val1 + t * (val2 - val1);  \
+        }                                                       \
+    break;
+#else
 #define PF_VERTEX_LERP_CASE(TYPE, CTYPE)                        \
     case TYPE:                                                  \
         for (int_fast8_t j = 0; j < c_count; ++j) {             \
@@ -173,6 +193,7 @@ pf_vertex_lerp(
             er->value[j].v_##CTYPE = val1 + t * (val2 - val1);  \
         }                                                       \
     break;
+#endif
 
     for (uint32_t i = 0; i < PF_MAX_ATTRIBUTES; ++i) {
         const pf_attrib_elem_t* e1 = &start->elements[i];
@@ -206,17 +227,29 @@ pf_vertex_bary(
     const pf_vertex_t* restrict v1,
     const pf_vertex_t* restrict v2,
     const pf_vertex_t* restrict v3,
-    float w1, float w2, float w3)
+    const pf_vec3_t bary)
 {
+#if defined(_OPENMP)
 #define PF_VERTEX_BARY_CASE(TYPE, CTYPE)                    \
     case TYPE:                                              \
+        _Pragma("omp simd")                                 \
         for (int_fast8_t j = 0; j < c_count; ++j) {         \
-            CTYPE val1 = e1->value[j].v_##CTYPE * w1;       \
-            CTYPE val2 = e2->value[j].v_##CTYPE * w2;       \
-            CTYPE val3 = e3->value[j].v_##CTYPE * w3;       \
+            CTYPE val1 = e1->value[j].v_##CTYPE * bary[0];  \
+            CTYPE val2 = e2->value[j].v_##CTYPE * bary[1];  \
+            CTYPE val3 = e3->value[j].v_##CTYPE * bary[2];  \
             er->value[j].v_##CTYPE = val1 + val2 + val3;    \
         }                                                   \
     break;
+#else
+    case TYPE:                                              \
+        for (int_fast8_t j = 0; j < c_count; ++j) {         \
+            CTYPE val1 = e1->value[j].v_##CTYPE * bary[0];  \
+            CTYPE val2 = e2->value[j].v_##CTYPE * bary[1];  \
+            CTYPE val3 = e3->value[j].v_##CTYPE * bary[2];  \
+            er->value[j].v_##CTYPE = val1 + val2 + val3;    \
+        }                                                   \
+    break;
+#endif
 
     for (uint32_t i = 0; i < PF_MAX_ATTRIBUTES; ++i) {
         const pf_attrib_elem_t* e1 = &v1->elements[i];

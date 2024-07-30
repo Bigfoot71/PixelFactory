@@ -89,7 +89,7 @@ pf_renderer2d_vertex_buffer(
     pf_renderer2d_t* rn,
     const pf_vertex_buffer_t* vb,
     const pf_mat3_t transform,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     /* Preparation of matrices */
 

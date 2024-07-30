@@ -25,7 +25,7 @@ void
 pf_renderer3d_line_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
 
 /* Public API Functions */
@@ -33,7 +33,7 @@ pf_renderer3d_line_INTERNAL(
 void
 pf_renderer3d_line(
     pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -66,7 +66,7 @@ pf_renderer3d_line(
 void
 pf_renderer3d_line_thick(
     pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;

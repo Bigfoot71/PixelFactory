@@ -53,7 +53,7 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            depth_buf[offset] = z;                                      \
+                            rn->zb.buffer[offset] = z;                                  \
                             PIXEL_CODE                                                  \
                         }                                                               \
                     }                                                                   \
@@ -102,8 +102,8 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            if (test(depth_buf[offset], z)) {                           \
-                                depth_buf[offset] = z;                                  \
+                            if (test(rn->zb.buffer[offset], z)) {                       \
+                                rn->zb.buffer[offset] = z;                              \
                                 PIXEL_CODE                                              \
                             }                                                           \
                         }                                                               \
@@ -157,7 +157,7 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            depth_buf[offset] = z;                                      \
+                            rn->zb.buffer[offset] = z;                                  \
                             PIXEL_CODE                                                  \
                         }                                                               \
                     }                                                                   \
@@ -207,8 +207,8 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            if (test(depth_buf[offset], z)) {                           \
-                                depth_buf[offset] = z;                                  \
+                            if (test(rn->zb.buffer[offset], z)) {                       \
+                                rn->zb.buffer[offset] = z;                              \
                                 PIXEL_CODE                                              \
                             }                                                           \
                         }                                                               \
@@ -241,7 +241,7 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                depth_buf[offset] = z;                                                          \
+                rn->zb.buffer[offset] = z;                                                      \
                 PIXEL_CODE                                                                      \
             }                                                                                   \
             w1 += w1_x_step;                                                                    \
@@ -267,8 +267,8 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                if (test(depth_buf[offset], z)) {                                               \
-                    depth_buf[offset] = z;                                                      \
+                if (test(rn->zb.buffer[offset], z)) {                                           \
+                    rn->zb.buffer[offset] = z;                                                  \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
             }                                                                                   \
@@ -285,11 +285,10 @@
     _Pragma("omp parallel for schedule(dynamic)                                                 \
         if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                  \
     for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
-        int i = y - ymin;                                                                       \
-        int w1 = w1_row + i*w1_y_step;                                                          \
-        int w2 = w2_row + i*w2_y_step;                                                          \
-        int w3 = w3_row + i*w3_y_step;                                                          \
-        const uint32_t y_offset = y*rn->fb.w;                                                   \
+        int w1 = w1_row + (y - ymin) * w1_y_step;                                               \
+        int w2 = w2_row + (y - ymin) * w2_y_step;                                               \
+        int w3 = w3_row + (y - ymin) * w3_y_step;                                               \
+        const uint32_t y_offset = y * rn->fb.w;                                                 \
         for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y_offset + x;                                                 \
@@ -298,8 +297,8 @@
                     w2 * inv_w_sum,                                                             \
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
-                float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                depth_buf[offset] = z;                                                          \
+                float z = 1.0f / (bary[0] * z1 + bary[1] * z2 + bary[2] * z3);                  \
+                rn->zb.buffer[offset] = z;                                                      \
                 PIXEL_CODE                                                                      \
             }                                                                                   \
             w1 += w1_x_step;                                                                    \
@@ -312,22 +311,20 @@
     _Pragma("omp parallel for schedule(dynamic)                                                 \
         if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                  \
     for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
-        int i = y - ymin;                                                                       \
-        int w1 = w1_row + i*w1_y_step;                                                          \
-        int w2 = w2_row + i*w2_y_step;                                                          \
-        int w3 = w3_row + i*w3_y_step;                                                          \
-        const uint32_t y_offset = y*rn->fb.w;                                                   \
+        int w1 = w1_row + (y - ymin) * w1_y_step;                                               \
+        int w2 = w2_row + (y - ymin) * w2_y_step;                                               \
+        int w3 = w3_row + (y - ymin) * w3_y_step;                                               \
         for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
-                uint32_t offset = y_offset + x;                                                 \
+                uint32_t offset = y * rn->fb.w + x;                                             \
                 pf_vec3_t bary = {                                                              \
                     w1 * inv_w_sum,                                                             \
                     w2 * inv_w_sum,                                                             \
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
-                float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                if (test(depth_buf[offset], z)) {                                               \
-                    depth_buf[offset] = z;                                                      \
+                float z = 1.0f / (bary[0] * z1 + bary[1] * z2 + bary[2] * z3);                  \
+                if (test(rn->zb.buffer[offset], z)) {                                           \
+                    rn->zb.buffer[offset] = z;                                                  \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
             }                                                                                   \
@@ -340,7 +337,7 @@
 /* Internal Pixel Code Macros */
 
 #define PF_PIXEL_CODE_NOBLEND()                                                 \
-    pf_color_t* ptr = color_buf + offset;                                       \
+    pf_color_t* ptr = rn->fb.buffer + offset;                                   \
     pf_color_t final_color = *ptr;                                              \
     pf_vertex_t vertex;                                                         \
     pf_renderer3d_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);\
@@ -348,7 +345,7 @@
     *ptr = final_color;
 
 #define PF_PIXEL_CODE_BLEND()                                                   \
-    pf_color_t* ptr = color_buf + offset;                                       \
+    pf_color_t* ptr = rn->fb.buffer + offset;                                   \
     pf_color_t final_color = *ptr;                                              \
     pf_vertex_t vertex;                                                         \
     pf_renderer3d_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);\
@@ -511,18 +508,14 @@ pf_clip3d_triangle_INTERNAL(
 
 void
 pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_t* proc)
+    pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc)
 {
     /* Copy vertices, the clipping step may result in more vertex than expected */
 
-    pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES] = { 0 };
     pf_vec4_t homogens[PF_MAX_CLIPPED_POLYGON_VERTICES] = { 0 };
     size_t vertices_count = 3;
-
-    vertices[0] = *v1;
-    vertices[1] = *v2;
-    vertices[2] = *v3;
 
     /* Transform vertices */
 
@@ -533,10 +526,7 @@ pf_renderer3d_triangle_INTERNAL(
     /* Clip triangle */
 
     pf_clip3d_triangle_INTERNAL(rn, vertices, homogens, &vertices_count);
-
-    if (vertices_count < 3) {
-        return;
-    }
+    if (vertices_count < 3) return;
 
     /* Projection to screen */
 
@@ -544,9 +534,6 @@ pf_renderer3d_triangle_INTERNAL(
     pf_renderer3d_screen_projection_INTERNAL(rn, homogens, vertices, vertices_count, screen_pos);
 
     /* Get often used data */
-
-    pf_color_t* color_buf = rn->fb.buffer;
-    float* depth_buf = rn->zb.buffer;
 
     const pf_proc3d_fragment_fn fragment = proc->fragment;
     const void* uniforms = proc->uniforms;
@@ -556,55 +543,61 @@ pf_renderer3d_triangle_INTERNAL(
 
     /* Rasterize triangles */
 
-    for (size_t i = 0; i < vertices_count - 2; ++i)
-    {
+    for (size_t i = 0; i < vertices_count - 2; ++i) {
         pf_vertex_t* v1 = &vertices[0];
         pf_vertex_t* v2 = &vertices[i + 1];
         pf_vertex_t* v3 = &vertices[i + 2];
 
-        pf_vec4_t* h1 = &homogens[0];
-        pf_vec4_t* h2 = &homogens[i + 1];
-        pf_vec4_t* h3 = &homogens[i + 2];
+        float z1 = homogens[0][2];
+        float z2 = homogens[i + 1][2];
+        float z3 = homogens[i + 2][2];
 
-        /* Get integer 2D position coordinates */
+        int w1_x_step, w2_x_step, w3_x_step;
+        int w1_y_step, w2_y_step, w3_y_step;
+        int w1_row, w2_row, w3_row;
+        float inv_w_sum;
 
-        int x1 = screen_pos[0][0], y1 = screen_pos[0][1];
-        int x2 = screen_pos[i + 1][0], y2 = screen_pos[i + 1][1];
-        int x3 = screen_pos[i + 2][0], y3 = screen_pos[i + 2][1];
-
-        /* Check if the desired face can be rendered */
-
-        float signed_area = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1);
-        pf_face_e face = (signed_area <= 0); // false == PF_BACK | true == PF_FRONT
-
-        if ((rn->cull_mode == PF_CULL_BACK && face == PF_BACK)
-         || (rn->cull_mode == PF_CULL_FRONT && face == PF_FRONT))
+        uint32_t xmin, ymin, xmax, ymax;
         {
-            continue;
+            /* Get integer 2D position coordinates */
+
+            int x1 = screen_pos[0][0],     y1 = screen_pos[0][1];
+            int x2 = screen_pos[i + 1][0], y2 = screen_pos[i + 1][1];
+            int x3 = screen_pos[i + 2][0], y3 = screen_pos[i + 2][1];
+
+            /* Check if the desired face can be rendered */
+
+            int signed_area = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1);
+            pf_face_e face = (signed_area <= 0); // false == PF_BACK | true == PF_FRONT
+
+            if ((rn->cull_mode == PF_CULL_BACK && face == PF_BACK)
+            || (rn->cull_mode == PF_CULL_FRONT && face == PF_FRONT)) {
+                continue;
+            }
+
+            /* Calculate the 2D bounding box of the triangle */
+
+            xmin = (uint32_t)PF_MIN(x1, PF_MIN(x2, x3));
+            ymin = (uint32_t)PF_MIN(y1, PF_MIN(y2, y3));
+            xmax = (uint32_t)PF_MAX(x1, PF_MAX(x2, x3));
+            ymax = (uint32_t)PF_MAX(y1, PF_MAX(y2, y3));
+
+            /* Barycentric interpolation */
+
+            w1_x_step = y3 - y2, w1_y_step = x2 - x3;
+            w2_x_step = y1 - y3, w2_y_step = x3 - x1;
+            w3_x_step = y2 - y1, w3_y_step = x1 - x2;
+
+            if (face == PF_BACK) {
+                w1_x_step = -w1_x_step, w1_y_step = -w1_y_step;
+                w2_x_step = -w2_x_step, w2_y_step = -w2_y_step;
+                w3_x_step = -w3_x_step, w3_y_step = -w3_y_step;
+            }
+
+            w1_row = (xmin - x2)*w1_x_step + w1_y_step*(ymin - y2);
+            w2_row = (xmin - x3)*w2_x_step + w2_y_step*(ymin - y3);
+            w3_row = (xmin - x1)*w3_x_step + w3_y_step*(ymin - y1);
         }
-
-        /* Calculate the 2D bounding box of the triangle */
-
-        size_t xmin = (size_t)PF_MIN(x1, PF_MIN(x2, x3));
-        size_t ymin = (size_t)PF_MIN(y1, PF_MIN(y2, y3));
-        size_t xmax = (size_t)PF_MAX(x1, PF_MAX(x2, x3));
-        size_t ymax = (size_t)PF_MAX(y1, PF_MAX(y2, y3));
-
-        /* Barycentric interpolation */
-
-        int w1_x_step = y3 - y2, w1_y_step = x2 - x3;
-        int w2_x_step = y1 - y3, w2_y_step = x3 - x1;
-        int w3_x_step = y2 - y1, w3_y_step = x1 - x2;
-
-        if (face == PF_BACK) {
-            w1_x_step = -w1_x_step, w1_y_step = -w1_y_step;
-            w2_x_step = -w2_x_step, w2_y_step = -w2_y_step;
-            w3_x_step = -w3_x_step, w3_y_step = -w3_y_step;
-        }
-
-        int w1_row = (xmin - x2)*w1_x_step + w1_y_step*(ymin - y2);
-        int w2_row = (xmin - x3)*w2_x_step + w2_y_step*(ymin - y3);
-        int w3_row = (xmin - x1)*w3_x_step + w3_y_step*(ymin - y1);
 
         /*
             Finally, we calculate the inverse of the sum of
@@ -613,13 +606,7 @@ pf_renderer3d_triangle_INTERNAL(
             within the triangle.
         */
 
-        float inv_w_sum = 1.0f/(w1_row + w2_row + w3_row);
-
-        /* Get some contextual values */
-
-        float z1 = (*h1)[2];
-        float z2 = (*h2)[2];
-        float z3 = (*h3)[2];
+        inv_w_sum = 1.0f/(w1_row + w2_row + w3_row);
 
         /* Loop rasterization */
 

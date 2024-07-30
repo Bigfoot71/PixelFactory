@@ -107,7 +107,7 @@ void
 pf_renderer3d_point_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_t* proc)
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc)
 {
     pf_vertex_t vertex = *point;
     pf_vec4_t homogen = { 0 };

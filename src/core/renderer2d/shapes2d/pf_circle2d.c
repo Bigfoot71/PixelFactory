@@ -252,7 +252,7 @@ pf_renderer2d_circle_gradient(
 void
 pf_renderer2d_circle_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     /* Transformation */
 
@@ -333,7 +333,7 @@ pf_renderer2d_circle_lines(
 void
 pf_renderer2d_circle_lines_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     /* Transformation */
 
@@ -395,7 +395,7 @@ pf_renderer2d_circle_lines_thick(
 void
 pf_renderer2d_circle_lines_thick_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius, int thick,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     int ht = thick/2;
     for (int i = -ht; i <= ht; ++i) {

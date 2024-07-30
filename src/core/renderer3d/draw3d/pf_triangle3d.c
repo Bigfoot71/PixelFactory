@@ -25,16 +25,16 @@
 
 void
 pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
-
+    pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
 /* Triangle rasterization functions */
 
 void
 pf_renderer3d_triangle(
     pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
+    const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -62,39 +62,6 @@ pf_renderer3d_triangle(
     }
 
     pf_renderer3d_triangle_INTERNAL(
-        rn, v1, v2, v3, mat_model, mat_normal, mat_mvp, &processor);
-}
-
-void
-pf_renderer3d_triangle_ex(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
-    const pf_mat4_t transform, pf_proc3d_t* proc)
-{
-    pf_mat4_t mat_model;
-    pf_mat4_t mat_normal;
-    if (transform == NULL) {
-        pf_mat4_identity(mat_model);
-        pf_mat4_identity(mat_normal);
-    } else {
-        pf_mat4_copy(mat_model, transform);
-        pf_mat4_inverse(mat_normal, mat_model);
-        pf_mat4_transpose(mat_normal, mat_normal);
-    }
-
-    pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
-
-    pf_proc3d_t processor = { 0 };
-    processor.vertex = pf_proc3d_vertex_default;
-    processor.fragment = pf_proc3d_fragment_default;
-
-    if (proc != NULL) {
-        if (proc->vertex != NULL) processor.vertex = proc->vertex;
-        if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
-    }
-
-    pf_renderer3d_triangle_INTERNAL(
-        rn, v1, v2, v3, mat_model, mat_normal, mat_mvp, &processor);
+        rn, (pf_vertex_t[PF_MAX_CLIPPED_POLYGON_VERTICES]) { *v1, *v2, *v3 },
+        mat_model, mat_normal, mat_mvp, &processor);
 }

@@ -272,7 +272,7 @@ pf_renderer2d_rect_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     /* Setup processor */
 
@@ -436,7 +436,7 @@ pf_renderer2d_rect_lines_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     pf_renderer2d_line_map(rn, x1, y1, x2, y1, proc);
     pf_renderer2d_line_map(rn, x2, y1, x2, y2, proc);
@@ -480,7 +480,7 @@ pf_renderer2d_rect_lines_thick_map(
     int x1, int y1,
     int x2, int y2,
     int thick,
-    pf_proc2d_t* proc)
+    const pf_proc2d_t* proc)
 {
     pf_renderer2d_line_thick_map(rn, x1, y1, x2, y1, thick, proc);
     pf_renderer2d_line_thick_map(rn, x2, y1, x2, y2, thick, proc);

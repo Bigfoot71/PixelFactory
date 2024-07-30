@@ -64,4 +64,12 @@
 #    define PF_OMP_CLEAR_BUFFER_SIZE_THRESHOLD 640*480
 #endif //PF_OPENMP_CLEAR_BUFFER_SIZE_THRESHOLD
 
+#ifndef PF_OMP_TRIANGLE_NUMBER_THRESHOLD
+// NOTE: If the number of triangles rendered via a vertexbuffer
+//       is greater than or equal to this value, the parallelization 
+//       will be done by group of triangles rather than by line when
+//       rendering the triangles individually.
+#   define PF_OMP_TRIANGLE_NUMBER_THRESHOLD 16
+#endif //PF_OMP_TRIANGLE_NUMBER_THRESHOLD
+
 #endif //PF_CONFIG_H

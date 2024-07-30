@@ -299,7 +299,7 @@ void
 pf_renderer3d_line_INTERNAL(
     pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_t* proc)
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc)
 {
     pf_vertex_t vertices[2] = { *v1, *v2 };
     pf_vec4_t homogens[2] = { 0 };

@@ -151,6 +151,7 @@ int main(void)
         for (int i = 0; i < model.meshCount; i++) {
             pf_proc3d_t proc = { 0 };
             proc.fragment = model_frag_proc;
+            proc.vertex = pf_proc3d_vertex_normal_transform;
             proc.uniforms = &model.materials[model.meshMaterial[i]];
             pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
         }
