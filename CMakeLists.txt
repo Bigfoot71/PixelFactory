@@ -12,6 +12,9 @@ set(PF_IS_MAIN ${PROJECT_IS_TOP_LEVEL})
 option(PF_INSTALL "Install PixelFactory library and headers" OFF)
 option(PF_BUILD_SHARED "Build PixelFactory as a shared library" OFF)
 
+# Set extensions
+option(PF_EXT_TEXTURE2D "Enables the texture2d extension allowing images loading via stbi and generation" OFF)
+
 # Set example builds
 option(PF_BUILD_EXAMPLES_RAYLIB "Build PixelFactory examples for raylib" OFF)
 
@@ -39,6 +42,11 @@ endif()
 
 # Specify the include directory
 target_include_directories(${PROJECT_NAME} PUBLIC ${PF_ROOT_PATH}/include)
+
+# Activate extensions if needed
+if(PF_EXT_TEXTURE2D)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PF_EXT_TEXTURE2D)
+endif()
 
 # Check for SIMD support
 include(CheckCCompilerFlag)
