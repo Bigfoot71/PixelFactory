@@ -38,8 +38,12 @@ pf_renderer3d_screen_projection_INTERNAL(
         // Division by the HZ axis (perspective correct)
         if (fabsf(*h[3] - 1.0f) > PF_EPSILON) {
             pf_vertex_t* v = &vertices[i];
-            pf_vertex_scale_vec(v, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, (*h)[2]);
-            pf_vertex_scale_vec(v, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, (*h)[2]);
+            if (v->elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used != 0) {
+                pf_vertex_scale_vec(v, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, (*h)[2]);
+            }
+            if (v->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used != 0) {
+                pf_vertex_scale_vec(v, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, (*h)[2]);
+            }
         }
 
         // Division of XY coordinates by weight
@@ -63,6 +67,14 @@ pf_renderer3d_triangle_interpolation_INTERNAL(
     float z_depth)
 {
     pf_vertex_bary(out_vertex, v1, v2, v3, bary[0], bary[1], bary[2]);
-    pf_vertex_scale_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, z_depth);
-    pf_vertex_scale_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, z_depth);
+
+    // TODO: Find a method to determine if we need to rescale
+
+    if (out_vertex->elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used != 0) {
+        pf_vertex_scale_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, z_depth);
+    }
+
+    if (out_vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used != 0) {
+        pf_vertex_scale_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, z_depth);
+    }
 }
