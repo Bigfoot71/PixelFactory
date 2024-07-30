@@ -272,7 +272,7 @@ pf_renderer2d_rect_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_generic_t* proc)
+    pf_proc2d_t* proc)
 {
     /* Setup processor */
 
@@ -297,64 +297,40 @@ pf_renderer2d_rect_map(
 #if defined(_OPENMP)
         if (rn->blend != NULL) {
             PF_RECT_TRAVEL_OMP({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_RECT_TRAVEL_OMP({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = final_color;
             })
         }
 #else
         if (rn->blend != NULL) {
             PF_RECT_TRAVEL({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_RECT_TRAVEL({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = final_color;
             })
         }
@@ -385,64 +361,40 @@ pf_renderer2d_rect_map(
 #if defined(_OPENMP)
         if (rn->blend != NULL) {
             PF_RECT_TRAVEL_OMP({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_RECT_TRAVEL_OMP({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = final_color;
             })
         }
 #else
         if (rn->blend != NULL) {
             PF_RECT_TRAVEL({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_RECT_TRAVEL({
-                pf_vertex2d_t vertex;
-                vertex.position[0] = x;
-                vertex.position[1] = y;
-                vertex.texcoord[0] = 0;
-                vertex.texcoord[1] = 0;
-                vertex.color = PF_WHITE;
-
+                pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                fragment(rn, &vertex, &final_color, uniforms, NULL);
+                fragment(rn, &vertex, &final_color, uniforms);
                 *ptr = final_color;
             })
         }
@@ -484,7 +436,7 @@ pf_renderer2d_rect_lines_map(
     pf_renderer2d_t* rn,
     int x1, int y1,
     int x2, int y2,
-    pf_proc2d_generic_t* proc)
+    pf_proc2d_t* proc)
 {
     pf_renderer2d_line_map(rn, x1, y1, x2, y1, proc);
     pf_renderer2d_line_map(rn, x2, y1, x2, y2, proc);
@@ -528,7 +480,7 @@ pf_renderer2d_rect_lines_thick_map(
     int x1, int y1,
     int x2, int y2,
     int thick,
-    pf_proc2d_generic_t* proc)
+    pf_proc2d_t* proc)
 {
     pf_renderer2d_line_thick_map(rn, x1, y1, x2, y1, thick, proc);
     pf_renderer2d_line_thick_map(rn, x2, y1, x2, y2, thick, proc);

@@ -252,7 +252,7 @@ pf_renderer2d_circle_gradient(
 void
 pf_renderer2d_circle_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_generic_t* proc)
+    pf_proc2d_t* proc)
 {
     /* Transformation */
 
@@ -281,32 +281,20 @@ pf_renderer2d_circle_map(
 
     if (rn->blend != NULL) {
         PF_CIRCLE_TRAVEL({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            fragment(rn, &vertex, &final_color, uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
         PF_CIRCLE_TRAVEL({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            fragment(rn, &vertex, &final_color, uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms);
             *ptr = final_color;
         })
     }
@@ -345,7 +333,7 @@ pf_renderer2d_circle_lines(
 void
 pf_renderer2d_circle_lines_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius,
-    pf_proc2d_generic_t* proc)
+    pf_proc2d_t* proc)
 {
     /* Transformation */
 
@@ -374,32 +362,20 @@ pf_renderer2d_circle_lines_map(
 
     if (rn->blend != NULL) {
         PF_CIRCLE_LINE_TRAVEL({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            fragment(rn, &vertex, &final_color, uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
         PF_CIRCLE_LINE_TRAVEL({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = 0;
-            vertex.texcoord[1] = 0;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
-            fragment(rn, &vertex, &final_color, uniforms, NULL);
+            fragment(rn, &vertex, &final_color, uniforms);
             *ptr = final_color;
         })
     }
@@ -419,7 +395,7 @@ pf_renderer2d_circle_lines_thick(
 void
 pf_renderer2d_circle_lines_thick_map(
     pf_renderer2d_t* rn, int cx, int cy, int radius, int thick,
-    pf_proc2d_generic_t* proc)
+    pf_proc2d_t* proc)
 {
     int ht = thick/2;
     for (int i = -ht; i <= ht; ++i) {

@@ -35,16 +35,17 @@ typedef struct {
 
 void frag_proc(
     struct pf_renderer2d* rn,
-    pf_vertex2d_t* vertex,
+    pf_vertex_t* vertex,
     pf_color_t* out_color,
-    const void* uniforms,
-    void* varying)
+    const void* uniforms)
 {
     (void)rn;
-    (void)varying;
 
     const PF_Material* material = uniforms;
-    *out_color = material->texture.sampler(&material->texture, vertex->texcoord[0], vertex->texcoord[1]);
+
+    pf_vec2_t texcoord;
+    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+    *out_color = material->texture.sampler(&material->texture, texcoord[0], texcoord[1]);
 }
 
 int main()
@@ -61,18 +62,14 @@ int main()
         .mipmaps = 1
     });
 
-    pf_vertexbuffer2d_t mesh = { 0 };
-    mesh.positions = positions;
-    mesh.texcoords = texcoords;
-    mesh.num_vertices = 6;
-
-    Image image = LoadImage("../../examples/resources/bonhomme.png");
+    pf_vertex_buffer_t mesh = pf_vertex_buffer_create_2d(6, positions, texcoords, NULL);
+    Image image = LoadImage(RESOURCES_PATH "images/bonhomme.png");
 
     PF_Material material;
     material.texture = pf_texture2d_create(image.data, image.width, image.height, image.format);
     material.tint = PF_BLUE;
 
-    pf_proc2d_triangle_t proc = { 0 };
+    pf_proc2d_t proc = { 0 };
     proc.fragment = frag_proc;
     proc.uniforms = &material;
 

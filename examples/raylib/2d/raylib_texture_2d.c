@@ -4,13 +4,15 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
-void frag_proc(struct pf_renderer2d* rn, pf_vertex2d_t* vertex, pf_color_t* out_color, const void* uniforms, void* varying)
+void frag_proc(struct pf_renderer2d* rn, pf_vertex_t* vertex, pf_color_t* out_color, const void* uniforms)
 {
     (void)rn;
-    (void)varying;
 
-    float u = 0.5f + (vertex->texcoord[0] - 0.5f) * 1.5f;
-    float v = 0.5f + (vertex->texcoord[1] - 0.5f) * 1.5f;
+    pf_vec2_t texcoord;
+    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+
+    float u = 0.5f + (texcoord[0] - 0.5f) * 1.5f;
+    float v = 0.5f + (texcoord[1] - 0.5f) * 1.5f;
     u += sinf(v * 6.0f + GetTime() * 4.0f) * 0.1f;
 
     float dist = pf_vec2_distance(

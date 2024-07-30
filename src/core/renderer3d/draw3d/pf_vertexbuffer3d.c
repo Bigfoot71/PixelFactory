@@ -18,35 +18,36 @@
  */
 
 #include "pixelfactory/core/pf_renderer3d.h"
+#include <stdint.h>
 
 /* Internal Functions Declarations */
 
 void
 pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_triangle_t* proc);
+    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
 
 void
 pf_renderer3d_point_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius,
+    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_generic_t* proc);
+    const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
 
 void
 pf_renderer3d_line_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick,
+    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_generic_t* proc);
+    const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
 
 
 /* Public API Functions */
 
 void
 pf_renderer3d_vertex_buffer(
-    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    pf_proc3d_triangle_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.uniforms = proc->uniforms;
     processor.fragment = proc->fragment;
     processor.vertex = proc->vertex;
@@ -56,16 +57,10 @@ pf_renderer3d_vertex_buffer(
 
 PFAPI void
 pf_renderer3d_vertex_buffer_ex(
-    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb,
-    const pf_mat4_t transform, pf_proc3d_triangle_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    float* positions = vb->positions;
-    if (positions == NULL) return;
-
-    float* texcoords = vb->texcoords;
-    pf_color_t* colors = vb->colors;
-    uint16_t* indices = vb->indices;
-    float* normals = vb->normals;
+    if (vb->num_attributes == 0) return;
 
     /* Preparation of matrices */
 
@@ -86,72 +81,46 @@ pf_renderer3d_vertex_buffer_ex(
 
     /* Setup processors */
 
-    pf_proc3d_triangle_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
-    processor.rasterizer = pf_proc3d_rasterizer_perspective_correct;
-    processor.screen_projection = pf_proc3d_screen_projection_perspective_correct;
 
     if (proc != NULL) {
         if (proc->vertex != NULL) processor.vertex = proc->vertex;
         if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->rasterizer != NULL) processor.rasterizer = proc->rasterizer;
-        if (proc->screen_projection != NULL) processor.screen_projection = proc->screen_projection;
-        if (proc->varying != NULL) processor.varying = proc->varying;
         if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
     }
 
     /* Iterates through all vertices in the vertex buffer */
 
+    const uint16_t* indices = vb->indices;
     uint8_t has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
-        uint32_t index_1, index_2, index_3;
+        uint32_t index_1 = i + 0;
+        uint32_t index_2 = i + 1;
+        uint32_t index_3 = i + 2;
 
         if (has_indices) {
-            index_1 = indices[i + 0];
-            index_2 = indices[i + 1];
-            index_3 = indices[i + 2];
-        } else {
-            index_1 = i + 0;
-            index_2 = i + 1;
-            index_3 = i + 2;
+            index_1 = indices[index_1];
+            index_2 = indices[index_2];
+            index_3 = indices[index_3];
         }
 
-        pf_vertex3d_t v1 = { 0 };
-        pf_vertex3d_t v2 = { 0 };
-        pf_vertex3d_t v3 = { 0 };
+        pf_vertex_t v1 = { 0 };
+        pf_vertex_t v2 = { 0 };
+        pf_vertex_t v3 = { 0 };
 
-        pf_vec3_copy_f(v1.position, positions + 3 * index_1);
-        pf_vec3_copy_f(v2.position, positions + 3 * index_2);
-        pf_vec3_copy_f(v3.position, positions + 3 * index_3);
+        v1.num_elements = vb->num_attributes;
+        v2.num_elements = vb->num_attributes;
+        v3.num_elements = vb->num_attributes;
 
-        if (texcoords != NULL) {
-            pf_vec2_copy_f(v1.texcoord, texcoords + 2 * index_1);
-            pf_vec2_copy_f(v2.texcoord, texcoords + 2 * index_2);
-            pf_vec2_copy_f(v3.texcoord, texcoords + 2 * index_3);
+        for (uint32_t j = 0; j < vb->num_attributes; ++j) {
+            v1.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_1);
+            v2.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_2);
+            v3.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_3);
         }
-
-        if (normals != NULL) {
-            pf_vec3_copy_f(v1.normal, normals + 3 * index_1);
-            pf_vec3_copy_f(v2.normal, normals + 3 * index_2);
-            pf_vec3_copy_f(v3.normal, normals + 3 * index_3);
-        }
-
-        if (colors != NULL) {
-            v1.color = colors[index_1];
-            v2.color = colors[index_2];
-            v3.color = colors[index_3];
-        } else {
-            v1.color = PF_WHITE;
-            v2.color = PF_WHITE;
-            v3.color = PF_WHITE;
-        }
-
-        v1.index = index_1;
-        v2.index = index_2;
-        v3.index = index_3;
 
         pf_renderer3d_triangle_INTERNAL(
             rn, &v1, &v2, &v3, mat_model, mat_normal, mat_mvp, &processor);
@@ -160,24 +129,18 @@ pf_renderer3d_vertex_buffer_ex(
 
 PFAPI void
 pf_renderer3d_vertex_buffer_points(
-    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
     pf_renderer3d_vertex_buffer_points_thick(rn, vb, 0, transform, proc);
 }
 
 void
 pf_renderer3d_vertex_buffer_points_thick(
-    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, float radius,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float radius,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    float* positions = vb->positions;
-    if (positions == NULL) return;
-
-    float* texcoords = vb->texcoords;
-    pf_color_t* colors = vb->colors;
-    uint16_t* indices = vb->indices;
-    float* normals = vb->normals;
+    if (vb->num_attributes == 0) return;
 
     /* Preparation of matrices */
 
@@ -198,7 +161,7 @@ pf_renderer3d_vertex_buffer_points_thick(
 
     /* Setup processors */
 
-    pf_proc3d_generic_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
 
@@ -210,20 +173,18 @@ pf_renderer3d_vertex_buffer_points_thick(
 
     /* Iterates through all vertices in the vertex buffer */
 
+    const uint16_t* indices = vb->indices;
     uint8_t has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i++) {
         uint32_t index = (has_indices) ? indices[i] : i;
 
-        pf_vertex3d_t vertex = { 0 };
-        pf_vec3_copy_f(vertex.position, positions + 3 * index);
+        pf_vertex_t vertex = { 0 };
 
-        if (texcoords != NULL) pf_vec2_copy_f(vertex.texcoord, texcoords + index);
-        if (normals != NULL) pf_vec3_copy_f(vertex.normal, normals + index);
-        if (colors != NULL) vertex.color = colors[i];
-        else vertex.color = PF_WHITE;
-        vertex.index = index;
+        for (uint32_t j = 0; j < vb->num_attributes; ++j) {
+            vertex.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index);
+        }
 
         pf_renderer3d_point_INTERNAL(
             rn, &vertex, radius, mat_model, mat_normal, mat_mvp, &processor);
@@ -232,24 +193,18 @@ pf_renderer3d_vertex_buffer_points_thick(
 
 void
 pf_renderer3d_vertex_buffer_lines(
-    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
     pf_renderer3d_vertex_buffer_lines_thick(rn, vb, 0, transform, proc);
 }
 
 void
 pf_renderer3d_vertex_buffer_lines_thick(
-    pf_renderer3d_t* rn, const pf_vertexbuffer3d_t* vb, float thick,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float thick,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
-    float* positions = vb->positions;
-    if (positions == NULL) return;
-
-    float* texcoords = vb->texcoords;
-    pf_color_t* colors = vb->colors;
-    uint16_t* indices = vb->indices;
-    float* normals = vb->normals;
+    if (vb->num_attributes == 0) return;
 
     /* Preparation of matrices */
 
@@ -270,7 +225,7 @@ pf_renderer3d_vertex_buffer_lines_thick(
 
     /* Setup processors */
 
-    pf_proc3d_generic_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
 
@@ -282,6 +237,7 @@ pf_renderer3d_vertex_buffer_lines_thick(
 
     /* Iterates through all vertices in the vertex buffer */
 
+    const uint16_t* indices = vb->indices;
     uint8_t has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
@@ -302,32 +258,13 @@ pf_renderer3d_vertex_buffer_lines_thick(
             uint32_t index_1 = tri_indices[j];
             uint32_t index_2 = tri_indices[(j + 1) % 3];
 
-            pf_vertex3d_t v1 = { 0 };
-            pf_vertex3d_t v2 = { 0 };
+            pf_vertex_t v1 = { 0 };
+            pf_vertex_t v2 = { 0 };
 
-            pf_vec3_copy_f(v1.position, positions + 3 * index_1);
-            pf_vec3_copy_f(v2.position, positions + 3 * index_2);
-
-            if (texcoords != NULL) {
-                pf_vec2_copy_f(v1.texcoord, texcoords + 2 * index_1);
-                pf_vec2_copy_f(v2.texcoord, texcoords + 2 * index_2);
+            for (uint32_t j = 0; j < vb->num_attributes; ++j) {
+                v1.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_1);
+                v2.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_2);
             }
-
-            if (normals != NULL) {
-                pf_vec3_copy_f(v1.normal, normals + 3 * index_1);
-                pf_vec3_copy_f(v2.normal, normals + 3 * index_2);
-            }
-
-            if (colors != NULL) {
-                v1.color = colors[index_1];
-                v2.color = colors[index_2];
-            } else {
-                v1.color = PF_WHITE;
-                v2.color = PF_WHITE;
-            }
-
-            v1.index = index_1;
-            v2.index = index_2;
 
             pf_renderer3d_line_INTERNAL(
                 rn, &v1, &v2, thick, mat_model, mat_normal, mat_mvp, &processor);

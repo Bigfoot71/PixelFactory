@@ -350,12 +350,12 @@ pf_renderer2d_texture2d_rec(
         .num_indices = 6
     };
 
-    pf_proc2d_triangle_t proc = { 0 };
+    pf_proc2d_t proc = { 0 };
     proc.fragment = pf_proc2d_fragment_texture_as_uniform;
     proc.uniforms = tex;
 
     pf_renderer2d_vertex_buffer(rn,
-        (const pf_vertexbuffer2d_t*)(&vb),
+        (const pf_vertex_buffer_t*)(&vb),
         rn->mat_view, &proc);
 }
 
@@ -459,12 +459,12 @@ pf_renderer2d_texture2d_rec_tint(
         .num_indices = 6
     };
 
-    pf_proc2d_triangle_t proc = { 0 };
+    pf_proc2d_t proc = { 0 };
     proc.fragment = pf_proc2d_fragment_texture_as_uniform;
     proc.uniforms = tex;
 
     pf_renderer2d_vertex_buffer(rn,
-        (const pf_vertexbuffer2d_t*)(&vb),
+        (const pf_vertex_buffer_t*)(&vb),
         rn->mat_view, &proc);
 }
 
@@ -561,12 +561,12 @@ pf_renderer2d_texture2d_rec_map(
         .num_indices = 6
     };
 
-    pf_proc2d_triangle_t proc = { 0 };
+    pf_proc2d_t proc = { 0 };
     proc.fragment = frag_proc;
     proc.uniforms = tex;
 
     pf_renderer2d_vertex_buffer(rn,
-        (const pf_vertexbuffer2d_t*)(&vb),
+        (const pf_vertex_buffer_t*)(&vb),
         rn->mat_view, &proc);
 }
 
@@ -657,64 +657,40 @@ pf_renderer2d_texture2d_mat_map(
 #if defined(_OPENMP)
     if (rn->blend != NULL) {
         PF_TRAVEL_TEXTURE2D_MAT_OMP({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = u;
-            vertex.texcoord[1] = v;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, u, v, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex, NULL);
+            frag_proc(rn, &vertex, &final_color, tex);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
         PF_TRAVEL_TEXTURE2D_MAT_OMP({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = u;
-            vertex.texcoord[1] = v;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, u, v, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex, NULL);
+            frag_proc(rn, &vertex, &final_color, tex);
             *ptr = final_color;
         })
     }
 #else
     if (rn->blend != NULL) {
         PF_TRAVEL_TEXTURE2D_MAT({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = u;
-            vertex.texcoord[1] = v;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, u, v, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex, NULL);
+            frag_proc(rn, &vertex, &final_color, tex);
             *ptr = rn->blend(*ptr, final_color);
         })
     } else {
         PF_TRAVEL_TEXTURE2D_MAT({
-            pf_vertex2d_t vertex;
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.texcoord[0] = u;
-            vertex.texcoord[1] = v;
-            vertex.color = PF_WHITE;
-
+            pf_vertex_t vertex = pf_vertex_create_2d(x, y, u, v, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
-            frag_proc(rn, &vertex, &final_color, tex, NULL);
+            frag_proc(rn, &vertex, &final_color, tex);
             *ptr = final_color;
         })
     }

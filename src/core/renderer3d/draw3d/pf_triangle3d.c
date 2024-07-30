@@ -25,16 +25,16 @@
 
 void
 pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_triangle_t* proc);
+    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
+    const pf_mat4_t mat_model, const pf_mat4_t mat_normal, const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
 
 
 /* Triangle rasterization functions */
 
 void
 pf_renderer3d_triangle(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -51,11 +51,9 @@ pf_renderer3d_triangle(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    pf_proc3d_triangle_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
-    processor.rasterizer = pf_proc3d_rasterizer_perspective_correct;
-    processor.screen_projection = pf_proc3d_screen_projection_perspective_correct;
 
     if (proc != NULL) {
         if (proc->vertex != NULL) processor.vertex = proc->vertex;
@@ -69,8 +67,8 @@ pf_renderer3d_triangle(
 
 void
 pf_renderer3d_triangle_ex(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, const pf_vertex3d_t* v3,
-    const pf_mat4_t transform, pf_proc3d_triangle_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -87,18 +85,13 @@ pf_renderer3d_triangle_ex(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    pf_proc3d_triangle_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
-    processor.rasterizer = pf_proc3d_rasterizer_perspective_correct;
-    processor.screen_projection = pf_proc3d_screen_projection_perspective_correct;
 
     if (proc != NULL) {
         if (proc->vertex != NULL) processor.vertex = proc->vertex;
         if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->rasterizer != NULL) processor.rasterizer = proc->rasterizer;
-        if (proc->screen_projection != NULL) processor.screen_projection = proc->screen_projection;
-        if (proc->varying != NULL) processor.varying = proc->varying;
         if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
     }
 

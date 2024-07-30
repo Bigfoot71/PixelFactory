@@ -203,21 +203,30 @@
 /* Internal Pixel Code Macros */
 
 #define PF_PIXEL_CODE_NOBLEND()                                         \
-    pf_vertex3d_t vertex;                                               \
-    pf_vertex3d_lerp(&vertex, &vertices[0], &vertices[1], t);           \
+    pf_vertex_t vertex;                                                 \
+    pf_vertex_lerp(&vertex, &vertices[0], &vertices[1], t);             \
     pf_color_t *ptr = rn->fb.buffer + offset;                           \
     pf_color_t final_color = *ptr;                                      \
-    proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);    \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms);          \
     *ptr = final_color;
 
 #define PF_PIXEL_CODE_BLEND()                                           \
-    pf_vertex3d_t vertex;                                               \
-    pf_vertex3d_lerp(&vertex, &vertices[0], &vertices[1], t);           \
+    pf_vertex_t vertex;                                                 \
+    pf_vertex_lerp(&vertex, &vertices[0], &vertices[1], t);             \
     pf_color_t *ptr = rn->fb.buffer + offset;                           \
     pf_color_t final_color = *ptr;                                      \
-    proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);    \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms);          \
     *ptr = rn->blend(*ptr, final_color);
 
+/* Helper Function Declarations */
+
+void
+pf_renderer3d_screen_projection_INTERNAL(
+    const pf_renderer3d_t* rn,
+    pf_vec4_t* homogeneous,
+    pf_vertex_t* vertices,
+    size_t vertices_count,
+    int screen_pos[][2]);
 
 /* Internal Clipping Function */
 
@@ -246,7 +255,7 @@ pf_clip3_coord_line_INTERNAL(float q, float p, float* t1, float* t2)
 void
 pf_clip3d_line_INTERNAL(
     const struct pf_renderer3d* rn,
-    pf_vertex3d_t* out_vertices,
+    pf_vertex_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count)
 {
@@ -288,23 +297,23 @@ pf_clip3d_line_INTERNAL(
 
 void
 pf_renderer3d_line_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* v1, const pf_vertex3d_t* v2, float thick,
+    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_generic_t* proc)
+    const pf_mat4_t mat_mvp, pf_proc3d_t* proc)
 {
-    pf_vertex3d_t vertices[2] = { *v1, *v2 };
+    pf_vertex_t vertices[2] = { *v1, *v2 };
     pf_vec4_t homogens[2] = { 0 };
     int screen_pos[2][2] = { 0 };
     size_t num = 2;
 
-    proc->vertex(&vertices[0], homogens[0], mat_model, mat_normal, mat_mvp, proc->uniforms, NULL);
-    proc->vertex(&vertices[1], homogens[1], mat_model, mat_normal, mat_mvp, proc->uniforms, NULL);
+    proc->vertex(&vertices[0], homogens[0], mat_model, mat_normal, mat_mvp, proc->uniforms);
+    proc->vertex(&vertices[1], homogens[1], mat_model, mat_normal, mat_mvp, proc->uniforms);
 
     pf_clip3d_line_INTERNAL(rn, vertices, homogens, &num);
     if (num != 2) return;
 
-    pf_proc3d_screen_projection_default(
-        rn, vertices, homogens, num, screen_pos, NULL);
+    pf_renderer3d_screen_projection_INTERNAL(
+        rn, homogens, vertices, num, screen_pos);
 
     int x1 = screen_pos[0][0];
     int y1 = screen_pos[0][1];

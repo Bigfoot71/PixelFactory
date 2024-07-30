@@ -10,14 +10,12 @@
 void
 model_frag_proc(
     struct pf_renderer3d* rn,
-    pf_vertex3d_t* vertex,
+    pf_vertex_t* vertex,
     pf_color_t* out_color,
-    const void* uniforms,
-    void* varying)
+    const void* uniforms)
 {
     (void)rn;
     (void)vertex;
-    (void)varying;
 
     *out_color = *(pf_color_t*)&((Material*)uniforms)->maps[MATERIAL_MAP_ALBEDO].color;
 }
@@ -49,23 +47,21 @@ int main(void)
     ModelAnimation *modelAnimations = LoadModelAnimations(RESOURCES_PATH "models/robot.glb", &animsCount);
 
     // Create structures with mesh vertex buffers
-    pf_vertexbuffer3d_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertexbuffer3d_t));
-
+    pf_vertex_buffer_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertex_buffer_t));
     for (int i = 0; i < model.meshCount; i++)
     {
         Mesh* mesh = &model.meshes[i];
 
-        pfMeshes[i].positions = mesh->animVertices ? mesh->animVertices : mesh->vertices;
-        pfMeshes[i].normals = mesh->animNormals ? mesh->animNormals : mesh->normals;
-        pfMeshes[i].colors = (pf_color_t*)mesh->colors;
-        pfMeshes[i].texcoords = mesh->texcoords;
+        pfMeshes[i] = pf_vertex_buffer_create_3d(mesh->vertexCount,
+            mesh->animVertices ? mesh->animVertices : mesh->vertices,
+            mesh->texcoords,
+            mesh->animNormals ? mesh->animNormals : mesh->normals,
+            (pf_color_t*)mesh->colors);
 
         if (mesh->indices) {
             pfMeshes[i].num_indices = mesh->triangleCount * 3;
             pfMeshes[i].indices = mesh->indices;
         }
-
-        pfMeshes[i].num_vertices = mesh->vertexCount;
     }
 
     // Start the main loop
@@ -90,7 +86,7 @@ int main(void)
 
         // Rendering vertex buffers
         for (int i = 0; i < model.meshCount; i++) {
-            pf_proc3d_generic_t proc = { 0 };
+            pf_proc3d_t proc = { 0 };
             proc.fragment = model_frag_proc;
             proc.uniforms = &model.materials[model.meshMaterial[i]];
             pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);

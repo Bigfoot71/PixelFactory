@@ -60,22 +60,31 @@
 #define PF_PIXEL_CODE_NOBLEND()                                         \
     pf_color_t* ptr = rn->fb.buffer + offset;                           \
     pf_color_t final_color = *ptr;                                      \
-    proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);    \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms);          \
     *ptr = final_color;
 
 #define PF_PIXEL_CODE_BLEND()                                           \
     pf_color_t* ptr = rn->fb.buffer + offset;                           \
     pf_color_t final_color = *ptr;                                      \
-    proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);    \
+    proc->fragment(rn, &vertex, &final_color, proc->uniforms);          \
     *ptr = rn->blend(*ptr, final_color);
 
+/* Helper Function Declarations */
+
+void
+pf_renderer3d_screen_projection_INTERNAL(
+    const pf_renderer3d_t* rn,
+    pf_vec4_t* homogeneous,
+    pf_vertex_t* vertices,
+    size_t vertices_count,
+    int screen_pos[][2]);
 
 /* Internal Clipping Function */
 
 static void
 pf_clip3d_point_INTERNAL(
     const struct pf_renderer3d* rn,
-    pf_vertex3d_t* out_vertices,
+    pf_vertex_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count)
 {
@@ -96,33 +105,33 @@ pf_clip3d_point_INTERNAL(
 
 void
 pf_renderer3d_point_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius,
+    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_generic_t* proc)
+    const pf_mat4_t mat_mvp, pf_proc3d_t* proc)
 {
-    pf_vertex3d_t vertex = *point;
+    pf_vertex_t vertex = *point;
     pf_vec4_t homogen = { 0 };
     int screen_pos[2] = { 0 };
     size_t num = 1;
 
-    proc->vertex(&vertex, homogen, mat_model, mat_normal, mat_mvp, proc->uniforms, NULL);
+    proc->vertex(&vertex, homogen, mat_model, mat_normal, mat_mvp, proc->uniforms);
     pf_clip3d_point_INTERNAL(rn, &vertex, &homogen, &num);
     if (num != 1) return;
 
-    pf_proc3d_screen_projection_default(
-        rn, &vertex, &homogen, num, &screen_pos, NULL);
+    pf_renderer3d_screen_projection_INTERNAL(
+        rn, &homogen, &vertex, num, &screen_pos);
 
     if (radius == 0) {
         size_t offset = screen_pos[1] * rn->fb.w + screen_pos[0];
         if (rn->test != NULL && rn->test(rn->zb.buffer[offset], homogen[2])) {
             pf_color_t* ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
-            proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);
+            proc->fragment(rn, &vertex, &final_color, proc->uniforms);
             *ptr = (rn->blend != NULL) ? rn->blend(*ptr, final_color) : final_color;
         } else {
             pf_color_t* ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
-            proc->fragment(rn, &vertex, &final_color, proc->uniforms, NULL);
+            proc->fragment(rn, &vertex, &final_color, proc->uniforms);
             *ptr = (rn->blend != NULL) ? rn->blend(*ptr, final_color) : final_color;
         }
     } else {

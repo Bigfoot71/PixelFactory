@@ -13,7 +13,7 @@ typedef struct {
 } Uniforms;
 
 static bool WallCollision(Camera3D* camera, const Image* imMap);
-static void FragProcModel(struct pf_renderer3d* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* uniforms, void* varying);
+static void FragProcModel(struct pf_renderer3d* rn, pf_vertex_t* vertex, pf_color_t* outColor, const void* uniforms);
 static void RendererMap(pf_renderer3d_t* rn, pf_color_t* outColor, float* outDepth, int x, int y, float u, float v);
 
 int main(void)
@@ -47,23 +47,20 @@ int main(void)
 
     Image imMap = LoadImage(RESOURCES_PATH "images/cubicmap.png");
     Model model = LoadModelFromMesh(GenMeshCubicmap(imMap, (Vector3) { 1.0f, 1.0f, 1.0f }));
-    pf_vertexbuffer3d_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertexbuffer3d_t));
 
+    pf_vertex_buffer_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertex_buffer_t));
     for (int i = 0; i < model.meshCount; i++)
     {
         Mesh* mesh = &model.meshes[i];
 
-        pfMeshes[i].positions = mesh->animVertices ? mesh->animVertices : mesh->vertices;
-        pfMeshes[i].normals = mesh->animNormals ? mesh->animNormals : mesh->normals;
-        pfMeshes[i].colors = (pf_color_t*)mesh->colors;
-        pfMeshes[i].texcoords = mesh->texcoords;
+        pfMeshes[i] = pf_vertex_buffer_create_3d(mesh->vertexCount,
+            mesh->vertices, mesh->texcoords, mesh->normals,
+            (pf_color_t*)mesh->colors);
 
         if (mesh->indices) {
             pfMeshes[i].num_indices = mesh->triangleCount * 3;
             pfMeshes[i].indices = mesh->indices;
         }
-
-        pfMeshes[i].num_vertices = mesh->vertexCount;
     }
 
     Image imAtlas = LoadImage(RESOURCES_PATH "images/cubicmap_atlas.png");
@@ -111,7 +108,7 @@ int main(void)
 
         pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
         for (int i = 0; i < model.meshCount; i++) {
-            pf_proc3d_generic_t proc = { 0 };
+            pf_proc3d_t proc = { 0 };
             proc.fragment = FragProcModel;
             proc.uniforms = &uniforms;
             pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
@@ -205,14 +202,16 @@ bool WallCollision(Camera3D* camera, const Image* imMap)
     return (adx > 0 && ady > 0);
 }
 
-void FragProcModel(pf_renderer3d_t* rn, pf_vertex3d_t* vertex, pf_color_t* outColor, const void* uniforms, void* varying)
+void FragProcModel(pf_renderer3d_t* rn, pf_vertex_t* vertex, pf_color_t* outColor, const void* uniforms)
 {
     (void)rn;
-    (void)varying;
 
     const Uniforms* u = uniforms;
-    *outColor = u->texture.sampler(&u->texture,
-        vertex->texcoord[0], vertex->texcoord[1]);
+
+    pf_vec2_t texcoord;
+    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+
+    *outColor = u->texture.sampler(&u->texture, texcoord[0], texcoord[1]);
 }
 
 void RendererMap(pf_renderer3d_t* rn, pf_color_t* outColor, float* outDepth, int x, int y, float u, float v)

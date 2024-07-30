@@ -31,10 +31,8 @@ int main()
         .mipmaps = 1
     });
 
-    pf_vertexbuffer3d_t triangle = { 0 };
-    triangle.positions = triangle_positions;
-    triangle.colors = triangle_colors;
-    triangle.num_vertices = 3;
+    pf_vertex_buffer_t triangle = pf_vertex_buffer_create_3d(
+        3, triangle_positions, NULL, NULL, triangle_colors);
 
     while (!WindowShouldClose())
     {

@@ -18,7 +18,6 @@
  */
 
 #include "pixelfactory/core/pf_renderer2d.h"
-#include <string.h>
 
 /* Internal Macros */
 
@@ -72,25 +71,27 @@
         }                                                                               \
     }
 
+/* Helper Function Declarations */
+
+void
+pf_renderer3d_triangle_interpolation_INTERNAL(
+    pf_vertex_t* out_vertex,
+    pf_vertex_t* v1,
+    pf_vertex_t* v2,
+    pf_vertex_t* v3,
+    pf_vec3_t bary,
+    float z_depth);
 
 /* Public API Functions */
 
 void
 pf_renderer2d_vertex_buffer(
     pf_renderer2d_t* rn,
-    const pf_vertexbuffer2d_t* vb,
+    const pf_vertex_buffer_t* vb,
     const pf_mat3_t transform,
-    pf_proc2d_triangle_t* proc)
+    pf_proc2d_t* proc)
 {
-    float* positions = vb->positions;
-    if (positions == NULL) return;
-
-    float* texcoords = vb->texcoords;
-    uint16_t* indices = vb->indices;
-    pf_color_t* colors = vb->colors;
-
-    uint8_t has_indices = (indices != NULL);
-    uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
+    if (vb->num_attributes == 0) return;
 
     /* Preparation of matrices */
 
@@ -103,94 +104,78 @@ pf_renderer2d_vertex_buffer(
 
     /* Setup processors */
 
-    pf_proc2d_triangle_t processor = { 0 };
+    pf_proc2d_t processor = { 0 };
     processor.vertex = pf_proc2d_vertex_default;
     processor.fragment = pf_proc2d_fragment_default;
-    processor.rasterizer = pf_proc2d_rasterizer_default;
 
     if (proc != NULL) {
         if (proc->vertex != NULL) processor.vertex = proc->vertex;
         if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->rasterizer != NULL) processor.rasterizer = proc->rasterizer;
         if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
-        if (proc->varying != NULL) processor.varying = proc->varying;
     }
+
+    /* Iterates through all vertices in the vertex buffer */
+
+    const uint16_t* indices = indices;
+    uint8_t has_indices = (vb->indices != NULL);
+    uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
     for (uint32_t i = 0; i < num; i += 3) {
 
         /* Calculating vertex and array indexes */
 
-        uint32_t index_1, index_2, index_3;
+        uint32_t index_1 = i + 0;
+        uint32_t index_2 = i + 1;
+        uint32_t index_3 = i + 2;
 
         if (has_indices) {
-            index_1 = indices[i + 0];
-            index_2 = indices[i + 1];
-            index_3 = indices[i + 2];
-        } else {
-            index_1 = i + 0;
-            index_2 = i + 1;
-            index_3 = i + 2;
+            index_1 = indices[index_1];
+            index_2 = indices[index_2];
+            index_3 = indices[index_3];
         }
-
-        uint32_t i1 = 2 * index_1;
-        uint32_t i2 = 2 * index_2;
-        uint32_t i3 = 2 * index_3;
 
         /* Retrieving vertices and calling the vertex code */
 
-        pf_vertex2d_t v1 = { 0 };
-        pf_vertex2d_t v2 = { 0 };
-        pf_vertex2d_t v3 = { 0 };
+        pf_vertex_t v1 = { 0 };
+        pf_vertex_t v2 = { 0 };
+        pf_vertex_t v3 = { 0 };
 
-        pf_vec2_copy_f(v1.position, positions + i1);
-        pf_vec2_copy_f(v2.position, positions + i2);
-        pf_vec2_copy_f(v3.position, positions + i3);
-
-        if (texcoords != NULL) {
-            pf_vec2_copy_f(v1.texcoord, texcoords + i1);
-            pf_vec2_copy_f(v2.texcoord, texcoords + i2);
-            pf_vec2_copy_f(v3.texcoord, texcoords + i3);
+        for (uint32_t j = 0; j < vb->num_attributes; ++j) {
+            v1.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_1);
+            v2.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_2);
+            v3.elements[j] = pf_attribute_get_elem(&vb->attributes[j], index_3);
         }
-
-        if (colors != NULL) {
-            v1.color = colors[i];
-            v2.color = colors[i+1];
-            v3.color = colors[i+2];
-        } else {
-            v1.color = PF_WHITE;
-            v2.color = PF_WHITE;
-            v3.color = PF_WHITE;
-        }
-
-        v1.index = index_1;
-        v2.index = index_2;
-        v3.index = index_3;
 
         /* Transform Vertices */
 
-        processor.vertex(&v1, mat, processor.uniforms, processor.varying);
-        processor.vertex(&v2, mat, processor.uniforms, processor.varying);
-        processor.vertex(&v3, mat, processor.uniforms, processor.varying);
+        processor.vertex(&v1, mat, processor.uniforms);
+        processor.vertex(&v2, mat, processor.uniforms);
+        processor.vertex(&v3, mat, processor.uniforms);
 
         /*
             Calculate the 2D bounding box of the triangle
             Determine the minimum and maximum x and y coordinates of the triangle vertices
         */
 
-        int xmin = (int)PF_MAX(PF_MIN(v1.position[0], PF_MIN(v2.position[0], v3.position[0])), 0);
-        int ymin = (int)PF_MAX(PF_MIN(v1.position[1], PF_MIN(v2.position[1], v3.position[1])), 0);
-        int xmax = (int)PF_MIN(PF_MAX(v1.position[0], PF_MAX(v2.position[0], v3.position[0])), (int)rn->fb.w - 1);
-        int ymax = (int)PF_MIN(PF_MAX(v1.position[1], PF_MAX(v2.position[1], v3.position[1])), (int)rn->fb.h - 1);
+        pf_vec3_t p1, p2, p3;
+        pf_vertex_get_vec(&v1, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, p1);
+        pf_vertex_get_vec(&v2, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, p2);
+        pf_vertex_get_vec(&v3, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, p3);
+
+        int xmin = (int)PF_MAX(PF_MIN(p1[0], PF_MIN(p2[0], p3[0])), 0);
+        int ymin = (int)PF_MAX(PF_MIN(p1[1], PF_MIN(p2[1], p3[1])), 0);
+        int xmax = (int)PF_MIN(PF_MAX(p1[0], PF_MAX(p2[0], p3[0])), (int)rn->fb.w - 1);
+        int ymax = (int)PF_MIN(PF_MAX(p1[1], PF_MAX(p2[1], p3[1])), (int)rn->fb.h - 1);
 
         /*
             Check the order of the vertices to determine if it's a front or back face
             NOTE: if signed_area is equal to 0, the face is degenerate
         */
 
-        float signed_area = (v2.position[0] - v1.position[0]) *
-                            (v3.position[1] - v1.position[1]) -
-                            (v3.position[0] - v1.position[0]) *
-                            (v2.position[1] - v1.position[1]);
+        float signed_area = (p2[0] - p1[0]) *
+                            (p3[1] - p1[1]) -
+                            (p3[0] - p1[0]) *
+                            (p2[1] - p1[1]);
 
         int_fast8_t is_back_face = (signed_area > 0);
 
@@ -199,12 +184,12 @@ pf_renderer2d_vertex_buffer(
             Calculate the step increments for the barycentric coordinates
         */
 
-        int w1_x_step = v3.position[1] - v2.position[1];
-        int w1_y_step = v2.position[0] - v3.position[0];
-        int w2_x_step = v1.position[1] - v3.position[1];
-        int w2_y_step = v3.position[0] - v1.position[0];
-        int w3_x_step = v2.position[1] - v1.position[1];
-        int w3_y_step = v1.position[0] - v2.position[0];
+        int w1_x_step = p3[1] - p2[1];
+        int w1_y_step = p2[0] - p3[0];
+        int w2_x_step = p1[1] - p3[1];
+        int w2_y_step = p3[0] - p1[0];
+        int w3_x_step = p2[1] - p1[1];
+        int w3_y_step = p1[0] - p2[0];
 
         /*
             If the triangle is a back face, invert the steps
@@ -221,9 +206,9 @@ pf_renderer2d_vertex_buffer(
             for the top-left point of the bounding box
         */
 
-        int w1_row = (xmin - v2.position[0]) * w1_x_step + w1_y_step * (ymin - v2.position[1]);
-        int w2_row = (xmin - v3.position[0]) * w2_x_step + w2_y_step * (ymin - v3.position[1]);
-        int w3_row = (xmin - v1.position[0]) * w3_x_step + w3_y_step * (ymin - v1.position[1]);
+        int w1_row = (xmin - p2[0]) * w1_x_step + w1_y_step * (ymin - p2[1]);
+        int w2_row = (xmin - p3[0]) * w2_x_step + w2_y_step * (ymin - p3[1]);
+        int w3_row = (xmin - p1[0]) * w3_x_step + w3_y_step * (ymin - p1[1]);
 
         /*
             Calculate the inverse of the sum of the barycentric coordinates for normalization
@@ -237,48 +222,52 @@ pf_renderer2d_vertex_buffer(
 #if defined(_OPENMP)
         if (rn->blend != NULL) {
             PF_MESH_TRIANGLE_TRAVEL_OMP({
-                pf_vertex2d_t vertex;
-                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
+                pf_vertex_t vertex;
+                pf_renderer3d_triangle_interpolation_INTERNAL(
+                    &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_MESH_TRIANGLE_TRAVEL_OMP({
-                pf_vertex2d_t vertex;
-                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
+                pf_vertex_t vertex;
+                pf_renderer3d_triangle_interpolation_INTERNAL(
+                    &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms);
                 *ptr = final_color;
             })
         }
 #else
         if (rn->blend != NULL) {
             PF_MESH_TRIANGLE_TRAVEL({
-                pf_vertex2d_t vertex;
-                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
+                pf_vertex_t vertex;
+                pf_renderer3d_triangle_interpolation_INTERNAL(
+                    &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms);
                 *ptr = rn->blend(*ptr, final_color);
             })
         } else {
             PF_MESH_TRIANGLE_TRAVEL({
-                pf_vertex2d_t vertex;
-                processor.rasterizer(&vertex, &v1, &v2, &v3, bary, processor.varying);
+                pf_vertex_t vertex;
+                pf_renderer3d_triangle_interpolation_INTERNAL(
+                    &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
-                processor.fragment(rn, &vertex, &final_color, processor.uniforms, processor.varying);
+                processor.fragment(rn, &vertex, &final_color, processor.uniforms);
                 *ptr = final_color;
             })
         }

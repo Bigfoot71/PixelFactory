@@ -22,53 +22,101 @@
 
 #include "../math/pf_vec2.h"
 #include "../math/pf_vec4.h"
+#include "pf_attribute.h"
 #include "pf_color.h"
 
 /* Vertex Types */
 
 typedef struct {
-    pf_vec2_t position;
-    pf_vec2_t texcoord;
-    pf_color_t color;
-    uint32_t index;
-} pf_vertex2d_t;
-
-typedef struct {
-    pf_vec3_t position;
-    pf_vec2_t texcoord;
-    pf_vec3_t normal;
-    pf_color_t color;
-    uint32_t index;
-} pf_vertex3d_t;
+    pf_attrib_elem_t elements[PF_MAX_ATTRIBUTES];
+    uint32_t num_elements;
+} pf_vertex_t;
 
 /* Vertex Buffer Types */
 
 typedef struct {
-    float* positions;
-    float* texcoords;
-    pf_color_t* colors;
+    pf_attribute_t attributes[PF_MAX_ATTRIBUTES];
     uint16_t* indices;
+    uint32_t num_attributes;
     uint32_t num_vertices;
     uint32_t num_indices;
-} pf_vertexbuffer2d_t;
+} pf_vertex_buffer_t;
 
-typedef struct {
-    float* positions;
-    float* texcoords;
-    float* normals;
-    pf_color_t* colors;
-    uint16_t* indices;
-    uint32_t num_vertices;
-    uint32_t num_indices;
-} pf_vertexbuffer3d_t;
+/* Helper Vertex Functions */
 
-/* Helper Functions */
+PFAPI pf_vertex_t
+pf_vertex_create_2d(
+    float x, float y,
+    float u, float v,
+    pf_color_t color);
 
-void
-pf_vertex3d_lerp(
-    pf_vertex3d_t* restrict result,
-    const pf_vertex3d_t* restrict start,
-    const pf_vertex3d_t* restrict end,
+PFAPI pf_vertex_t
+pf_vertex_create_3d(
+    float x, float y, float z,
+    float u, float v,
+    pf_color_t color);
+
+static inline void
+pf_vertex_get_vec(
+    const pf_vertex_t* v, int index,
+    void* out)
+{
+    pf_attrib_elem_get_vec(&v->elements[index], out);
+}
+
+static inline void
+pf_vertex_set_vec(
+    pf_vertex_t* v, int index,
+    const void* in)
+{
+    pf_attrib_elem_set_vec(&v->elements[index], in);
+}
+
+PFAPI void
+pf_vertex_scale_vec(
+    pf_vertex_t* v, int index,
+    float scale);
+
+PFAPI void
+pf_vertex_transform_vec_mat3(
+    pf_vertex_t* v, int element_index,
+    const pf_mat3_t transform);
+
+PFAPI void
+pf_vertex_transform_vec_mat4(
+    pf_vertex_t* v, int element_index,
+    const pf_mat4_t transform);
+
+PFAPI void
+pf_vertex_lerp(
+    pf_vertex_t* restrict result,
+    const pf_vertex_t* restrict start,
+    const pf_vertex_t* restrict end,
     float t);
+
+PFAPI void
+pf_vertex_bary(
+    pf_vertex_t* restrict result,
+    const pf_vertex_t* restrict v1,
+    const pf_vertex_t* restrict v2,
+    const pf_vertex_t* restrict v3,
+    float w1, float w2, float w3);
+
+/* Helper Vertex Buffer Functions */
+
+PFAPI pf_vertex_buffer_t
+pf_vertex_buffer_create_2d(
+    uint32_t num_vertices,
+    float* positions,
+    float* texcoords,
+    pf_color_t* colors);
+
+PFAPI pf_vertex_buffer_t
+pf_vertex_buffer_create_3d(
+    uint32_t num_vertices,
+    float* positions,
+    float* texcoords,
+    float* normals,
+    pf_color_t* colors);
 
 #endif //PF_VERTEX_H

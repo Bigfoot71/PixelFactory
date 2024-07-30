@@ -23,17 +23,17 @@
 
 void
 pf_renderer3d_point_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius,
+    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, pf_proc3d_generic_t* proc);
+    const pf_mat4_t mat_mvp, pf_proc3d_t* proc);
 
 
 /* Public API Functions */
 
 PFAPI void
 pf_renderer3d_point(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* point,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_t* point,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -50,7 +50,7 @@ pf_renderer3d_point(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    pf_proc3d_generic_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
 
@@ -65,8 +65,8 @@ pf_renderer3d_point(
 
 PFAPI void
 pf_renderer3d_point_thick(
-    pf_renderer3d_t* rn, const pf_vertex3d_t* point, float radius,
-    const pf_mat4_t transform, pf_proc3d_generic_t* proc)
+    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
+    const pf_mat4_t transform, pf_proc3d_t* proc)
 {
     pf_mat4_t mat_model;
     pf_mat4_t mat_normal;
@@ -83,7 +83,7 @@ pf_renderer3d_point_thick(
     pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
     pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
 
-    pf_proc3d_generic_t processor = { 0 };
+    pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
 
