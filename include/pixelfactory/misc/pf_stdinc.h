@@ -21,8 +21,9 @@
 #define PF_STDINC_H
 
 #include <stdlib.h>
-#include <stddef.h>
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 
 #ifndef PF_MALLOC
 #   define PF_MALLOC(ptr) (malloc(ptr))

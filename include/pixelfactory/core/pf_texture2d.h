@@ -76,6 +76,7 @@ pf_texture2d_uv_map_clamp(
     uint32_t* x, uint32_t* y,
     float u, float v);
 
+
 /* Sampler Functions */
 
 PFAPI pf_color_t
@@ -88,4 +89,40 @@ pf_texture2d_sample_bilinear(
     const pf_texture2d_t* tex,
     float u, float v);
 
+
+/* TEXTURE2D EXTENSION */
+
+#ifdef PF_EXT_TEXTURE2D
+
+PFAPI pf_texture2d_t
+pfext_texture2d_load(
+    const char* file_path);
+
+PFAPI pf_texture2d_t
+pfext_texture2d_load_from_memory(
+    const void* buffer, size_t size);
+
+PFAPI pf_texture2d_t
+pfext_texture2d_gen_color(
+    uint32_t w, uint32_t h,
+    pf_color_t color, pf_pixelformat_e format);
+
+PFAPI pf_texture2d_t
+pfext_texture2d_gen_checkerboard(
+    uint32_t w, uint32_t h,
+    pf_color_t c1, pf_color_t c2,
+    uint32_t tile_size, pf_pixelformat_e format);
+
+PFAPI pf_texture2d_t
+pfext_texture2d_gen_gradient(
+    uint32_t w, uint32_t h,
+    pf_color_t c1, pf_color_t c2,
+    bool radial, pf_pixelformat_e format);
+
+PFAPI pf_texture2d_t
+pfext_texture2d_gen_white_noise(
+    uint32_t w, uint32_t h,
+    uint32_t seed, pf_pixelformat_e format);
+
+#endif //PF_EXT_TEXTURE2D
 #endif //PF_TEXTURE2D_H
