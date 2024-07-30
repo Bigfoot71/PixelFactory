@@ -12,10 +12,6 @@ set(PF_IS_MAIN ${PROJECT_IS_TOP_LEVEL})
 option(PF_INSTALL "Install PixelFactory library and headers" OFF)
 option(PF_BUILD_SHARED "Build PixelFactory as a shared library" OFF)
 
-# Set optional supports
-option(PF_SUPPORT_OPENMP "Enable support for OpenMP parallelization" OFF)
-option(PF_SUPPORT_AVX2 "Enable support for AVX2" OFF)
-
 # Set example builds
 option(PF_BUILD_EXAMPLES_RAYLIB "Build PixelFactory examples for raylib" OFF)
 
@@ -72,13 +68,11 @@ else()
     endif()
 endif()
 
-# Enable OpenMP support if PF_SUPPORT_OPENMP is ON
-if(PF_SUPPORT_OPENMP)
-    find_package(OpenMP)
-    if (OPENMP_FOUND)
-        target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_C)
-        add_definitions(-DPF_SUPPORT_OPENMP)
-    endif()
+# Enable OpenMP support if available
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    target_link_libraries(${PROJECT_NAME} PUBLIC OpenMP::OpenMP_C)
+    add_definitions(-DPF_SUPPORT_OPENMP)
 endif()
 
 # Add the -pg for Debug mode (gprof) only for GCC
