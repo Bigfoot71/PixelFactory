@@ -27,8 +27,7 @@ pf_renderer3d_screen_projection_INTERNAL(
     size_t vertices_count,
     int screen_pos[][2])
 {
-    for (size_t i = 0; i < vertices_count; ++i)
-    {
+    for (size_t i = 0; i < vertices_count; ++i) {
         pf_vec4_t* h = &homogeneous[i];
 
         // Calculation of the reciprocal of HZ (to get correct depth)

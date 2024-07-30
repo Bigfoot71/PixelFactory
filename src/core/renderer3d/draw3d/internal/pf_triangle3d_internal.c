@@ -53,7 +53,7 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            rn->zb.buffer[offset] = z;                                  \
+                            depth_buf[offset] = z;                                      \
                             PIXEL_CODE                                                  \
                         }                                                               \
                     }                                                                   \
@@ -102,8 +102,8 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            if (rn->test(rn->zb.buffer[offset], z)) {                   \
-                                rn->zb.buffer[offset] = z;                              \
+                            if (test(depth_buf[offset], z)) {                           \
+                                depth_buf[offset] = z;                                  \
                                 PIXEL_CODE                                              \
                             }                                                           \
                         }                                                               \
@@ -157,7 +157,7 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            rn->zb.buffer[offset] = z;                                  \
+                            depth_buf[offset] = z;                                      \
                             PIXEL_CODE                                                  \
                         }                                                               \
                     }                                                                   \
@@ -207,8 +207,8 @@
                                 w3 * inv_w_sum                                          \
                             };                                                          \
                             float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);      \
-                            if (rn->test(rn->zb.buffer[offset], z)) {                   \
-                                rn->zb.buffer[offset] = z;                              \
+                            if (test(depth_buf[offset], z)) {                           \
+                                depth_buf[offset] = z;                                  \
                                 PIXEL_CODE                                              \
                             }                                                           \
                         }                                                               \
@@ -241,7 +241,7 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                rn->zb.buffer[offset] = z;                                                      \
+                depth_buf[offset] = z;                                                          \
                 PIXEL_CODE                                                                      \
             }                                                                                   \
             w1 += w1_x_step;                                                                    \
@@ -267,8 +267,8 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                if (rn->test(rn->zb.buffer[offset], z)) {                                       \
-                    rn->zb.buffer[offset] = z;                                                  \
+                if (test(depth_buf[offset], z)) {                                               \
+                    depth_buf[offset] = z;                                                      \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
             }                                                                                   \
@@ -299,7 +299,7 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                rn->zb.buffer[offset] = z;                                                      \
+                depth_buf[offset] = z;                                                          \
                 PIXEL_CODE                                                                      \
             }                                                                                   \
             w1 += w1_x_step;                                                                    \
@@ -326,8 +326,8 @@
                     w3 * inv_w_sum                                                              \
                 };                                                                              \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
-                if (rn->test(rn->zb.buffer[offset], z)) {                                       \
-                    rn->zb.buffer[offset] = z;                                                  \
+                if (test(depth_buf[offset], z)) {                                               \
+                    depth_buf[offset] = z;                                                      \
                     PIXEL_CODE                                                                  \
                 }                                                                               \
             }                                                                                   \
@@ -340,19 +340,19 @@
 /* Internal Pixel Code Macros */
 
 #define PF_PIXEL_CODE_NOBLEND()                                                 \
-    pf_color_t* ptr = rn->fb.buffer + offset;                                   \
+    pf_color_t* ptr = color_buf + offset;                                       \
     pf_color_t final_color = *ptr;                                              \
     pf_vertex_t vertex;                                                         \
     pf_renderer3d_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);\
-    proc->fragment(rn, &vertex, &final_color, proc->uniforms);                  \
+    fragment(rn, &vertex, &final_color, uniforms);                              \
     *ptr = final_color;
 
 #define PF_PIXEL_CODE_BLEND()                                                   \
-    pf_color_t* ptr = rn->fb.buffer + offset;                                   \
+    pf_color_t* ptr = color_buf + offset;                                       \
     pf_color_t final_color = *ptr;                                              \
     pf_vertex_t vertex;                                                         \
     pf_renderer3d_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);\
-    proc->fragment(rn, &vertex, &final_color, proc->uniforms);                  \
+    fragment(rn, &vertex, &final_color, uniforms);                              \
     *ptr = rn->blend(*ptr, final_color);
 
 /* Helper Function Declarations */
@@ -543,6 +543,17 @@ pf_renderer3d_triangle_INTERNAL(
     int screen_pos[PF_MAX_CLIPPED_POLYGON_VERTICES][2] = { 0 };
     pf_renderer3d_screen_projection_INTERNAL(rn, homogens, vertices, vertices_count, screen_pos);
 
+    /* Get often used data */
+
+    pf_color_t* color_buf = rn->fb.buffer;
+    float* depth_buf = rn->zb.buffer;
+
+    const pf_proc3d_fragment_fn fragment = proc->fragment;
+    const void* uniforms = proc->uniforms;
+
+    const pf_color_blend_fn blend = rn->blend;
+    const pf_depth_test_fn test = rn->test;
+
     /* Rasterize triangles */
 
     for (size_t i = 0; i < vertices_count - 2; ++i)
@@ -585,8 +596,7 @@ pf_renderer3d_triangle_INTERNAL(
         int w2_x_step = y1 - y3, w2_y_step = x3 - x1;
         int w3_x_step = y2 - y1, w3_y_step = x1 - x2;
 
-        if (face == PF_BACK)
-        {
+        if (face == PF_BACK) {
             w1_x_step = -w1_x_step, w1_y_step = -w1_y_step;
             w2_x_step = -w2_x_step, w2_y_step = -w2_y_step;
             w3_x_step = -w3_x_step, w3_y_step = -w3_y_step;
@@ -613,9 +623,9 @@ pf_renderer3d_triangle_INTERNAL(
 
         /* Loop rasterization */
 
-#ifdef _OPENMP
-        if (rn->test != NULL) {
-            if (rn->blend != NULL) {
+#if defined(_OPENMP)
+        if (test != NULL) {
+            if (blend != NULL) {
                 PF_TRIANGLE_TRAVEL_DEPTH_OMP({
                     PF_PIXEL_CODE_BLEND()
                 })
@@ -625,7 +635,7 @@ pf_renderer3d_triangle_INTERNAL(
                 })
             }
         } else {
-            if (rn->blend != NULL) {
+            if (blend != NULL) {
                 PF_TRIANGLE_TRAVEL_NODEPTH_OMP({
                     PF_PIXEL_CODE_BLEND()
                 })
@@ -636,8 +646,8 @@ pf_renderer3d_triangle_INTERNAL(
             }
         }
 #else
-        if (rn->test != NULL) {
-            if (rn->blend != NULL) {
+        if (test != NULL) {
+            if (blend != NULL) {
                 PF_TRIANGLE_TRAVEL_DEPTH({
                     PF_PIXEL_CODE_BLEND()
                 })
@@ -647,7 +657,7 @@ pf_renderer3d_triangle_INTERNAL(
                 })
             }
         } else {
-            if (rn->blend != NULL) {
+            if (blend != NULL) {
                 PF_TRIANGLE_TRAVEL_NODEPTH({
                     PF_PIXEL_CODE_BLEND()
                 })
