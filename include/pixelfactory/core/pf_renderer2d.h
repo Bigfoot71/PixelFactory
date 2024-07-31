@@ -21,7 +21,7 @@
 #define PF_RENDERER2D_H
 
 #include "../components/pf_processors.h"
-#include "../components/pf_vertex.h"
+#include "../core/pf_vertexbuffer.h"
 #include "../math/pf_mat3.h"
 #include "pf_framebuffer.h"
 #include "pf_texture2d.h"
@@ -53,9 +53,9 @@ pf_renderer2d_clear(
 /* Renderer 2D Buffer Drawing */
 
 PFAPI void
-pf_renderer2d_vertex_buffer(
+pf_renderer2d_vertexbuffer(
     pf_renderer2d_t* rn,
-    const pf_vertex_buffer_t* vb,
+    const pf_vertexbuffer_t* vb,
     const pf_mat3_t transform,
     const pf_proc2d_t* proc);
 

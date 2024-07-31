@@ -20,11 +20,13 @@
 #ifndef PF_H
 #define PF_H
 
+#include "components/pf_attribute.h"
 #include "components/pf_color.h"
 #include "components/pf_depth.h"
 #include "components/pf_pixel.h"
 #include "components/pf_processors.h"
 #include "components/pf_simd.h"
+#include "components/pf_types.h"
 #include "components/pf_vertex.h"
 
 #include "core/pf_depthbuffer.h"
@@ -32,6 +34,7 @@
 #include "core/pf_renderer2d.h"
 #include "core/pf_renderer3d.h"
 #include "core/pf_texture2d.h"
+#include "core/pf_vertexbuffer.h"
 
 #include "math/pf_math.h"
 #include "math/pf_vec2.h"

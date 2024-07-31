@@ -21,8 +21,7 @@
 #define PF_RENDER3D_H
 
 #include "../components/pf_processors.h"
-#include "../components/pf_vertex.h"
-#include "../components/pf_depth.h"
+#include "../core/pf_vertexbuffer.h"
 #include "../math/pf_mat3.h"
 #include "pf_framebuffer.h"
 #include "pf_depthbuffer.h"
@@ -94,33 +93,33 @@ pf_renderer3d_viewport(
 /* Renderer 2D Buffer Drawing */
 
 PFAPI void
-pf_renderer3d_vertex_buffer(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc);
 
 PFAPI void
-pf_renderer3d_vertex_buffer_ex(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer_ex(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc);
 
 PFAPI void
-pf_renderer3d_vertex_buffer_points(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer_points(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc);
 
 PFAPI void
-pf_renderer3d_vertex_buffer_points_thick(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float radius,
+pf_renderer3d_vertexbuffer_points_thick(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb, float radius,
     const pf_mat4_t transform, const pf_proc3d_t* proc);
 
 PFAPI void
-pf_renderer3d_vertex_buffer_lines(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer_lines(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc);
 
 PFAPI void
-pf_renderer3d_vertex_buffer_lines_thick(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float thick,
+pf_renderer3d_vertexbuffer_lines_thick(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb, float thick,
     const pf_mat4_t transform, const pf_proc3d_t* proc);
 
 /* Renderer 3D Points */

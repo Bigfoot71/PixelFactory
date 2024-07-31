@@ -44,16 +44,16 @@ pf_renderer3d_line_INTERNAL(
 /* Public API Functions */
 
 void
-pf_renderer3d_vertex_buffer(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
-    pf_renderer3d_vertex_buffer_ex(rn, vb, transform, proc);
+    pf_renderer3d_vertexbuffer_ex(rn, vb, transform, proc);
 }
 
 void
-pf_renderer3d_vertex_buffer_ex(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer_ex(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     /* Preparation of matrices */
@@ -143,16 +143,16 @@ pf_renderer3d_vertex_buffer_ex(
 }
 
 void
-pf_renderer3d_vertex_buffer_points(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer_points(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
-    pf_renderer3d_vertex_buffer_points_thick(rn, vb, 0, transform, proc);
+    pf_renderer3d_vertexbuffer_points_thick(rn, vb, 0, transform, proc);
 }
 
 void
-pf_renderer3d_vertex_buffer_points_thick(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float radius,
+pf_renderer3d_vertexbuffer_points_thick(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb, float radius,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     /* Preparation of matrices */
@@ -208,16 +208,16 @@ pf_renderer3d_vertex_buffer_points_thick(
 }
 
 void
-pf_renderer3d_vertex_buffer_lines(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb,
+pf_renderer3d_vertexbuffer_lines(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
-    pf_renderer3d_vertex_buffer_lines_thick(rn, vb, 0, transform, proc);
+    pf_renderer3d_vertexbuffer_lines_thick(rn, vb, 0, transform, proc);
 }
 
 void
-pf_renderer3d_vertex_buffer_lines_thick(
-    pf_renderer3d_t* rn, const pf_vertex_buffer_t* vb, float thick,
+pf_renderer3d_vertexbuffer_lines_thick(
+    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb, float thick,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
     /* Preparation of matrices */

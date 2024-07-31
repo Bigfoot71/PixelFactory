@@ -85,9 +85,9 @@ pf_renderer3d_triangle_interpolation_INTERNAL(
 /* Public API Functions */
 
 void
-pf_renderer2d_vertex_buffer(
+pf_renderer2d_vertexbuffer(
     pf_renderer2d_t* rn,
-    const pf_vertex_buffer_t* vb,
+    const pf_vertexbuffer_t* vb,
     const pf_mat3_t transform,
     const pf_proc2d_t* proc)
 {

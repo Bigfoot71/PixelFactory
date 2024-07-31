@@ -354,8 +354,8 @@ pf_renderer2d_texture2d_rec(
     proc.fragment = pf_proc2d_fragment_texture_as_uniform;
     proc.uniforms = tex;
 
-    pf_renderer2d_vertex_buffer(rn,
-        (const pf_vertex_buffer_t*)(&vb),
+    pf_renderer2d_vertexbuffer(rn,
+        (const pf_vertexbuffer_t*)(&vb),
         rn->mat_view, &proc);
 }
 
@@ -463,8 +463,8 @@ pf_renderer2d_texture2d_rec_tint(
     proc.fragment = pf_proc2d_fragment_texture_as_uniform;
     proc.uniforms = tex;
 
-    pf_renderer2d_vertex_buffer(rn,
-        (const pf_vertex_buffer_t*)(&vb),
+    pf_renderer2d_vertexbuffer(rn,
+        (const pf_vertexbuffer_t*)(&vb),
         rn->mat_view, &proc);
 }
 
@@ -565,8 +565,8 @@ pf_renderer2d_texture2d_rec_map(
     proc.fragment = frag_proc;
     proc.uniforms = tex;
 
-    pf_renderer2d_vertex_buffer(rn,
-        (const pf_vertex_buffer_t*)(&vb),
+    pf_renderer2d_vertexbuffer(rn,
+        (const pf_vertexbuffer_t*)(&vb),
         rn->mat_view, &proc);
 }
 

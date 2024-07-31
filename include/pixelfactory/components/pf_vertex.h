@@ -31,15 +31,6 @@ typedef struct {
     pf_attrib_elem_t elements[PF_MAX_ATTRIBUTES];
 } pf_vertex_t;
 
-/* Vertex Buffer Types */
-
-typedef struct {
-    pf_attribute_t attributes[PF_MAX_ATTRIBUTES];
-    uint16_t* indices;
-    uint32_t num_vertices;
-    uint32_t num_indices;
-} pf_vertex_buffer_t;
-
 /* Helper Vertex Functions */
 
 PFAPI pf_vertex_t
@@ -99,22 +90,5 @@ pf_vertex_bary(
     const pf_vertex_t* restrict v2,
     const pf_vertex_t* restrict v3,
     const pf_vec3_t bary);
-
-/* Helper Vertex Buffer Functions */
-
-PFAPI pf_vertex_buffer_t
-pf_vertex_buffer_create_2d(
-    uint32_t num_vertices,
-    float* positions,
-    float* texcoords,
-    pf_color_t* colors);
-
-PFAPI pf_vertex_buffer_t
-pf_vertex_buffer_create_3d(
-    uint32_t num_vertices,
-    float* positions,
-    float* texcoords,
-    float* normals,
-    pf_color_t* colors);
 
 #endif //PF_VERTEX_H
