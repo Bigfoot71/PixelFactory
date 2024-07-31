@@ -19,7 +19,6 @@
 
 #include "pixelfactory/core/pf_depthbuffer.h"
 #include "pixelfactory/components/pf_simd.h"
-#include "pixelfactory/misc/pf_stdinc.h"
 #include "pixelfactory/misc/pf_helper.h"
 
 pf_depthbuffer_t

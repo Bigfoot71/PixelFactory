@@ -20,6 +20,8 @@
 #ifndef PF_DEPTH_H
 #define PF_DEPTH_H
 
+#include "../misc/pf_stdinc.h"
+
 /* Function Prototypes */
 
 typedef bool (*pf_depth_test_fn)(
