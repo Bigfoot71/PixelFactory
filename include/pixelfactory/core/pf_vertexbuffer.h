@@ -31,6 +31,9 @@ pf_vertexbuffer_create_3d(
     float* normals,
     pf_color_t* colors);
 
+PFAPI void
+pf_vertexbuffer_delete(
+    pf_vertexbuffer_t* vb);
 
 /* VERTEX BUFFER EXTENSION */
 

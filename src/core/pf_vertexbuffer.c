@@ -89,7 +89,8 @@ pf_vertexbuffer_create_3d(
 }
 
 void
-pf_vertexbuffer_delete(pf_vertexbuffer_t* vb)
+pf_vertexbuffer_delete(
+    pf_vertexbuffer_t* vb)
 {
     for (int i = 0; i < PF_MAX_ATTRIBUTES; ++i) {
         if (vb->attributes[i].buffer != NULL) {
