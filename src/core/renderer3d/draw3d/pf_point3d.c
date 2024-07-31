@@ -30,68 +30,85 @@ pf_renderer3d_point_INTERNAL(
 
 /* Public API Functions */
 
-PFAPI void
+void
 pf_renderer3d_point(
-    pf_renderer3d_t* rn, const pf_vertex_t* point,
-    const pf_mat4_t transform, const pf_proc3d_t* proc)
+    pf_renderer3d_t* rn,
+    const pf_vec3_t point,
+    pf_color_t color)
 {
-    pf_mat4_t mat_model;
-    pf_mat4_t mat_normal;
-    if (transform == NULL) {
-        pf_mat4_identity(mat_model);
-        pf_mat4_identity(mat_normal);
-    } else {
-        pf_mat4_copy(mat_model, transform);
-        pf_mat4_inverse(mat_normal, mat_model);
-        pf_mat4_transpose(mat_normal, mat_normal);
-    }
+    const float mat_identity[16] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
+    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
 
-    if (proc != NULL) {
-        if (proc->vertex != NULL) processor.vertex = proc->vertex;
-        if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    pf_vertex_t vertex = { 0 };
+
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
+
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
+
+    for (int_fast8_t i = 0; i < 3; ++i) {
+        vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[i].v_float = point[i];
     }
 
-    pf_renderer3d_point_INTERNAL(rn, point, 0, mat_model, mat_normal, mat_mvp, &processor);
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[i].v_uint8_t = color.a[i];
+    }
+
+    pf_renderer3d_point_INTERNAL(rn, &vertex, 0, mat_identity, mat_identity, mat_mvp, &processor);
 }
 
-PFAPI void
+void
 pf_renderer3d_point_thick(
-    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
-    const pf_mat4_t transform, const pf_proc3d_t* proc)
+    pf_renderer3d_t* rn,
+    const pf_vec3_t point,
+    float radius,
+    pf_color_t color)
 {
-    pf_mat4_t mat_model;
-    pf_mat4_t mat_normal;
-    if (transform == NULL) {
-        pf_mat4_identity(mat_model);
-        pf_mat4_identity(mat_normal);
-    } else {
-        pf_mat4_copy(mat_model, transform);
-        pf_mat4_inverse(mat_normal, mat_model);
-        pf_mat4_transpose(mat_normal, mat_normal);
-    }
+    const float mat_identity[16] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
+    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
 
-    if (proc != NULL) {
-        if (proc->vertex != NULL) processor.vertex = proc->vertex;
-        if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    pf_vertex_t vertex = { 0 };
+
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
+
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
+
+    for (int_fast8_t i = 0; i < 3; ++i) {
+        vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[i].v_float = point[i];
     }
 
-    pf_renderer3d_point_INTERNAL(rn, point, radius, mat_model, mat_normal, mat_mvp, &processor);
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[i].v_uint8_t = color.a[i];
+    }
+
+    pf_renderer3d_point_INTERNAL(rn, &vertex, radius, mat_identity, mat_identity, mat_mvp, &processor);
 }

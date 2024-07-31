@@ -26,6 +26,7 @@
 #include "pf_framebuffer.h"
 #include "pf_depthbuffer.h"
 #include "pf_texture2d.h"
+#include "pixelfactory/math/pf_vec3.h"
 #include <stdint.h>
 
 typedef enum {
@@ -126,31 +127,42 @@ pf_renderer3d_vertexbuffer_lines_thick(
 
 PFAPI void
 pf_renderer3d_point(
-    pf_renderer3d_t* rn, const pf_vertex_t* point,
-    const pf_mat4_t transform, const pf_proc3d_t* proc);
+    pf_renderer3d_t* rn,
+    const pf_vec3_t point,
+    pf_color_t color);
 
 PFAPI void
 pf_renderer3d_point_thick(
-    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
-    const pf_mat4_t transform, const pf_proc3d_t* proc);
+    pf_renderer3d_t* rn,
+    const pf_vec3_t point,
+    float radius,
+    pf_color_t color);
 
 /* Renderer 3D Lines */
 
 PFAPI void
 pf_renderer3d_line(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2,
-    const pf_mat4_t transform, const pf_proc3d_t* proc);
+    pf_renderer3d_t* rn,
+    const pf_vec3_t p1,
+    const pf_vec3_t p2,
+    pf_color_t color);
 
 PFAPI void
 pf_renderer3d_line_thick(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
-    const pf_mat4_t transform, const pf_proc3d_t* proc);
+    pf_renderer3d_t* rn,
+    const pf_vec3_t p1,
+    const pf_vec3_t p2,
+    float thickness,
+    pf_color_t color);
 
 /* Renderer 3D Triangles */
 
 PFAPI void
 pf_renderer3d_triangle(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
-    const pf_mat4_t transform, const pf_proc3d_t* proc);
+    pf_renderer3d_t* rn,
+    const pf_vec3_t p1,
+    const pf_vec3_t p2,
+    const pf_vec3_t p3,
+    pf_color_t color);
 
 #endif //PF_RENDERER3D_H

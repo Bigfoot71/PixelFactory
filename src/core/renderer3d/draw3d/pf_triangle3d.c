@@ -19,6 +19,7 @@
 
 #include "pixelfactory/components/pf_processors.h"
 #include "pixelfactory/core/pf_renderer3d.h"
+#include <stdint.h>
 #include <string.h>
 
 /* Internal Functions Declarations */
@@ -33,35 +34,52 @@ pf_renderer3d_triangle_INTERNAL(
 
 void
 pf_renderer3d_triangle(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, const pf_vertex_t* v3,
-    const pf_mat4_t transform, const pf_proc3d_t* proc)
+    pf_renderer3d_t* rn,
+    const pf_vec3_t p1,
+    const pf_vec3_t p2,
+    const pf_vec3_t p3,
+    pf_color_t color)
 {
-    pf_mat4_t mat_model;
-    pf_mat4_t mat_normal;
-    if (transform == NULL) {
-        pf_mat4_identity(mat_model);
-        pf_mat4_identity(mat_normal);
-    } else {
-        pf_mat4_copy(mat_model, transform);
-        pf_mat4_inverse(mat_normal, mat_model);
-        pf_mat4_transpose(mat_normal, mat_normal);
-    }
+    const float mat_identity[16] = {
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
+    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
     processor.fragment = pf_proc3d_fragment_default;
 
-    if (proc != NULL) {
-        if (proc->vertex != NULL) processor.vertex = proc->vertex;
-        if (proc->fragment != NULL) processor.fragment = proc->fragment;
-        if (proc->uniforms != NULL) processor.uniforms = proc->uniforms;
+    pf_vertex_t vertices[12] = { 0 };
+
+    for (int_fast8_t i = 0; i < 3; ++i) {
+        pf_attrib_elem_t* pos = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+        pf_attrib_elem_t* col = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+
+        pos->used = true, pos->comp = 3, pos->type = PF_FLOAT;
+        col->used = true, col->comp = 4, col->type = PF_UNSIGNED_BYTE;
+
+        for (int_fast8_t i = 0; i < 4; ++i) {
+            col->value[i].v_uint8_t = color.a[i];
+        }
     }
 
+    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p1[0];
+    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p1[1];
+    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p1[2];
+
+    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p2[0];
+    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p2[1];
+    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p2[2];
+
+    vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p3[0];
+    vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p3[1];
+    vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p3[2];
+
     pf_renderer3d_triangle_INTERNAL(
-        rn, (pf_vertex_t[PF_MAX_CLIPPED_POLYGON_VERTICES]) { *v1, *v2, *v3 },
-        mat_model, mat_normal, mat_mvp, &processor);
+        rn, vertices, mat_identity, mat_identity, mat_mvp, &processor);
 }
