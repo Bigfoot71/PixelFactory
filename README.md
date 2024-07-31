@@ -18,6 +18,13 @@ PixelFactory is a lightweight software rendering library written in standard C99
 - **OpenMP Support**: Utilizes OpenMP to parallelize triangle rasterization loops, with an adjustable threshold for activating parallelization, significantly improving rasterization performance for large triangles.
 - **SIMD Support**: Some rendering tasks benefit from optional SSE/AVX2 support, with plans to expand SIMD compatibility in the future.
 
+## Extensions
+
+- **PF_EXT_TEXTURE2D**: Enables image loading via [stb_image.h](https://github.com/nothings/stb/blob/master/stb_image.h) (MIT) as well as the generation of basic textures like gradients or checkerboards.
+- **PF_EXT_VERTEXBUFFER**: Enables mesh loading from OBJ files via [tinyobj_loader_c.h](https://github.com/syoyo/tinyobjloader-c/blob/master/tinyobj_loader_c.h) (MIT) and GLTF files via [cgltf.h](https://github.com/jkuhlmann/cgltf/blob/master/cgltf.h) (MIT), but also allows the generation of vertex buffers using [par_shapes.h](https://github.com/prideout/par/blob/master/par_shapes.h) (MIT).
+
+**note**: The headers of the `external` directory are only used for library extensions.
+
 ## Why?
 
 Previously, I worked on another software rendering library with an OpenGL-style API specialized in 3D rendering, [PixelForge](https://github.com/Bigfoot71/PixelForge). However, design choices quickly led to limitations that would require a complete redesign, also diverging from the OpenGL style because of my desires. I decided to start over with a new library, this time also specializing in 2D rendering, to create something lightweight and even more versatile. This project is primarily a hobby and a learning experience, but I hope it can be useful to others as well.
