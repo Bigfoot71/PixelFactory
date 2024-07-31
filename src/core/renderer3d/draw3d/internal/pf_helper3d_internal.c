@@ -40,9 +40,9 @@ pf_renderer3d_screen_projection_INTERNAL(
             if (v->elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used != 0) {
                 pf_vertex_scale_vec(v, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, (*h)[2]);
             }
-            if (v->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used != 0) {
-                pf_vertex_scale_vec(v, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, (*h)[2]);
-            }
+            //if (v->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used != 0) {
+            //    pf_vertex_scale_vec(v, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, (*h)[2]);
+            //}
         }
 
         // Division of XY coordinates by weight
@@ -73,7 +73,7 @@ pf_renderer3d_triangle_interpolation_INTERNAL(
         pf_vertex_scale_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, z_depth);
     }
 
-    if (out_vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used != 0) {
-        pf_vertex_scale_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, z_depth);
-    }
+    //if (out_vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used != 0) {
+    //    pf_vertex_scale_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, z_depth);
+    //}
 }
