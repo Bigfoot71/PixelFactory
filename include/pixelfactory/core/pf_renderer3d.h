@@ -22,11 +22,8 @@
 
 #include "../components/pf_processors.h"
 #include "../core/pf_vertexbuffer.h"
-#include "../math/pf_mat3.h"
 #include "pf_framebuffer.h"
 #include "pf_depthbuffer.h"
-#include "pf_texture2d.h"
-#include "pixelfactory/math/pf_vec3.h"
 #include <stdint.h>
 
 typedef enum {
