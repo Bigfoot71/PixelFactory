@@ -21,12 +21,10 @@
 #define PF_COLOR_H
 
 #include "../components/pf_simd.h"
-#include "../components/pf_simd.h"
 #include "../misc/pf_stdinc.h"
 #include "../misc/pf_helper.h"
 #include "../misc/pf_config.h"
 #include "../math/pf_vec3.h"
-#include <math.h>
 
 typedef union {
     uint8_t a[4];
