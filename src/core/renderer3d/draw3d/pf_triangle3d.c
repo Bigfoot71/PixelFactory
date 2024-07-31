@@ -17,10 +17,7 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/components/pf_processors.h"
 #include "pixelfactory/core/pf_renderer3d.h"
-#include <stdint.h>
-#include <string.h>
 
 /* Internal Functions Declarations */
 
@@ -28,7 +25,8 @@ void
 pf_renderer3d_triangle_INTERNAL(
     pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc,
+    bool parallelize);
 
 /* Triangle rasterization functions */
 
@@ -81,5 +79,5 @@ pf_renderer3d_triangle(
     vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p3[2];
 
     pf_renderer3d_triangle_INTERNAL(
-        rn, vertices, mat_identity, mat_identity, mat_mvp, &processor);
+        rn, vertices, mat_identity, mat_identity, mat_mvp, &processor, true);
 }

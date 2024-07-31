@@ -510,8 +510,13 @@ void
 pf_renderer3d_triangle_INTERNAL(
     pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc)
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc,
+    bool parallelize)
 {
+#ifndef _OPENMP
+    (void)parallelize;
+#endif
+
     /* Copy vertices, the clipping step may result in more vertex than expected */
 
     pf_vec4_t homogens[PF_MAX_CLIPPED_POLYGON_VERTICES] = { 0 };
@@ -611,49 +616,52 @@ pf_renderer3d_triangle_INTERNAL(
         /* Loop rasterization */
 
 #if defined(_OPENMP)
-        if (test != NULL) {
-            if (blend != NULL) {
-                PF_TRIANGLE_TRAVEL_DEPTH_OMP({
-                    PF_PIXEL_CODE_BLEND()
-                })
+        if (parallelize) {
+            if (test != NULL) {
+                if (blend != NULL) {
+                    PF_TRIANGLE_TRAVEL_DEPTH_OMP({
+                        PF_PIXEL_CODE_BLEND()
+                    })
+                } else {
+                    PF_TRIANGLE_TRAVEL_DEPTH_OMP({
+                        PF_PIXEL_CODE_NOBLEND()
+                    })
+                }
             } else {
-                PF_TRIANGLE_TRAVEL_DEPTH_OMP({
-                    PF_PIXEL_CODE_NOBLEND()
-                })
+                if (blend != NULL) {
+                    PF_TRIANGLE_TRAVEL_NODEPTH_OMP({
+                        PF_PIXEL_CODE_BLEND()
+                    })
+                } else {
+                    PF_TRIANGLE_TRAVEL_NODEPTH_OMP({
+                        PF_PIXEL_CODE_NOBLEND()
+                    })
+                }
             }
-        } else {
-            if (blend != NULL) {
-                PF_TRIANGLE_TRAVEL_NODEPTH_OMP({
-                    PF_PIXEL_CODE_BLEND()
-                })
-            } else {
-                PF_TRIANGLE_TRAVEL_NODEPTH_OMP({
-                    PF_PIXEL_CODE_NOBLEND()
-                })
-            }
-        }
-#else
-        if (test != NULL) {
-            if (blend != NULL) {
-                PF_TRIANGLE_TRAVEL_DEPTH({
-                    PF_PIXEL_CODE_BLEND()
-                })
-            } else {
-                PF_TRIANGLE_TRAVEL_DEPTH({
-                    PF_PIXEL_CODE_NOBLEND()
-                })
-            }
-        } else {
-            if (blend != NULL) {
-                PF_TRIANGLE_TRAVEL_NODEPTH({
-                    PF_PIXEL_CODE_BLEND()
-                })
-            } else {
-                PF_TRIANGLE_TRAVEL_NODEPTH({
-                    PF_PIXEL_CODE_NOBLEND()
-                })
-            }
-        }
+        } else
 #endif
+        {
+            if (test != NULL) {
+                if (blend != NULL) {
+                    PF_TRIANGLE_TRAVEL_DEPTH({
+                        PF_PIXEL_CODE_BLEND()
+                    })
+                } else {
+                    PF_TRIANGLE_TRAVEL_DEPTH({
+                        PF_PIXEL_CODE_NOBLEND()
+                    })
+                }
+            } else {
+                if (blend != NULL) {
+                    PF_TRIANGLE_TRAVEL_NODEPTH({
+                        PF_PIXEL_CODE_BLEND()
+                    })
+                } else {
+                    PF_TRIANGLE_TRAVEL_NODEPTH({
+                        PF_PIXEL_CODE_NOBLEND()
+                    })
+                }
+            }
+        }
     }
 }

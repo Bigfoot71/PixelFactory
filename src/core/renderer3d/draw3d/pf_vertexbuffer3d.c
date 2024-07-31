@@ -18,7 +18,6 @@
  */
 
 #include "pixelfactory/core/pf_renderer3d.h"
-#include <stdint.h>
 
 /* Internal Functions Declarations */
 
@@ -26,7 +25,8 @@ void
 pf_renderer3d_triangle_INTERNAL(
     pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
-    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
+    const pf_mat4_t mat_mvp, const pf_proc3d_t* proc,
+    bool parallelize);
 
 void
 pf_renderer3d_point_INTERNAL(
@@ -91,49 +91,46 @@ pf_renderer3d_vertexbuffer_ex(
     bool has_indices = (indices != NULL);
     uint32_t num = (has_indices) ? vb->num_indices : vb->num_vertices;
 
+// FIXME: Flickering during parallelization here and strangely 'omp critical' doesn't change the problem...
+//#   pragma omp parallel for schedule(dynamic)
     for (uint32_t i = 0; i < num; i += 3) {
 
         pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES];
+        {
+            uint32_t index[3];
+            for (int_fast8_t j = 0; j < 3; ++j) {
+                if (has_indices) index[j] = indices[i + j];
+                else index[j] = i + j;
+            }
 
-        uint32_t index_1 = i + 0;
-        uint32_t index_2 = i + 1;
-        uint32_t index_3 = i + 2;
-
-        if (has_indices) {
-            index_1 = indices[index_1];
-            index_2 = indices[index_2];
-            index_3 = indices[index_3];
-        }
-
-        for (uint32_t j = 0; j < PF_MAX_ATTRIBUTES; ++j) {
-            const pf_attribute_t* attr = &vb->attributes[j];
-            if (attr->used != 0) {
-#               define PF_GET_ATTRIB_ELEM(TYPE, CTYPE)                                                                      \
-                    case TYPE: {                                                                                            \
-                        for (int_fast8_t k = 0; k < attr->comp; ++k) {                                                      \
-                            vertices[0].elements[j].value[k].v_##CTYPE = ((CTYPE*)attr->buffer)[index_1 * attr->comp + k];  \
-                            vertices[1].elements[j].value[k].v_##CTYPE = ((CTYPE*)attr->buffer)[index_2 * attr->comp + k];  \
-                            vertices[2].elements[j].value[k].v_##CTYPE = ((CTYPE*)attr->buffer)[index_3 * attr->comp + k];  \
-                        }                                                                                                   \
-                    } break;
-                switch (attr->type) {
-                    PF_GET_ATTRIB_ELEM(PF_ATTRIB_FLOAT, float)
-                    PF_GET_ATTRIB_ELEM(PF_ATTRIB_UBYTE, uint8_t)
-                    default:
-                        break;
-                }
-#               undef PF_GET_ATTRIB_ELEM
-                for (int_fast8_t k = 0; k < 3; ++k) {
-                    vertices[k].elements[j].type = attr->type;
-                    vertices[k].elements[j].comp = attr->comp;
-                    vertices[k].elements[j].used = attr->used;
+            for (uint32_t i_attr = 0; i_attr < PF_MAX_ATTRIBUTES; ++i_attr) {
+                const pf_attribute_t* attr = &vb->attributes[i_attr];
+                if (attr->used) {
+#                  define PF_GET_ATTRIB_ELEM(TYPE, CTYPE)                                           \
+                        case TYPE:                                                                  \
+                            for (int_fast8_t i_vec = 0; i_vec < attr->comp; ++i_vec) {              \
+                                for (int_fast8_t i_vert = 0; i_vert < 3; i_vert++) {                \
+                                    vertices[i_vert].elements[i_attr].value[i_vec].v_##CTYPE =      \
+                                        ((CTYPE*)attr->buffer)[index[i_vert] * attr->comp + i_vec]; \
+                                    vertices[i_vert].elements[i_attr].type = attr->type;            \
+                                    vertices[i_vert].elements[i_attr].comp = attr->comp;            \
+                                    vertices[i_vert].elements[i_attr].used = true;                  \
+                                }                                                                   \
+                        } break;
+                    switch (attr->type) {
+                        PF_GET_ATTRIB_ELEM(PF_ATTRIB_FLOAT, float)
+                        PF_GET_ATTRIB_ELEM(PF_ATTRIB_UBYTE, uint8_t)
+                        default:
+                            break;
+                    }
+#                  undef PF_GET_ATTRIB_ELEM
                 }
             }
         }
 
         pf_renderer3d_triangle_INTERNAL(
             rn, vertices, mat_model, mat_normal,
-            mat_mvp, &processor);
+            mat_mvp, &processor, true);
     }
 }
 
