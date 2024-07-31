@@ -139,7 +139,7 @@ pfext_objloader_file_reader_INTERNAL(
     *len = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    *buf = (char *)malloc(*len);
+    *buf = (char *)PF_MALLOC(*len);
     if (*buf == NULL) {
         fclose(file);
         *len = 0;
@@ -256,7 +256,7 @@ static void
 pfext_cgltf_copy_accessor_data_INTERNAL(
     float** dest, cgltf_accessor* accessor)
 {
-    *dest = malloc(accessor->count * sizeof(float) * cgltf_num_components(accessor->type));
+    *dest = PF_MALLOC(accessor->count * sizeof(float) * cgltf_num_components(accessor->type));
     cgltf_accessor_unpack_floats(accessor, *dest, accessor->count * cgltf_num_components(accessor->type));
 }
 
@@ -350,7 +350,7 @@ pfext_vertexbuffer_load_gltf(
 
         if (primitive->indices != NULL) {
             vb->num_indices = primitive->indices->count;
-            vb->indices = malloc(vb->num_indices * sizeof(uint16_t));
+            vb->indices = PF_MALLOC(vb->num_indices * sizeof(uint16_t));
             for (cgltf_size k = 0; k < primitive->indices->count; ++k) {
                 vb->indices[k] = (uint16_t)cgltf_accessor_read_index(primitive->indices, k);
             }
@@ -360,7 +360,7 @@ pfext_vertexbuffer_load_gltf(
     // Load materials
     /*
     model.materials_count = data->materials_count;
-    model.materials = calloc(data->materials_count, sizeof(material_t));
+    model.materials = PF_CALLOC(data->materials_count, sizeof(material_t));
 
     for (cgltf_size i = 0; i < data->materials_count; ++i) {
         cgltf_material* cgltf_material = &data->materials[i];
@@ -381,7 +381,7 @@ pfext_vertexbuffer_load_gltf(
     }
 
     // Map meshes to materials (assuming one material per mesh for simplicity)
-    model.mesh_material = malloc(data->meshes_count * sizeof(size_t));
+    model.mesh_material = PF_MALLOC(data->meshes_count * sizeof(size_t));
     for (cgltf_size i = 0; i < data->meshes_count; ++i) {
         cgltf_mesh* cgltf_mesh = &data->meshes[i];
         if (cgltf_mesh->primitives_count > 0) {
