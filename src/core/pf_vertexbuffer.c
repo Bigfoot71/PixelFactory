@@ -254,7 +254,7 @@ finish:
 
 static void
 pfext_cgltf_copy_accessor_data_INTERNAL(
-    float** dest, cgltf_accessor* accessor)
+    void** dest, cgltf_accessor* accessor)
 {
     *dest = PF_MALLOC(accessor->count * sizeof(float) * cgltf_num_components(accessor->type));
     cgltf_accessor_unpack_floats(accessor, *dest, accessor->count * cgltf_num_components(accessor->type));
@@ -311,9 +311,8 @@ pfext_vertexbuffer_load_gltf(
 
             switch (attribute->type) {
                 case cgltf_attribute_type_position: {
-                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX];
-                    float* positions = attr->buffer;
-                    pfext_cgltf_copy_accessor_data_INTERNAL(&positions, attribute->data);
+                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+                    pfext_cgltf_copy_accessor_data_INTERNAL(&attr->buffer, attribute->data);
                     vb->num_vertices = attribute->data->count;
                     attr->size = attribute->data->count;
                     attr->type = PF_FLOAT;
@@ -321,9 +320,8 @@ pfext_vertexbuffer_load_gltf(
                     attr->comp = 3;
                 } break;
                 case cgltf_attribute_type_texcoord: {
-                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX];
-                    float* texcoords = attr->buffer;
-                    pfext_cgltf_copy_accessor_data_INTERNAL(&texcoords, attribute->data);
+                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
+                    pfext_cgltf_copy_accessor_data_INTERNAL(&attr->buffer, attribute->data);
                     attr->size = attribute->data->count;
                     attr->type = PF_FLOAT;
                     attr->used = true;
@@ -331,8 +329,7 @@ pfext_vertexbuffer_load_gltf(
                 } break;
                 case cgltf_attribute_type_normal: {
                     pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX];
-                    float* normals = attr->buffer;
-                    pfext_cgltf_copy_accessor_data_INTERNAL(&normals, attribute->data);
+                    pfext_cgltf_copy_accessor_data_INTERNAL(&attr->buffer, attribute->data);
                     attr->size = attribute->data->count;
                     attr->type = PF_FLOAT;
                     attr->used = true;
@@ -342,6 +339,10 @@ pfext_vertexbuffer_load_gltf(
                     pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
                     attr->buffer = PF_MALLOC(attribute->data->count * sizeof(pf_color_t));
                     cgltf_accessor_unpack_floats(attribute->data, (float*)attr->buffer, attribute->data->count * 4);
+                    attr->size = attribute->data->count;
+                    attr->type = PF_UNSIGNED_BYTE;
+                    attr->used = true;
+                    attr->comp = 4;
                 } break;
                 default:
                     break;
