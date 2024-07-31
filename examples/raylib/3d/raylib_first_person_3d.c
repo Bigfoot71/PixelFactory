@@ -46,12 +46,12 @@ int main(void)
     Image imMap = LoadImage(RESOURCES_PATH "images/cubicmap.png");
     Model model = LoadModelFromMesh(GenMeshCubicmap(imMap, (Vector3) { 1.0f, 1.0f, 1.0f }));
 
-    pf_vertex_buffer_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertex_buffer_t));
+    pf_vertexbuffer_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertexbuffer_t));
     for (int i = 0; i < model.meshCount; i++)
     {
         Mesh* mesh = &model.meshes[i];
 
-        pfMeshes[i] = pf_vertex_buffer_create_3d(mesh->vertexCount,
+        pfMeshes[i] = pf_vertexbuffer_create_3d(mesh->vertexCount,
             mesh->vertices, mesh->texcoords, NULL, NULL);
 
         if (mesh->indices) {
@@ -108,7 +108,7 @@ int main(void)
             pf_proc3d_t proc = { 0 };
             proc.fragment = FragProcModel;
             proc.uniforms = &uniforms;
-            pf_renderer3d_vertex_buffer(&rn, &pfMeshes[i], NULL, &proc);
+            pf_renderer3d_vertexbuffer(&rn, &pfMeshes[i], NULL, &proc);
         }
 
         UpdateTexture(tex, rn.fb.buffer);

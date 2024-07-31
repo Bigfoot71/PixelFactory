@@ -48,12 +48,12 @@ int main(void)
     ModelAnimation *modelAnimations = LoadModelAnimations(RESOURCES_PATH "models/robot.glb", &animsCount);
 
     // Create structures with mesh vertex buffers
-    pf_vertex_buffer_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertex_buffer_t));
+    pf_vertexbuffer_t* pfMeshes = calloc(model.meshCount, sizeof(pf_vertexbuffer_t));
     for (int i = 0; i < model.meshCount; i++)
     {
         Mesh* mesh = &model.meshes[i];
 
-        pfMeshes[i] = pf_vertex_buffer_create_3d(mesh->vertexCount,
+        pfMeshes[i] = pf_vertexbuffer_create_3d(mesh->vertexCount,
             mesh->animVertices ? mesh->animVertices : mesh->vertices,
             mesh->texcoords,
             mesh->animNormals ? mesh->animNormals : mesh->normals,
@@ -90,7 +90,7 @@ int main(void)
             pf_proc3d_t proc = { 0 };
             proc.fragment = model_frag_proc;
             proc.uniforms = &model.materials[model.meshMaterial[i]];
-            pf_renderer3d_vertex_buffer_lines(&rn, &pfMeshes[i], NULL, &proc);
+            pf_renderer3d_vertexbuffer_lines(&rn, &pfMeshes[i], NULL, &proc);
         }
 
         // Updating the texture with the new buffer content

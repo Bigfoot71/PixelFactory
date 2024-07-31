@@ -62,7 +62,7 @@ int main()
         .mipmaps = 1
     });
 
-    pf_vertex_buffer_t mesh = pf_vertex_buffer_create_2d(6, positions, texcoords, NULL);
+    pf_vertexbuffer_t mesh = pf_vertexbuffer_create_2d(6, positions, texcoords, NULL);
     Image image = LoadImage(RESOURCES_PATH "images/bonhomme.png");
 
     PF_Material material;
@@ -76,7 +76,7 @@ int main()
     while (!WindowShouldClose())
     {
         pf_renderer2d_clear(&rn, PF_BLACK);
-        pf_renderer2d_vertex_buffer(&rn, &mesh, NULL, &proc);
+        pf_renderer2d_vertexbuffer(&rn, &mesh, NULL, &proc);
 
         UpdateTexture(tex, rn.fb.buffer);
 

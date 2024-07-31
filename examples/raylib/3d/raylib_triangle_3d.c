@@ -31,7 +31,7 @@ int main()
         .mipmaps = 1
     });
 
-    pf_vertex_buffer_t triangle = pf_vertex_buffer_create_3d(
+    pf_vertexbuffer_t triangle = pf_vertexbuffer_create_3d(
         3, triangle_positions, NULL, NULL, triangle_colors);
 
     while (!WindowShouldClose())
@@ -41,7 +41,7 @@ int main()
             (float[3]) { 0, 0, 0 }, (float[3]) { 0, 1, 0 });
 
         pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
-        pf_renderer3d_vertex_buffer(&rn, &triangle, NULL, NULL);
+        pf_renderer3d_vertexbuffer(&rn, &triangle, NULL, NULL);
 
         UpdateTexture(tex, rn.fb.buffer);
 
