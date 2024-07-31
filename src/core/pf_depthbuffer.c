@@ -18,6 +18,7 @@
  */
 
 #include "pixelfactory/core/pf_depthbuffer.h"
+#include "pixelfactory/components/pf_simd.h"
 #include "pixelfactory/misc/pf_stdinc.h"
 #include "pixelfactory/misc/pf_helper.h"
 
@@ -29,14 +30,29 @@ pf_depthbuffer_create(
     pf_depthbuffer_t result = { 0 };
     if (w == 0 || h == 0) return result;
 
-    float* buffer = PF_MALLOC(w*h*sizeof(float));
+    size_t size = w * h;
+
+    float* buffer = PF_MALLOC(size * sizeof(float));
     if (buffer == NULL) return result;
 
-    float* end = buffer + w*h;
-    float* ptr = buffer;
-    while (ptr < end) {
-        *ptr++ = def;
+#if PF_SIMD_SIZE > 1
+    pf_simd_t v_def = pf_simd_set1_ps(def);
+    size_t i = 0;
+    for (; i + PF_SIMD_SIZE - 1 < size; i += PF_SIMD_SIZE) {
+        pf_simd_store_ps((pf_simd_i_t*)(buffer + i), v_def);
     }
+    for (; i < size; ++i) {
+        buffer[i] = def;
+    }
+#else
+#ifdef _OPENMP
+#   pragma omp parallel for \
+        if (size >= PF_OMP_CLEAR_BUFFER_SIZE_THRESHOLD)
+#endif //_OPENMP
+    for (size_t i = 0; i < size; ++i) {
+        buffer[i] = def;
+    }
+#endif
 
     result.buffer = buffer;
     result.w = w;

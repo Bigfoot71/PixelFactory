@@ -28,14 +28,29 @@ pf_framebuffer_create(
     pf_framebuffer_t result = { 0 };
     if (w == 0 || h == 0) return result;
 
-    pf_color_t* buffer = PF_MALLOC(w*h*sizeof(pf_color_t));
+    size_t size = w * h;
+
+    pf_color_t* buffer = PF_MALLOC(size * sizeof(pf_color_t));
     if (buffer == NULL) return result;
 
-    pf_color_t* end = buffer + w*h;
-    pf_color_t* ptr = buffer;
-    while (ptr < end) {
-        *ptr++ = def;
+#if PF_SIMD_SIZE > 1
+    pf_simd_i_t v_def = pf_simd_set1_i32(def.v);
+    size_t i = 0;
+    for (; i + PF_SIMD_SIZE - 1 < size; i += PF_SIMD_SIZE) {
+        pf_simd_store_i32((pf_simd_i_t*)(buffer + i), v_def);
     }
+    for (; i < size; ++i) {
+        buffer[i] = def;
+    }
+#else
+#ifdef _OPENMP
+#   pragma omp parallel for \
+        if (size >= PF_OMP_CLEAR_BUFFER_SIZE_THRESHOLD)
+#endif //_OPENMP
+    for (size_t i = 0; i < size; ++i) {
+        buffer[i] = def;
+    }
+#endif
 
     result.buffer = buffer;
     result.w = w;
