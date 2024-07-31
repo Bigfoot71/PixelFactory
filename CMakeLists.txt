@@ -48,6 +48,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PF_ROOT_PATH}/external)
 if(PF_EXT_TEXTURE2D)
     target_compile_definitions(${PROJECT_NAME} PUBLIC PF_EXT_TEXTURE2D)
 endif()
+if(PF_EXT_VERTEXBUFFER)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC PF_EXT_VERTEXBUFFER)
+endif()
 
 # Check for SIMD support
 include(CheckCCompilerFlag)

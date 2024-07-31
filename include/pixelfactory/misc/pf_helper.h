@@ -50,4 +50,18 @@
 }
 #endif //PF_SWAP
 
+#if defined(__GNUC__) || defined(__clang__)
+#   define DIAGNOSTIC_PUSH _Pragma("GCC diagnostic push")
+#   define DIAGNOSTIC_POP _Pragma("GCC diagnostic pop")
+#   define DIAGNOSTIC_IGNORE_UNUSED_PARAMETER _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
+#elif defined(_MSC_VER)
+#   define DIAGNOSTIC_PUSH __pragma(warning(push))
+#   define DIAGNOSTIC_POP __pragma(warning(pop))
+#   define DIAGNOSTIC_IGNORE_UNUSED_PARAMETER __pragma(warning(disable: 4100))
+#else
+#   define DIAGNOSTIC_PUSH
+#   define DIAGNOSTIC_POP
+#   define DIAGNOSTIC_IGNORE_UNUSED_PARAMETER
+#endif
+
 #endif //PF_HELPER_H

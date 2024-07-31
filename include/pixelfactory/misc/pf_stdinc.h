@@ -26,8 +26,12 @@
 #include <stdbool.h>
 
 #ifndef PF_MALLOC
-#   define PF_MALLOC(ptr) (malloc(ptr))
+#   define PF_MALLOC(size) (malloc(size))
 #endif //PF_MALLOC
+
+#ifndef PF_CALLOC
+#   define PF_CALLOC(count, size) (calloc(count, size))
+#endif //PF_CALLOC
 
 #ifndef PF_FREE
 #   define PF_FREE(ptr) (free(ptr))

@@ -67,7 +67,7 @@ Before you start, make sure you have [CMake](https://cmake.org/install/) and a C
 
    To enable extensions, use:
    ```bash
-   cmake -DPF_EXT_TEXTURE2D=ON ..
+   cmake -DPF_EXT_TEXTURE2D=ON -DPF_EXT_VERTEXBUFFER=ON ..
    ```
 
 5. **Build the project:**
