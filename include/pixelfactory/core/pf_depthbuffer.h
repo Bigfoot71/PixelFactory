@@ -20,6 +20,7 @@
 #ifndef PF_DEPTHBUFFER_H
 #define PF_DEPTHBUFFER_H
 
+#include "../components/pf_depth.h"
 #include "../misc/pf_config.h"
 #include "../misc/pf_stdinc.h"
 
@@ -41,6 +42,17 @@ pf_depthbuffer_delete(
 PFAPI bool
 pf_depthbuffer_is_valid(
     const pf_depthbuffer_t* zb);
+
+PFAPI float
+pf_depthbuffer_get(
+    const pf_depthbuffer_t* zb,
+    uint32_t x, uint32_t y);
+
+PFAPI bool
+pf_depthbuffer_test(
+    const pf_depthbuffer_t* zb,
+    uint32_t x, uint32_t y, float z,
+    pf_depth_test_fn test);
 
 PFAPI void
 pf_depthbuffer_put(

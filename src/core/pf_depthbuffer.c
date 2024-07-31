@@ -77,6 +77,31 @@ pf_depthbuffer_is_valid(
     return (zb->buffer != NULL || zb->w > 0 || zb->h > 0);
 }
 
+float
+pf_depthbuffer_get(
+    const pf_depthbuffer_t* zb,
+    uint32_t x, uint32_t y)
+{
+    float result = 0;
+    if (x < zb->w && y < zb->h) {
+        result = zb->buffer[y * zb->w + x];
+    }
+    return result;
+}
+
+bool
+pf_depthbuffer_test(
+    const pf_depthbuffer_t* zb,
+    uint32_t x, uint32_t y, float z,
+    pf_depth_test_fn test)
+{
+    bool result = false;
+    if (x < zb->w && y < zb->h) {
+        result = test(zb->buffer[y * zb->w + x], z);
+    }
+    return result;
+}
+
 void
 pf_depthbuffer_put(
     pf_depthbuffer_t* zb,
@@ -98,6 +123,7 @@ pf_depthbuffer_fill(
     if (zb == NULL || zb->buffer == NULL) {
         return;
     }
+
     if (rect == NULL) {
         xmin = ymin = 0;
         xmax = zb->w - 1;
@@ -110,10 +136,18 @@ pf_depthbuffer_fill(
         if (xmin > xmax) PF_SWAP(xmin, xmax);
         if (ymin > ymax) PF_SWAP(ymin, ymax);
     }
+
+    float* row_ptr;
+    pf_simd_t depth_vector = pf_simd_set1_ps(depth);
+
     for (int y = ymin; y <= ymax; ++y) {
-        float* ptr = zb->buffer + y * zb->w + xmin;
-        for (int x = xmin; x <= xmax; ++x) {
-            *ptr++ = depth;
+        row_ptr = zb->buffer + y * zb->w + xmin;
+        int x = xmin;
+        for (; x <= xmax - PF_SIMD_SIZE + 1; x += PF_SIMD_SIZE) {
+            pf_simd_store_ps(row_ptr + x, depth_vector);
+        }
+        for (; x <= xmax; ++x) {
+            row_ptr[x] = depth;
         }
     }
 }
