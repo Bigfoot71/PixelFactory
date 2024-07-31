@@ -207,13 +207,13 @@ pf_vertex_lerp(
             er->comp = c_count;
 
             switch (er->type) {
-                PF_VERTEX_LERP_CASE(PF_UNSIGNED_BYTE, uint8_t)
-                PF_VERTEX_LERP_CASE(PF_BYTE, int8_t)
-                PF_VERTEX_LERP_CASE(PF_UNSIGNED_SHORT, uint16_t)
-                PF_VERTEX_LERP_CASE(PF_SHORT, int16_t)
-                PF_VERTEX_LERP_CASE(PF_UNSIGNED_INT, uint32_t)
-                PF_VERTEX_LERP_CASE(PF_INT, int32_t)
                 PF_VERTEX_LERP_CASE(PF_FLOAT, float)
+                PF_VERTEX_LERP_CASE(PF_UNSIGNED_BYTE, uint8_t)
+                PF_VERTEX_LERP_CASE(PF_SHORT, int16_t)
+                PF_VERTEX_LERP_CASE(PF_INT, int32_t)
+                PF_VERTEX_LERP_CASE(PF_UNSIGNED_SHORT, uint16_t)
+                PF_VERTEX_LERP_CASE(PF_UNSIGNED_INT, uint32_t)
+                PF_VERTEX_LERP_CASE(PF_BYTE, int8_t)
                 default:
                     break;
             }
@@ -264,13 +264,13 @@ pf_vertex_bary(
             er->comp = c_count;
 
             switch (er->type) {
-                PF_VERTEX_BARY_CASE(PF_UNSIGNED_BYTE, uint8_t)
-                PF_VERTEX_BARY_CASE(PF_BYTE, int8_t)
-                PF_VERTEX_BARY_CASE(PF_UNSIGNED_SHORT, uint16_t)
-                PF_VERTEX_BARY_CASE(PF_SHORT, int16_t)
-                PF_VERTEX_BARY_CASE(PF_UNSIGNED_INT, uint32_t)
-                PF_VERTEX_BARY_CASE(PF_INT, int32_t)
                 PF_VERTEX_BARY_CASE(PF_FLOAT, float)
+                PF_VERTEX_BARY_CASE(PF_UNSIGNED_BYTE, uint8_t)
+                PF_VERTEX_BARY_CASE(PF_SHORT, int16_t)
+                PF_VERTEX_BARY_CASE(PF_INT, int32_t)
+                PF_VERTEX_BARY_CASE(PF_UNSIGNED_SHORT, uint16_t)
+                PF_VERTEX_BARY_CASE(PF_UNSIGNED_INT, uint32_t)
+                PF_VERTEX_BARY_CASE(PF_BYTE, int8_t)
                 default:
                     break;
             }
