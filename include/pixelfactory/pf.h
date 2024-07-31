@@ -26,7 +26,6 @@
 #include "components/pf_pixel.h"
 #include "components/pf_processors.h"
 #include "components/pf_simd.h"
-#include "components/pf_types.h"
 #include "components/pf_vertex.h"
 
 #include "core/pf_depthbuffer.h"

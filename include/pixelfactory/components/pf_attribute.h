@@ -22,7 +22,6 @@
 
 #include "../misc/pf_config.h"
 #include "../math/pf_vec4.h"
-#include "pf_types.h"
 
 /* Helper Definitions */
 
@@ -33,19 +32,29 @@
 
 /* Attribute Type */
 
+typedef enum {
+    PF_ATTRIB_FLOAT,
+    PF_ATTRIB_UBYTE,
+} pf_attrib_type_e;
+
 typedef struct {
-    void*       buffer;
-    size_t      size;
-    pf_type_e   type;
-    uint8_t     comp;
-    bool        used;
+    void*               buffer;
+    size_t              size;
+    pf_attrib_type_e    type;
+    uint8_t             comp;
+    bool                used;
 } pf_attribute_t;
 
 /* Attribute Element Type */
 
+typedef union {
+    float       v_float;
+    uint8_t     v_uint8_t;
+} pf_attrib_variant_t;
+
 typedef struct {
-    pf_variant_t        value[4];
-    pf_type_e           type;
+    pf_attrib_variant_t value[4];
+    pf_attrib_type_e    type;
     uint8_t             comp;
     bool                used;
 } pf_attrib_elem_t;

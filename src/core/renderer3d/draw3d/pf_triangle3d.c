@@ -60,8 +60,8 @@ pf_renderer3d_triangle(
         pf_attrib_elem_t* pos = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
         pf_attrib_elem_t* col = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
 
-        pos->used = true, pos->comp = 3, pos->type = PF_FLOAT;
-        col->used = true, col->comp = 4, col->type = PF_UNSIGNED_BYTE;
+        pos->used = true, pos->comp = 3, pos->type = PF_ATTRIB_FLOAT;
+        col->used = true, col->comp = 4, col->type = PF_ATTRIB_UBYTE;
 
         for (int_fast8_t i = 0; i < 4; ++i) {
             col->value[i].v_uint8_t = color.a[i];

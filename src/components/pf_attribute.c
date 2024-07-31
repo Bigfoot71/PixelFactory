@@ -24,7 +24,13 @@
 void*
 pf_attribute_get_elem_ptr(const pf_attribute_t* attr, size_t index)
 {
-    uint8_t element_size = pf_type_get_size(attr->type);
+    uint8_t element_size = 0;
+
+    switch (attr->type) {
+        case PF_ATTRIB_FLOAT: element_size = sizeof(float); break;
+        case PF_ATTRIB_UBYTE: element_size = sizeof(uint8_t); break;
+    }
+
     return (char*)attr->buffer + index * element_size * attr->comp;
 }
 
@@ -42,13 +48,8 @@ pf_attribute_get_elem(const pf_attribute_t* attr, size_t index)
     pf_attrib_elem_t result;
 
     switch (attr->type) {
-        PF_ATTRIBUTE_GET_ELEM_CASE(PF_FLOAT, float)
-        PF_ATTRIBUTE_GET_ELEM_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_ATTRIBUTE_GET_ELEM_CASE(PF_SHORT, int16_t)
-        PF_ATTRIBUTE_GET_ELEM_CASE(PF_INT, int32_t)
-        PF_ATTRIBUTE_GET_ELEM_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_ATTRIBUTE_GET_ELEM_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_ATTRIBUTE_GET_ELEM_CASE(PF_BYTE, int8_t)
+        PF_ATTRIBUTE_GET_ELEM_CASE(PF_ATTRIB_FLOAT, float)
+        PF_ATTRIBUTE_GET_ELEM_CASE(PF_ATTRIB_UBYTE, uint8_t)
         default:
             break;
     }
@@ -70,13 +71,8 @@ pf_attrib_elem_get_comp_f(const pf_attrib_elem_t* elem, uint8_t index)
         return (float)elem->value[index].v_##CTYPE;
 
     switch (elem->type) {
-        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_FLOAT, float)
-        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_SHORT, int16_t)
-        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_INT, int32_t)
-        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_BYTE, int8_t)
+        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_ATTRIB_FLOAT, float)
+        PF_ATTRIB_ELEM_GET_COMP_F_CASE(PF_ATTRIB_UBYTE, uint8_t)
         default:
             return 0.0f;
     }
@@ -91,13 +87,8 @@ pf_attrib_elem_get_comp(const pf_attrib_elem_t* elem, uint8_t index, void* out)
         break;
 
     switch (elem->type) {
-        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_FLOAT, float)
-        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_SHORT, int16_t)
-        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_INT, int32_t)
-        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_BYTE, int8_t)
+        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_ATTRIB_FLOAT, float)
+        PF_ATTRIB_ELEM_GET_COMP_CASE(PF_ATTRIB_UBYTE, uint8_t)
         default:
             break;
     }
@@ -114,13 +105,8 @@ pf_attrib_elem_get_vec(const pf_attrib_elem_t* elem, void* out)
         break;
 
     switch (elem->type) {
-        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_FLOAT, float)
-        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_SHORT, int16_t)
-        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_INT, int32_t)
-        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_BYTE, int8_t)
+        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_ATTRIB_FLOAT, float)
+        PF_ATTRIB_ELEM_GET_COMP_VEC_CASE(PF_ATTRIB_UBYTE, uint8_t)
         default:
             break;
     }
@@ -135,13 +121,8 @@ pf_attrib_elem_set_comp_f(pf_attrib_elem_t* elem, uint8_t index, float value)
         break;
 
     switch (elem->type) {
-        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_FLOAT, float)
-        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_SHORT, int16_t)
-        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_INT, int32_t)
-        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_BYTE, int8_t)
+        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_ATTRIB_FLOAT, float)
+        PF_ATTRIB_ELEM_SET_COMP_F_CASE(PF_ATTRIB_UBYTE, uint8_t)
         default:
             break;
     }
@@ -156,13 +137,8 @@ pf_attrib_elem_set_comp(pf_attrib_elem_t* elem, uint8_t index, const void* in)
         break;
 
     switch (elem->type) {
-        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_FLOAT, float)
-        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_SHORT, int16_t)
-        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_INT, int32_t)
-        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_BYTE, int8_t)
+        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_ATTRIB_FLOAT, float)
+        PF_ATTRIB_ELEM_SET_COMP_CASE(PF_ATTRIB_UBYTE, uint8_t)
         default:
             break;
     }
@@ -179,13 +155,8 @@ pf_attrib_elem_set_vec(pf_attrib_elem_t* elem, const void* in)
         break;
 
     switch (elem->type) {
-        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_FLOAT, float)
-        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_SHORT, int16_t)
-        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_INT, int32_t)
-        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_BYTE, int8_t)
+        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_ATTRIB_FLOAT, float)
+        PF_ATTRIB_ELEM_SET_COMP_VEC_CASE(PF_ATTRIB_UBYTE, uint8_t)
         default:
             break;
     }

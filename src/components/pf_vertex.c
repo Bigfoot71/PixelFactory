@@ -31,7 +31,7 @@ pf_vertex_create_2d(
     pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
     pos->used = true;
     pos->comp = 2;
-    pos->type = PF_FLOAT;
+    pos->type = PF_ATTRIB_FLOAT;
     pos->value[0].v_float = x;
     pos->value[1].v_float = y;
 
@@ -39,7 +39,7 @@ pf_vertex_create_2d(
     pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
     tex->used = true;
     tex->comp = 2;
-    tex->type = PF_FLOAT;
+    tex->type = PF_ATTRIB_FLOAT;
     tex->value[0].v_float = u;
     tex->value[1].v_float = v;
 
@@ -47,7 +47,7 @@ pf_vertex_create_2d(
     pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
     col->used = true;
     col->comp = 4;
-    col->type = PF_UNSIGNED_BYTE;
+    col->type = PF_ATTRIB_UBYTE;
     for (int_fast8_t i = 0; i < 4; ++i) {
         col->value[i].v_uint8_t = color.a[i];
     }
@@ -67,7 +67,7 @@ pf_vertex_create_3d(
     pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
     pos->used = true;
     pos->comp = 3;
-    pos->type = PF_FLOAT;
+    pos->type = PF_ATTRIB_FLOAT;
     pos->value[0].v_float = x;
     pos->value[1].v_float = y;
     pos->value[2].v_float = z;
@@ -76,7 +76,7 @@ pf_vertex_create_3d(
     pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
     tex->used = true;
     tex->comp = 2;
-    tex->type = PF_FLOAT;
+    tex->type = PF_ATTRIB_FLOAT;
     tex->value[0].v_float = u;
     tex->value[1].v_float = v;
 
@@ -84,7 +84,7 @@ pf_vertex_create_3d(
     pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
     col->used = true;
     col->comp = 4;
-    col->type = PF_UNSIGNED_BYTE;
+    col->type = PF_ATTRIB_UBYTE;
     for (int_fast8_t i = 0; i < 4; ++i) {
         col->value[i].v_uint8_t = color.a[i];
     }
@@ -107,13 +107,8 @@ pf_vertex_scale_vec(
     pf_attrib_elem_t* elem = &v->elements[index];
 
     switch (elem->type) {
-        PF_VERTEX_SCALE_VEC_CASE(PF_UNSIGNED_BYTE, uint8_t)
-        PF_VERTEX_SCALE_VEC_CASE(PF_UNSIGNED_SHORT, uint16_t)
-        PF_VERTEX_SCALE_VEC_CASE(PF_UNSIGNED_INT, uint32_t)
-        PF_VERTEX_SCALE_VEC_CASE(PF_BYTE, int8_t)
-        PF_VERTEX_SCALE_VEC_CASE(PF_SHORT, int16_t)
-        PF_VERTEX_SCALE_VEC_CASE(PF_INT, int32_t)
-        PF_VERTEX_SCALE_VEC_CASE(PF_FLOAT, float)
+        PF_VERTEX_SCALE_VEC_CASE(PF_ATTRIB_FLOAT, float)
+        PF_VERTEX_SCALE_VEC_CASE(PF_ATTRIB_UBYTE, uint8_t)
     }
 }
 
@@ -199,7 +194,7 @@ pf_vertex_lerp(
         const pf_attrib_elem_t* e1 = &start->elements[i];
         const pf_attrib_elem_t* e2 = &end->elements[i];
         pf_attrib_elem_t* er = &result->elements[i];
-        er->used = (e1->used && e2->used);
+        er->used = e1->used & e2->used;
 
         if (er->used) {
             int_fast8_t c_count = PF_MIN(e1->comp, e2->comp);
@@ -207,13 +202,8 @@ pf_vertex_lerp(
             er->comp = c_count;
 
             switch (er->type) {
-                PF_VERTEX_LERP_CASE(PF_FLOAT, float)
-                PF_VERTEX_LERP_CASE(PF_UNSIGNED_BYTE, uint8_t)
-                PF_VERTEX_LERP_CASE(PF_SHORT, int16_t)
-                PF_VERTEX_LERP_CASE(PF_INT, int32_t)
-                PF_VERTEX_LERP_CASE(PF_UNSIGNED_SHORT, uint16_t)
-                PF_VERTEX_LERP_CASE(PF_UNSIGNED_INT, uint32_t)
-                PF_VERTEX_LERP_CASE(PF_BYTE, int8_t)
+                PF_VERTEX_LERP_CASE(PF_ATTRIB_FLOAT, float)
+                PF_VERTEX_LERP_CASE(PF_ATTRIB_UBYTE, uint8_t)
                 default:
                     break;
             }
@@ -233,7 +223,7 @@ pf_vertex_bary(
 #define PF_VERTEX_BARY_CASE(TYPE, CTYPE)                    \
     case TYPE:                                              \
         _Pragma("omp simd")                                 \
-        for (int_fast8_t j = 0; j < c_count; ++j) {         \
+        for (int_fast8_t j = 0; j < e1->comp; ++j) {        \
             CTYPE val1 = e1->value[j].v_##CTYPE * bary[0];  \
             CTYPE val2 = e2->value[j].v_##CTYPE * bary[1];  \
             CTYPE val3 = e3->value[j].v_##CTYPE * bary[2];  \
@@ -242,7 +232,7 @@ pf_vertex_bary(
     break;
 #else
     case TYPE:                                              \
-        for (int_fast8_t j = 0; j < c_count; ++j) {         \
+        for (int_fast8_t j = 0; j < e1->comp; ++j) {        \
             CTYPE val1 = e1->value[j].v_##CTYPE * bary[0];  \
             CTYPE val2 = e2->value[j].v_##CTYPE * bary[1];  \
             CTYPE val3 = e3->value[j].v_##CTYPE * bary[2];  \
@@ -256,21 +246,19 @@ pf_vertex_bary(
         const pf_attrib_elem_t* e2 = &v2->elements[i];
         const pf_attrib_elem_t* e3 = &v3->elements[i];
         pf_attrib_elem_t* er = &result->elements[i];
-        er->used = e1->used && e2->used && e3->used;
+        er->used = e1->used & e2->used & e3->used;
 
         if (er->used) {
-            int_fast8_t c_count = PF_MIN(PF_MIN(e1->comp, e2->comp), e3->comp);
+            // NOTE: This is unsafe, as is iterating for the number of components of 'e1'
+            //       Ideally, we should retrieve the smallest number of components,
+            //       but this function is a real bottleneck, and the case where 'e1, e2, e3'
+            //       don't have the same number of components will never occur in its internal usage.
             er->type = e1->type;
-            er->comp = c_count;
+            er->comp = e1->comp;
 
             switch (er->type) {
-                PF_VERTEX_BARY_CASE(PF_FLOAT, float)
-                PF_VERTEX_BARY_CASE(PF_UNSIGNED_BYTE, uint8_t)
-                PF_VERTEX_BARY_CASE(PF_SHORT, int16_t)
-                PF_VERTEX_BARY_CASE(PF_INT, int32_t)
-                PF_VERTEX_BARY_CASE(PF_UNSIGNED_SHORT, uint16_t)
-                PF_VERTEX_BARY_CASE(PF_UNSIGNED_INT, uint32_t)
-                PF_VERTEX_BARY_CASE(PF_BYTE, int8_t)
+                PF_VERTEX_BARY_CASE(PF_ATTRIB_FLOAT, float)
+                PF_VERTEX_BARY_CASE(PF_ATTRIB_UBYTE, uint8_t)
                 default:
                     break;
             }

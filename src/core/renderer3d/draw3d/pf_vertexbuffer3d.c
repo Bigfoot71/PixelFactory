@@ -117,13 +117,8 @@ pf_renderer3d_vertexbuffer_ex(
                         }                                                                                                   \
                     } break;
                 switch (attr->type) {
-                    PF_GET_ATTRIB_ELEM(PF_UNSIGNED_BYTE, uint8_t)
-                    PF_GET_ATTRIB_ELEM(PF_BYTE, int8_t)
-                    PF_GET_ATTRIB_ELEM(PF_UNSIGNED_SHORT, uint16_t)
-                    PF_GET_ATTRIB_ELEM(PF_SHORT, int16_t)
-                    PF_GET_ATTRIB_ELEM(PF_UNSIGNED_INT, uint32_t)
-                    PF_GET_ATTRIB_ELEM(PF_INT, int32_t)
-                    PF_GET_ATTRIB_ELEM(PF_FLOAT, float)
+                    PF_GET_ATTRIB_ELEM(PF_ATTRIB_FLOAT, float)
+                    PF_GET_ATTRIB_ELEM(PF_ATTRIB_UBYTE, uint8_t)
                     default:
                         break;
                 }

@@ -52,11 +52,11 @@ pf_renderer3d_point(
 
     pf_vertex_t vertex = { 0 };
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_ATTRIB_FLOAT;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_ATTRIB_UBYTE;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
 
@@ -94,11 +94,11 @@ pf_renderer3d_point_thick(
 
     pf_vertex_t vertex = { 0 };
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_FLOAT;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_ATTRIB_FLOAT;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_UNSIGNED_BYTE;
+    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_ATTRIB_UBYTE;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
     vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
 
