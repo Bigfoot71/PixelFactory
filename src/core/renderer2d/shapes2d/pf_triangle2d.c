@@ -194,10 +194,7 @@
             pf_simd_t w2_norm_v = pf_simd_mul_ps(pf_simd_cvti32_ps(w2_v), inv_w_sum_v); \
             pf_simd_t w3_norm_v = pf_simd_mul_ps(pf_simd_cvti32_ps(w3_v), inv_w_sum_v); \
             pf_simd_i_t colors = pf_color_bary_simd(                                    \
-                c1_r, c1_g, c1_b, c1_a,                                                 \
-                c2_r, c2_g, c2_b, c2_a,                                                 \
-                c3_r, c3_g, c3_b, c3_a,                                                 \
-                w1_norm_v, w2_norm_v, w3_norm_v);                                       \
+                c1_v, c2_v, c3_v, w1_norm_v, w2_norm_v, w3_norm_v);                     \
             for (int i = 0; i < PF_SIMD_SIZE; ++i) {                                    \
                 if (mask_int & (1 << (i * 4))) {                                        \
                     int px = x + i;                                                     \
@@ -240,10 +237,7 @@
             pf_simd_t w2_norm_v = pf_simd_mul_ps(pf_simd_cvti32_ps(w2_v), inv_w_sum_v); \
             pf_simd_t w3_norm_v = pf_simd_mul_ps(pf_simd_cvti32_ps(w3_v), inv_w_sum_v); \
             pf_simd_i_t colors = pf_color_bary_simd(                                    \
-                c1_r, c1_g, c1_b, c1_a,                                                 \
-                c2_r, c2_g, c2_b, c2_a,                                                 \
-                c3_r, c3_g, c3_b, c3_a,                                                 \
-                w1_norm_v, w2_norm_v, w3_norm_v);                                       \
+                c1_v, c2_v, c3_v, w1_norm_v, w2_norm_v, w3_norm_v);                     \
             for (int i = 0; i < PF_SIMD_SIZE; ++i) {                                    \
                 if (mask_int & (1 << (i * 4))) {                                        \
                     int px = x + i;                                                     \
@@ -389,18 +383,10 @@ pf_renderer2d_triangle_gradient(
 
     // Load colors into SIMD registers
     // In order to carry out their interpolation in a vectorized way
-    pf_simd_i_t c1_r = pf_simd_set1_i32(c1.c.r),
-                c1_g = pf_simd_set1_i32(c1.c.g),
-                c1_b = pf_simd_set1_i32(c1.c.b),
-                c1_a = pf_simd_set1_i32(c1.c.a);
-    pf_simd_i_t c2_r = pf_simd_set1_i32(c2.c.r),
-                c2_g = pf_simd_set1_i32(c2.c.g),
-                c2_b = pf_simd_set1_i32(c2.c.b),
-                c2_a = pf_simd_set1_i32(c2.c.a);
-    pf_simd_i_t c3_r = pf_simd_set1_i32(c3.c.r),
-                c3_g = pf_simd_set1_i32(c3.c.g),
-                c3_b = pf_simd_set1_i32(c3.c.b),
-                c3_a = pf_simd_set1_i32(c3.c.a);
+    pf_color_simd_t c1_v, c2_v, c3_v;
+    pf_color_to_simd(c1_v, c1);
+    pf_color_to_simd(c2_v, c2);
+    pf_color_to_simd(c3_v, c3);
 
     // Rasterization loop
     // Iterate through each pixel in the bounding box

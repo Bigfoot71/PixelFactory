@@ -18,6 +18,7 @@
  */
 
 #include "pixelfactory/components/pf_color.h"
+#include <stdint.h>
 
 /* General Functions */
 
@@ -112,12 +113,24 @@ pf_color_bary_v(
     return result;
 }
 
+void
+pf_color_to_simd(
+    pf_color_simd_t dst,
+    pf_color_t src)
+{
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        dst[i] = pf_simd_set1_i32(src.a[i]);
+    }
+}
+
 pf_simd_i_t
 pf_color_bary_simd(
-    pf_simd_i_t c1_r, pf_simd_i_t c1_g, pf_simd_i_t c1_b, pf_simd_i_t c1_a,
-    pf_simd_i_t c2_r, pf_simd_i_t c2_g, pf_simd_i_t c2_b, pf_simd_i_t c2_a,
-    pf_simd_i_t c3_r, pf_simd_i_t c3_g, pf_simd_i_t c3_b, pf_simd_i_t c3_a,
-    pf_simd_t w1, pf_simd_t w2, pf_simd_t w3)
+    pf_color_simd_t c1,
+    pf_color_simd_t c2,
+    pf_color_simd_t c3,
+    pf_simd_t w1,
+    pf_simd_t w2,
+    pf_simd_t w3)
 {
     // Multiply weights by 255 to convert them to integers
     pf_simd_t scale = pf_simd_set1_ps(255.0f);
@@ -131,41 +144,27 @@ pf_color_bary_simd(
     pf_simd_i_t uw3_vec_int = pf_simd_cvtf32_i32(uw3_vec);
 
     // Perform multiplications and additions for each channel
-    pf_simd_i_t sum_r = pf_simd_add_i32(
-        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_r), 
-                         pf_simd_mullo_i32(uw2_vec_int, c2_r)),
-        pf_simd_mullo_i32(uw3_vec_int, c3_r));
-
-    pf_simd_i_t sum_g = pf_simd_add_i32(
-        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_g), 
-                         pf_simd_mullo_i32(uw2_vec_int, c2_g)),
-        pf_simd_mullo_i32(uw3_vec_int, c3_g));
-
-    pf_simd_i_t sum_b = pf_simd_add_i32(
-        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_b), 
-                         pf_simd_mullo_i32(uw2_vec_int, c2_b)),
-        pf_simd_mullo_i32(uw3_vec_int, c3_b));
-
-    pf_simd_i_t sum_a = pf_simd_add_i32(
-        pf_simd_add_i32(pf_simd_mullo_i32(uw1_vec_int, c1_a), 
-                         pf_simd_mullo_i32(uw2_vec_int, c2_a)),
-        pf_simd_mullo_i32(uw3_vec_int, c3_a));
-
-    // Approximate division by 255
+    // Then approximate division by 255
+    pf_color_simd_t sum;
     pf_simd_i_t factor = pf_simd_set1_i32(257);
-    sum_r = pf_simd_srli_i32(pf_simd_mullo_i32(sum_r, factor), 16);
-    sum_g = pf_simd_srli_i32(pf_simd_mullo_i32(sum_g, factor), 16);
-    sum_b = pf_simd_srli_i32(pf_simd_mullo_i32(sum_b, factor), 16);
-    sum_a = pf_simd_srli_i32(pf_simd_mullo_i32(sum_a, factor), 16);
+    for (int_fast8_t i = 0; i < 4; ++i) {
+        sum[i] = pf_simd_add_i32(
+            pf_simd_add_i32(
+                pf_simd_mullo_i32(uw1_vec_int, c1[i]), 
+                pf_simd_mullo_i32(uw2_vec_int, c2[i])),
+                pf_simd_mullo_i32(uw3_vec_int, c3[i]));
+        sum[i] = pf_simd_srli_i32(
+            pf_simd_mullo_i32(sum[i], factor), 16);
+    }
 
     // Combine results into a single vector pf_simd_i_t
     pf_simd_i_t result = pf_simd_or_i32(
         pf_simd_or_i32(
-            pf_simd_slli_i32(sum_a, 24), 
-            pf_simd_slli_i32(sum_b, 16)),
+            pf_simd_slli_i32(sum[3], 24), 
+            pf_simd_slli_i32(sum[2], 16)),
         pf_simd_or_i32(
-            pf_simd_slli_i32(sum_g, 8), 
-            sum_r));
+            pf_simd_slli_i32(sum[1], 8), 
+            sum[0]));
 
     return result;
 }

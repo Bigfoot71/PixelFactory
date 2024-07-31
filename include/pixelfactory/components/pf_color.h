@@ -21,6 +21,7 @@
 #define PF_COLOR_H
 
 #include "../components/pf_simd.h"
+#include "../components/pf_simd.h"
 #include "../misc/pf_stdinc.h"
 #include "../misc/pf_helper.h"
 #include "../misc/pf_config.h"
@@ -37,6 +38,9 @@ typedef union {
         uint8_t a;
     } c;
 } pf_color_t;
+
+typedef pf_simd_i_t
+    pf_color_simd_t[4];
 
 #define PF_WHITE        ((pf_color_t) { .c = { 255, 255, 255, 255 } })
 #define PF_GRAY         ((pf_color_t) { .c = { 127, 127, 127, 255 } })
@@ -113,12 +117,19 @@ pf_color_bary_v(
     pf_color_t c3,
     const pf_vec3_t bary);
 
+void
+pf_color_to_simd(
+    pf_color_simd_t dst,
+    pf_color_t src);
+
 PFAPI pf_simd_i_t
 pf_color_bary_simd(
-    pf_simd_i_t c1_r, pf_simd_i_t c1_g, pf_simd_i_t c1_b, pf_simd_i_t c1_a,
-    pf_simd_i_t c2_r, pf_simd_i_t c2_g, pf_simd_i_t c2_b, pf_simd_i_t c2_a,
-    pf_simd_i_t c3_r, pf_simd_i_t c3_g, pf_simd_i_t c3_b, pf_simd_i_t c3_a,
-    pf_simd_t w1, pf_simd_t w2, pf_simd_t w3);
+    pf_color_simd_t c1,
+    pf_color_simd_t c2,
+    pf_color_simd_t c3,
+    pf_simd_t w1,
+    pf_simd_t w2,
+    pf_simd_t w3);
 
 PFAPI pf_color_t
 pf_color_scale(
