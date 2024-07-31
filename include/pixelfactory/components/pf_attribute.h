@@ -43,18 +43,8 @@ typedef struct {
 
 /* Attribute Element Type */
 
-typedef union {
-    uint8_t     v_uint8_t;
-    int8_t      v_int8_t;
-    uint16_t    v_uint16_t;
-    int16_t     v_int16_t;
-    uint32_t    v_uint32_t;
-    int32_t     v_int32_t;
-    float       v_float;
-} pf_attrib_value_t;
-
 typedef struct {
-    pf_attrib_value_t   value[4];
+    pf_variant_t        value[4];
     pf_type_e           type;
     uint8_t             comp;
     bool                used;

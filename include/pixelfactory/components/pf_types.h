@@ -32,6 +32,16 @@ typedef enum {
     PF_FLOAT
 } pf_type_e;
 
+typedef union {
+    uint8_t     v_uint8_t;
+    int8_t      v_int8_t;
+    uint16_t    v_uint16_t;
+    int16_t     v_int16_t;
+    uint32_t    v_uint32_t;
+    int32_t     v_int32_t;
+    float       v_float;
+} pf_variant_t;
+
 static inline uint8_t
 pf_type_get_size(pf_type_e type)
 {
