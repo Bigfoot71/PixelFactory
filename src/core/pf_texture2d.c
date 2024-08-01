@@ -18,9 +18,6 @@
  */
 
 #include "pixelfactory/core/pf_texture2d.h"
-#include "pixelfactory/components/pf_pixel.h"
-#include <stddef.h>
-#include <string.h>
 
 pf_texture2d_t
 pf_texture2d_create(

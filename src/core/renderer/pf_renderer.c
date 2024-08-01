@@ -18,10 +18,6 @@
  */
 
 #include "pixelfactory/core/pf_renderer.h"
-#include "pixelfactory/components/pf_color.h"
-#include "pixelfactory/core/pf_depthbuffer.h"
-#include "pixelfactory/core/pf_framebuffer.h"
-#include "pixelfactory/misc/pf_stdinc.h"
 #include <float.h>
 
 /* Internal Macros */

@@ -17,8 +17,6 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/components/pf_processors.h"
-#include "pixelfactory/components/pf_vertex.h"
 #include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Functions Defintions */

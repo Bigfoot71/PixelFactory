@@ -17,8 +17,8 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/components/pf_color.h"
 #include "pixelfactory/core/pf_renderer.h"
+#include "pixelfactory/math/pf_vec2.h"
 
 /* Macros */
 

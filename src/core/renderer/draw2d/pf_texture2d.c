@@ -18,6 +18,7 @@
  */
 
 #include "pixelfactory/core/pf_renderer.h"
+#include "pixelfactory/math/pf_vec2.h"
 #include <float.h>
 
 #define PF_TRAVEL_TEXTURE2D(PIXEL_CODE)                                             \

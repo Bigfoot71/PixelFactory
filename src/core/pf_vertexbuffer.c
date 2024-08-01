@@ -1,5 +1,4 @@
 #include "pixelfactory/core/pf_vertexbuffer.h"
-#include "pixelfactory/math/pf_vec3.h"
 
 /* Helper Vertex Buffer Functions */
 

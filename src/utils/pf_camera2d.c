@@ -18,7 +18,6 @@
  */
 
 #include "pixelfactory/utils/pf_camera2d.h"
-#include <string.h>
 
 void
 pf_camera2d_translate(

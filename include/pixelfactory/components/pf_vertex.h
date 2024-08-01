@@ -20,8 +20,6 @@
 #ifndef PF_VERTEX_H
 #define PF_VERTEX_H
 
-#include "../math/pf_vec2.h"
-#include "../math/pf_vec4.h"
 #include "pf_attribute.h"
 #include "pf_color.h"
 

@@ -19,7 +19,6 @@
 
 #include "pixelfactory/core/pf_renderer.h"
 #include "pixelfactory/math/pf_mat3.h"
-#include <string.h>
 
 /* Internal Macros */
 

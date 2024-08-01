@@ -1,4 +1,3 @@
-#include "pixelfactory/core/pf_renderer.h"
 #include "pixelfactory/pf.h"
 #include <raylib.h>
 #include <float.h>
