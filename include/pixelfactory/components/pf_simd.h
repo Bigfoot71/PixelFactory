@@ -264,13 +264,28 @@ pf_simd_load_i32(const void* p)
 #endif
 }
 
+#if defined(__AVX2__)
+#   define pf_simd_extract_i32(v, index)   \
+        _mm256_extract_epi32(x, index)
+#elif defined(__SSE2__)
+#   define pf_simd_extract_i32(v, index)   \
+        _mm_extract_epi32(x, index)
+#else
+#   define pf_simd_extract_i32(v, index)   \
+        (v)
+#endif
+
 static inline int32_t
-pf_simd_extract_i32(pf_simd_i_t x, int32_t index)
+pf_simd_extract_i32_var_idx(pf_simd_i_t x, int32_t index)
 {
 #if defined(__AVX2__)
-    return _mm256_extract_epi32(x, index);
+    __m128i idx = _mm_cvtsi32_si128(index);
+    __m256i val = _mm256_permutevar8x32_epi32(x, _mm256_castsi128_si256(idx));
+    return _mm_cvtsi128_si32(_mm256_castsi256_si128(val));
 #elif defined(__SSE2__)
-    return _mm_extract_epi32(x, index);
+    union v_u { __m128i vec; int arr[4]; };
+    union v_u v = { .vec = x };
+    return v.arr[index];
 #else
     (void)index;
     return x; // Scalar fallback does not support extraction
