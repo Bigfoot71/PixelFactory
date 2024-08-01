@@ -13,18 +13,19 @@ typedef struct {
 } Uniforms;
 
 static bool WallCollision(Camera3D* camera, const Image* imMap);
-static void FragProcModel(struct pf_renderer3d* rn, pf_vertex_t* vertex, pf_color_t* outColor, const void* uniforms);
+static void FragProcModel(pf_renderer_t* rn, pf_vertex_t* vertex, pf_color_t* outColor, const void* uniforms);
 
 int main(void)
 {
     // Init raylib window and set target FPS
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - First Person 3D");
-    //SetTargetFPS(60);
+    SetTargetFPS(60);
     DisableCursor();
 
     // Create a rendering buffer in RAM
-    pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
-    rn.cull_mode = PF_CULL_BACK;
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, PF_RENDERER_3D);
+    rn.conf3d->depth_test = pf_depth_less;
+    rn.conf3d->cull_mode = PF_CULL_BACK;
 
     // Create a raylib raylib texture to render buffer
     Texture tex = LoadTextureFromImage((Image) {
@@ -84,7 +85,7 @@ int main(void)
             .z = 0.0,
         }, 0.0f);
 
-        pf_mat4_copy(rn.mat_view,
+        pf_mat4_copy(rn.conf3d->mat_view,
             MatrixToFloat(GetCameraMatrix(camera)));
 
         pf_vec3_copy(uniforms.camPos,
@@ -103,12 +104,12 @@ int main(void)
 
         // Draw
 
-        pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
+        pf_renderer_clear3d(&rn, PF_BLACK, FLT_MAX);
         for (int i = 0; i < model.meshCount; i++) {
             pf_proc3d_t proc = { 0 };
             proc.fragment = FragProcModel;
             proc.uniforms = &uniforms;
-            pf_renderer3d_vertexbuffer(&rn, &pfMeshes[i], NULL, &proc);
+            pf_renderer_vertexbuffer3d(&rn, &pfMeshes[i], NULL, &proc);
         }
 
         UpdateTexture(tex, rn.fb.buffer);
@@ -125,7 +126,7 @@ int main(void)
     UnloadModel(model);
 
     // Unload the renderer and related data
-    pf_renderer3d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     // Close raylib window
@@ -198,7 +199,7 @@ bool WallCollision(Camera3D* camera, const Image* imMap)
     return (adx > 0 && ady > 0);
 }
 
-void FragProcModel(pf_renderer3d_t* rn, pf_vertex_t* vertex, pf_color_t* outColor, const void* uniforms)
+void FragProcModel(pf_renderer_t* rn, pf_vertex_t* vertex, pf_color_t* outColor, const void* uniforms)
 {
     (void)rn;
 

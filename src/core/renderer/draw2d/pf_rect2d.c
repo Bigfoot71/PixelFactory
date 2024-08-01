@@ -17,7 +17,8 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer2d.h"
+#include "pixelfactory/components/pf_color.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Macros */
 
@@ -56,8 +57,8 @@
 /* Public API */
 
 void
-pf_renderer2d_rect(
-    pf_renderer2d_t* rn,
+pf_renderer_rect2d(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     pf_color_t color)
@@ -65,45 +66,19 @@ pf_renderer2d_rect(
     if (x1 > x2) PF_SWAP(x1, x2);
     if (y1 > y2) PF_SWAP(y1, y2);
 
-    if (pf_mat3_is_identity(rn->mat_view) != 0) {
-        int xmin = PF_CLAMP(x1, 0, (int)rn->fb.w - 1);
-        int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
-        int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
-        int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
-#if defined(_OPENMP)
-        if (rn->blend == NULL) {
-            PF_RECT_TRAVEL_OMP({
-                rn->fb.buffer[offset] = color;
-            })
-        } else {
-            PF_RECT_TRAVEL_OMP({
-                pf_color_t* ptr = rn->fb.buffer + offset;
-                *ptr = rn->blend(*ptr, color);
-            })
-        }
-#else
-        if (rn->blend == NULL) {
-            PF_RECT_TRAVEL({
-                rn->fb.buffer[offset] = color;
-            })
-        } else {
-            PF_RECT_TRAVEL({
-                pf_color_t* ptr = rn->fb.buffer + offset;
-                *ptr = rn->blend(*ptr, color);
-            })
-        }
-#endif
-    } else {
+    if (rn->conf2d != NULL && !pf_mat3_is_identity(rn->conf2d->mat_view)) {
+        float* mat_view = rn->conf2d->mat_view;
+
         pf_vec2_t p1 = { x1, y1 };
         pf_vec2_t p2 = { x2, y1 };
         pf_vec2_t p3 = { x2, y2 };
         pf_vec2_t p4 = { x1, y2 };
 
         // Transform rectangle corners
-        pf_vec2_transform(p1, p1, rn->mat_view);
-        pf_vec2_transform(p2, p2, rn->mat_view);
-        pf_vec2_transform(p3, p3, rn->mat_view);
-        pf_vec2_transform(p4, p4, rn->mat_view);
+        pf_vec2_transform(p1, p1, mat_view);
+        pf_vec2_transform(p2, p2, mat_view);
+        pf_vec2_transform(p3, p3, mat_view);
+        pf_vec2_transform(p4, p4, mat_view);
 
         // Determine bounding box boundaries
         int xmin = PF_CLAMP(PF_MIN(PF_MIN(p1[0], p2[0]), PF_MIN(p3[0], p4[0])), 0, (int)rn->fb.w - 1);
@@ -113,29 +88,61 @@ pf_renderer2d_rect(
 
         // Invert View Matrix
         pf_mat3_t mat_view_inv;
-        pf_mat3_inverse(mat_view_inv, rn->mat_view);
+        pf_mat3_inverse(mat_view_inv, mat_view);
 
         // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
 #if defined(_OPENMP)
-        if (rn->blend == NULL) {
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
             PF_RECT_TRANSFORM_TRAVEL_OMP({
-                rn->fb.buffer[offset] = color;
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                *ptr = blend(*ptr, color);
             })
         } else {
             PF_RECT_TRANSFORM_TRAVEL_OMP({
-                pf_color_t* ptr = rn->fb.buffer + offset;
-                *ptr = rn->blend(*ptr, color);
+                rn->fb.buffer[offset] = color;
             })
         }
 #else
-        if (rn->blend == NULL) {
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
             PF_RECT_TRANSFORM_TRAVEL({
-                rn->fb.buffer[offset] = color;
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                *ptr = blend(*ptr, color);
             })
         } else {
             PF_RECT_TRANSFORM_TRAVEL({
+                rn->fb.buffer[offset] = color;
+            })
+        }
+#endif
+    } else {
+        int xmin = PF_CLAMP(x1, 0, (int)rn->fb.w - 1);
+        int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
+        int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
+        int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
+#if defined(_OPENMP)
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
+            PF_RECT_TRAVEL_OMP({
                 pf_color_t* ptr = rn->fb.buffer + offset;
-                *ptr = rn->blend(*ptr, color);
+                *ptr = blend(*ptr, color);
+            })
+        } else {
+            PF_RECT_TRAVEL_OMP({
+                rn->fb.buffer[offset] = color;
+            })
+        }
+#else
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
+            PF_RECT_TRAVEL({
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                *ptr = blend(*ptr, color);
+            })
+        } else {
+            PF_RECT_TRAVEL({
+                rn->fb.buffer[offset] = color;
             })
         }
 #endif
@@ -143,8 +150,8 @@ pf_renderer2d_rect(
 }
 
 void
-pf_renderer2d_rect_gradient(
-    pf_renderer2d_t* rn,
+pf_renderer_rect2d_gradient(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     pf_color_t col_tl,
@@ -158,61 +165,19 @@ pf_renderer2d_rect_gradient(
     int w = abs(x2 - x1);
     int h = abs(y2 - y1);
 
-    if (pf_mat3_is_identity(rn->mat_view) != 0) {
-        int xmin = PF_CLAMP(x1, 0, (int)rn->fb.w - 1);
-        int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
-        int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
-        int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
-#if defined(_OPENMP)
-        if (rn->blend == NULL) {
-            PF_RECT_TRAVEL_OMP({
-                int ix = x - x1;
-                int iy = y - y1;
-                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
-                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
-                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
-            })
-        } else {
-            PF_RECT_TRAVEL_OMP({
-                int ix = x - x1;
-                int iy = y - y1;
-                pf_color_t* ptr = rn->fb.buffer + offset;
-                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
-                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
-                *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
-            })
-        }
-#else
-        if (rn->blend == NULL) {
-            PF_RECT_TRAVEL({
-                int ix = x - x1;
-                int iy = y - y1;
-                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
-                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
-                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
-            })
-        } else {
-            PF_RECT_TRAVEL({
-                int ix = x - x1;
-                int iy = y - y1;
-                pf_color_t* ptr = rn->fb.buffer + offset;
-                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
-                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
-                *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
-            })
-        }
-#endif
-    } else {
+    if (rn->conf2d != NULL && !pf_mat3_is_identity(rn->conf2d->mat_view)) {
+        float* mat_view = rn->conf2d->mat_view;
+
         pf_vec2_t p1 = { x1, y1 };
         pf_vec2_t p2 = { x2, y1 };
         pf_vec2_t p3 = { x2, y2 };
         pf_vec2_t p4 = { x1, y2 };
 
         // Transform rectangle corners
-        pf_vec2_transform(p1, p1, rn->mat_view);
-        pf_vec2_transform(p2, p2, rn->mat_view);
-        pf_vec2_transform(p3, p3, rn->mat_view);
-        pf_vec2_transform(p4, p4, rn->mat_view);
+        pf_vec2_transform(p1, p1, mat_view);
+        pf_vec2_transform(p2, p2, mat_view);
+        pf_vec2_transform(p3, p3, mat_view);
+        pf_vec2_transform(p4, p4, mat_view);
 
         // Determine bounding box boundaries
         int xmin = PF_CLAMP(PF_MIN(PF_MIN(p1[0], p2[0]), PF_MIN(p3[0], p4[0])), 0, (int)rn->fb.w - 1);
@@ -222,30 +187,41 @@ pf_renderer2d_rect_gradient(
 
         // Invert View Matrix
         pf_mat3_t mat_view_inv;
-        pf_mat3_inverse(mat_view_inv, rn->mat_view);
+        pf_mat3_inverse(mat_view_inv, mat_view);
 
         // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
 #if defined(_OPENMP)
-        if (rn->blend == NULL) {
-            PF_RECT_TRANSFORM_TRAVEL_OMP({
-                int ix = x - x1;
-                int iy = y - y1;
-                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
-                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
-                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
-            })
-        } else {
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
             PF_RECT_TRANSFORM_TRAVEL_OMP({
                 int ix = x - x1;
                 int iy = y - y1;
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
                 pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
-                *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+                *ptr = blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+            })
+        } else {
+            PF_RECT_TRANSFORM_TRAVEL_OMP({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
             })
         }
 #else
-        if (rn->blend == NULL) {
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
+            PF_RECT_TRANSFORM_TRAVEL({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                *ptr = blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+            })
+        } else {
             PF_RECT_TRANSFORM_TRAVEL({
                 int ix = x - x1;
                 int iy = y - y1;
@@ -253,14 +229,51 @@ pf_renderer2d_rect_gradient(
                 pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
                 rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
             })
-        } else {
-            PF_RECT_TRANSFORM_TRAVEL({
+        }
+#endif
+    } else {
+        int xmin = PF_CLAMP(x1, 0, (int)rn->fb.w - 1);
+        int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
+        int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
+        int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
+#if defined(_OPENMP)
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
+            PF_RECT_TRAVEL_OMP({
                 int ix = x - x1;
                 int iy = y - y1;
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
                 pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
-                *ptr = rn->blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+                *ptr = blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+            })
+        } else {
+            PF_RECT_TRAVEL_OMP({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
+            })
+        }
+#else
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
+            PF_RECT_TRAVEL({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t* ptr = rn->fb.buffer + offset;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                *ptr = blend(*ptr, pf_color_lerpi(color_top, color_bottom, iy, h));
+            })
+        } else {
+            PF_RECT_TRAVEL({
+                int ix = x - x1;
+                int iy = y - y1;
+                pf_color_t color_top = pf_color_lerpi(col_tl, col_tr, ix, w);
+                pf_color_t color_bottom = pf_color_lerpi(col_bl, col_br, ix, w);
+                rn->fb.buffer[offset] = pf_color_lerpi(color_top, color_bottom, iy, h);
             })
         }
 #endif
@@ -268,14 +281,13 @@ pf_renderer2d_rect_gradient(
 }
 
 void
-pf_renderer2d_rect_map(
-    pf_renderer2d_t* rn,
+pf_renderer_rect2d_map(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     const pf_proc2d_t* proc)
 {
-    /* Setup processor */
-
+    // Setup processor
     pf_proc2d_fragment_fn fragment = pf_proc2d_fragment_default;
     const void* uniforms = NULL;
 
@@ -284,28 +296,48 @@ pf_renderer2d_rect_map(
         if (proc->uniforms != NULL) uniforms = proc->uniforms;
     }
 
-    /* Transformation and Rendering */
-
+    // Transformation and Rendering
     if (x1 > x2) PF_SWAP(x1, x2);
     if (y1 > y2) PF_SWAP(y1, y2);
 
-    if (pf_mat3_is_identity(rn->mat_view) != 0) {
-        int xmin = PF_CLAMP(x1, 0, (int)rn->fb.w - 1);
-        int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
-        int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
-        int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
+    if (rn->conf2d != NULL && !pf_mat3_is_identity(rn->conf2d->mat_view)) {
+        float* mat_view = rn->conf2d->mat_view;
+
+        pf_vec2_t p1 = { x1, y1 };
+        pf_vec2_t p2 = { x2, y1 };
+        pf_vec2_t p3 = { x2, y2 };
+        pf_vec2_t p4 = { x1, y2 };
+
+        // Transform rectangle corners
+        pf_vec2_transform(p1, p1, mat_view);
+        pf_vec2_transform(p2, p2, mat_view);
+        pf_vec2_transform(p3, p3, mat_view);
+        pf_vec2_transform(p4, p4, mat_view);
+
+        // Determine bounding box boundaries
+        int xmin = PF_CLAMP(PF_MIN(PF_MIN(p1[0], p2[0]), PF_MIN(p3[0], p4[0])), 0, (int)rn->fb.w - 1);
+        int ymin = PF_CLAMP(PF_MIN(PF_MIN(p1[1], p2[1]), PF_MIN(p3[1], p4[1])), 0, (int)rn->fb.h - 1);
+        int xmax = PF_CLAMP(PF_MAX(PF_MAX(p1[0], p2[0]), PF_MAX(p3[0], p4[0])), 0, (int)rn->fb.w - 1);
+        int ymax = PF_CLAMP(PF_MAX(PF_MAX(p1[1], p2[1]), PF_MAX(p3[1], p4[1])), 0, (int)rn->fb.h - 1);
+
+        // Invert View Matrix
+        pf_mat3_t mat_view_inv;
+        pf_mat3_inverse(mat_view_inv, mat_view);
+
+        // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
 #if defined(_OPENMP)
-        if (rn->blend != NULL) {
-            PF_RECT_TRAVEL_OMP({
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
+            PF_RECT_TRANSFORM_TRAVEL_OMP({
                 pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
                 fragment(rn, &vertex, &final_color, uniforms);
-                *ptr = rn->blend(*ptr, final_color);
+                *ptr = blend(*ptr, final_color);
             })
         } else {
-            PF_RECT_TRAVEL_OMP({
+            PF_RECT_TRANSFORM_TRAVEL_OMP({
                 pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
@@ -315,17 +347,18 @@ pf_renderer2d_rect_map(
             })
         }
 #else
-        if (rn->blend != NULL) {
-            PF_RECT_TRAVEL({
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
+            PF_RECT_TRANSFORM_TRAVEL({
                 pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
                 fragment(rn, &vertex, &final_color, uniforms);
-                *ptr = rn->blend(*ptr, final_color);
+                *ptr = blend(*ptr, final_color);
             })
         } else {
-            PF_RECT_TRAVEL({
+            PF_RECT_TRANSFORM_TRAVEL({
                 pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
@@ -336,37 +369,20 @@ pf_renderer2d_rect_map(
         }
 #endif
     } else {
-        pf_vec2_t p1 = { x1, y1 };
-        pf_vec2_t p2 = { x2, y1 };
-        pf_vec2_t p3 = { x2, y2 };
-        pf_vec2_t p4 = { x1, y2 };
-
-        // Transform rectangle corners
-        pf_vec2_transform(p1, p1, rn->mat_view);
-        pf_vec2_transform(p2, p2, rn->mat_view);
-        pf_vec2_transform(p3, p3, rn->mat_view);
-        pf_vec2_transform(p4, p4, rn->mat_view);
-
-        // Determine bounding box boundaries
-        int xmin = PF_CLAMP(PF_MIN(PF_MIN(p1[0], p2[0]), PF_MIN(p3[0], p4[0])), 0, (int)rn->fb.w - 1);
-        int ymin = PF_CLAMP(PF_MIN(PF_MIN(p1[1], p2[1]), PF_MIN(p3[1], p4[1])), 0, (int)rn->fb.h - 1);
-        int xmax = PF_CLAMP(PF_MAX(PF_MAX(p1[0], p2[0]), PF_MAX(p3[0], p4[0])), 0, (int)rn->fb.w - 1);
-        int ymax = PF_CLAMP(PF_MAX(PF_MAX(p1[1], p2[1]), PF_MAX(p3[1], p4[1])), 0, (int)rn->fb.h - 1);
-
-        // Invert View Matrix
-        pf_mat3_t mat_view_inv;
-        pf_mat3_inverse(mat_view_inv, rn->mat_view);
-
-        // Iterate over each pixel in the bounding box and check if it is in the transformed rectangle
+        int xmin = PF_CLAMP(x1, 0, (int)rn->fb.w - 1);
+        int ymin = PF_CLAMP(y1, 0, (int)rn->fb.h - 1);
+        int xmax = PF_CLAMP(x2, 0, (int)rn->fb.w - 1);
+        int ymax = PF_CLAMP(y2, 0, (int)rn->fb.h - 1);
 #if defined(_OPENMP)
-        if (rn->blend != NULL) {
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
             PF_RECT_TRAVEL_OMP({
                 pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
                 fragment(rn, &vertex, &final_color, uniforms);
-                *ptr = rn->blend(*ptr, final_color);
+                *ptr = blend(*ptr, final_color);
             })
         } else {
             PF_RECT_TRAVEL_OMP({
@@ -379,14 +395,15 @@ pf_renderer2d_rect_map(
             })
         }
 #else
-        if (rn->blend != NULL) {
+        if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+            pf_color_blend_fn blend = rn->conf2d->color_blend;
             PF_RECT_TRAVEL({
                 pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
                 pf_color_t *ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
                 fragment(rn, &vertex, &final_color, uniforms);
-                *ptr = rn->blend(*ptr, final_color);
+                *ptr = blend(*ptr, final_color);
             })
         } else {
             PF_RECT_TRAVEL({
@@ -403,21 +420,21 @@ pf_renderer2d_rect_map(
 }
 
 void
-pf_renderer2d_rect_lines(
-    pf_renderer2d_t* rn,
+pf_renderer_rect2d_lines(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     pf_color_t color)
 {
-    pf_renderer2d_line(rn, x1, y1, x2, y1, color);
-    pf_renderer2d_line(rn, x2, y1, x2, y2, color);
-    pf_renderer2d_line(rn, x2, y2, x1, y2, color);
-    pf_renderer2d_line(rn, x1, y2, x1, y1, color);
+    pf_renderer_line2d(rn, x1, y1, x2, y1, color);
+    pf_renderer_line2d(rn, x2, y1, x2, y2, color);
+    pf_renderer_line2d(rn, x2, y2, x1, y2, color);
+    pf_renderer_line2d(rn, x1, y2, x1, y1, color);
 }
 
 void
-pf_renderer2d_rect_lines_gradient(
-    pf_renderer2d_t* rn,
+pf_renderer_rect2d_lines_gradient(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     pf_color_t col_tl,
@@ -425,42 +442,42 @@ pf_renderer2d_rect_lines_gradient(
     pf_color_t col_br,
     pf_color_t col_bl)
 {
-    pf_renderer2d_line_gradient(rn, x1, y1, x2, y1, col_tl, col_tr);
-    pf_renderer2d_line_gradient(rn, x2, y1, x2, y2, col_tr, col_br);
-    pf_renderer2d_line_gradient(rn, x2, y2, x1, y2, col_br, col_bl);
-    pf_renderer2d_line_gradient(rn, x1, y2, x1, y1, col_bl, col_tl);
+    pf_renderer_line2d_gradient(rn, x1, y1, x2, y1, col_tl, col_tr);
+    pf_renderer_line2d_gradient(rn, x2, y1, x2, y2, col_tr, col_br);
+    pf_renderer_line2d_gradient(rn, x2, y2, x1, y2, col_br, col_bl);
+    pf_renderer_line2d_gradient(rn, x1, y2, x1, y1, col_bl, col_tl);
 }
 
 void
-pf_renderer2d_rect_lines_map(
-    pf_renderer2d_t* rn,
+pf_renderer_rect_lines_map(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     const pf_proc2d_t* proc)
 {
-    pf_renderer2d_line_map(rn, x1, y1, x2, y1, proc);
-    pf_renderer2d_line_map(rn, x2, y1, x2, y2, proc);
-    pf_renderer2d_line_map(rn, x2, y2, x1, y2, proc);
-    pf_renderer2d_line_map(rn, x1, y2, x1, y1, proc);
+    pf_renderer_line2d_map(rn, x1, y1, x2, y1, proc);
+    pf_renderer_line2d_map(rn, x2, y1, x2, y2, proc);
+    pf_renderer_line2d_map(rn, x2, y2, x1, y2, proc);
+    pf_renderer_line2d_map(rn, x1, y2, x1, y1, proc);
 }
 
 void
-pf_renderer2d_rect_lines_thick(
-    pf_renderer2d_t* rn,
+pf_renderer_rect_lines_thick(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int thick,
     pf_color_t color)
 {
-    pf_renderer2d_line_thick(rn, x1, y1, x2, y1, thick, color);
-    pf_renderer2d_line_thick(rn, x2, y1, x2, y2, thick, color);
-    pf_renderer2d_line_thick(rn, x2, y2, x1, y2, thick, color);
-    pf_renderer2d_line_thick(rn, x1, y2, x1, y1, thick, color);
+    pf_renderer_line2d_thick(rn, x1, y1, x2, y1, thick, color);
+    pf_renderer_line2d_thick(rn, x2, y1, x2, y2, thick, color);
+    pf_renderer_line2d_thick(rn, x2, y2, x1, y2, thick, color);
+    pf_renderer_line2d_thick(rn, x1, y2, x1, y1, thick, color);
 }
 
 void
-pf_renderer2d_rect_lines_thick_gradient(
-    pf_renderer2d_t* rn,
+pf_renderer_rect_lines_thick_gradient(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int thick, pf_color_t col_tl,
@@ -468,22 +485,22 @@ pf_renderer2d_rect_lines_thick_gradient(
     pf_color_t col_br,
     pf_color_t col_bl)
 {
-    pf_renderer2d_line_thick_gradient(rn, x1, y1, x2, y1, thick, col_tl, col_tr);
-    pf_renderer2d_line_thick_gradient(rn, x2, y1, x2, y2, thick, col_tr, col_br);
-    pf_renderer2d_line_thick_gradient(rn, x2, y2, x1, y2, thick, col_br, col_bl);
-    pf_renderer2d_line_thick_gradient(rn, x1, y2, x1, y1, thick, col_bl, col_tl);
+    pf_renderer_line2d_thick_gradient(rn, x1, y1, x2, y1, thick, col_tl, col_tr);
+    pf_renderer_line2d_thick_gradient(rn, x2, y1, x2, y2, thick, col_tr, col_br);
+    pf_renderer_line2d_thick_gradient(rn, x2, y2, x1, y2, thick, col_br, col_bl);
+    pf_renderer_line2d_thick_gradient(rn, x1, y2, x1, y1, thick, col_bl, col_tl);
 }
 
 void
-pf_renderer2d_rect_lines_thick_map(
-    pf_renderer2d_t* rn,
+pf_renderer_rect_lines_thick_map(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int thick,
     const pf_proc2d_t* proc)
 {
-    pf_renderer2d_line_thick_map(rn, x1, y1, x2, y1, thick, proc);
-    pf_renderer2d_line_thick_map(rn, x2, y1, x2, y2, thick, proc);
-    pf_renderer2d_line_thick_map(rn, x2, y2, x1, y2, thick, proc);
-    pf_renderer2d_line_thick_map(rn, x1, y2, x1, y1, thick, proc);
+    pf_renderer_line2d_thick_map(rn, x1, y1, x2, y1, thick, proc);
+    pf_renderer_line2d_thick_map(rn, x2, y1, x2, y2, thick, proc);
+    pf_renderer_line2d_thick_map(rn, x2, y2, x1, y2, thick, proc);
+    pf_renderer_line2d_thick_map(rn, x1, y2, x1, y1, thick, proc);
 }

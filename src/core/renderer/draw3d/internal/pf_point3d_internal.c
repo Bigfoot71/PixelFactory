@@ -17,7 +17,7 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer3d.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Drawing Macros */
 
@@ -46,7 +46,7 @@
                 uint32_t px = screen_pos[0] + x;                                \
                 size_t offset = py * rn->fb.w + px;                             \
                 if (px < rn->fb.w && py < rn->fb.h) {                           \
-                    if (rn->test(rn->zb.buffer[offset], homogen[2])) {          \
+                    if (test(rn->zb.buffer[offset], homogen[2])) {              \
                         rn->zb.buffer[offset] = homogen[2];                     \
                         PIXEL_CODE                                              \
                     }                                                           \
@@ -67,13 +67,13 @@
     pf_color_t* ptr = rn->fb.buffer + offset;                           \
     pf_color_t final_color = *ptr;                                      \
     proc->fragment(rn, &vertex, &final_color, proc->uniforms);          \
-    *ptr = rn->blend(*ptr, final_color);
+    *ptr = blend(*ptr, final_color);
 
 /* Helper Function Declarations */
 
 void
-pf_renderer3d_screen_projection_INTERNAL(
-    const pf_renderer3d_t* rn,
+pf_renderer_screen_projection_INTERNAL(
+    const pf_renderer_t* rn,
     pf_vec4_t* homogeneous,
     pf_vertex_t* vertices,
     size_t vertices_count,
@@ -82,8 +82,8 @@ pf_renderer3d_screen_projection_INTERNAL(
 /* Internal Clipping Function */
 
 static void
-pf_clip3d_point_INTERNAL(
-    const struct pf_renderer3d* rn,
+pf_clip3d_point3d_INTERNAL(
+    const struct pf_renderer* rn,
     pf_vertex_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count)
@@ -104,8 +104,8 @@ pf_clip3d_point_INTERNAL(
 /* Internal Rendering Functions */
 
 void
-pf_renderer3d_point_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
+pf_renderer_point3d_INTERNAL(
+    pf_renderer_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc)
 {
@@ -115,28 +115,31 @@ pf_renderer3d_point_INTERNAL(
     size_t num = 1;
 
     proc->vertex(&vertex, homogen, mat_model, mat_normal, mat_mvp, proc->uniforms);
-    pf_clip3d_point_INTERNAL(rn, &vertex, &homogen, &num);
+    pf_clip3d_point3d_INTERNAL(rn, &vertex, &homogen, &num);
     if (num != 1) return;
 
-    pf_renderer3d_screen_projection_INTERNAL(
+    pf_renderer_screen_projection_INTERNAL(
         rn, &homogen, &vertex, num, &screen_pos);
+
+    pf_color_blend_fn blend = rn->conf3d->color_blend;
+    pf_depth_test_fn test = rn->conf3d->depth_test;
 
     if (radius == 0) {
         size_t offset = screen_pos[1] * rn->fb.w + screen_pos[0];
-        if (rn->test != NULL && rn->test(rn->zb.buffer[offset], homogen[2])) {
+        if (test != NULL && test(rn->zb.buffer[offset], homogen[2])) {
             pf_color_t* ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
             proc->fragment(rn, &vertex, &final_color, proc->uniforms);
-            *ptr = (rn->blend != NULL) ? rn->blend(*ptr, final_color) : final_color;
+            *ptr = (blend != NULL) ? blend(*ptr, final_color) : final_color;
         } else {
             pf_color_t* ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
             proc->fragment(rn, &vertex, &final_color, proc->uniforms);
-            *ptr = (rn->blend != NULL) ? rn->blend(*ptr, final_color) : final_color;
+            *ptr = (blend != NULL) ? blend(*ptr, final_color) : final_color;
         }
     } else {
-        if (rn->test != NULL) {
-            if (rn->blend != NULL) {
+        if (test != NULL) {
+            if (blend != NULL) {
                 PF_POINT_THICK_TRAVEL_DEPTH({
                     PF_PIXEL_CODE_BLEND()
                 })
@@ -146,7 +149,7 @@ pf_renderer3d_point_INTERNAL(
                 })
             }
         } else {
-            if (rn->blend != NULL) {
+            if (blend != NULL) {
                 PF_POINT_THICK_TRAVEL_NODEPTH({
                     PF_PIXEL_CODE_BLEND()
                 })

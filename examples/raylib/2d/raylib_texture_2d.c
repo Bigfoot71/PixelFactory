@@ -4,7 +4,7 @@
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
-void frag_proc(struct pf_renderer2d* rn, pf_vertex_t* vertex, pf_color_t* out_color, const void* uniforms)
+void frag_proc(pf_renderer_t* rn, pf_vertex_t* vertex, pf_color_t* out_color, const void* uniforms)
 {
     (void)rn;
 
@@ -28,7 +28,9 @@ int main()
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Texture 2D");
     HideCursor();
 
-    pf_renderer2d_t rn = pf_renderer2d_create(SCREEN_WIDTH, SCREEN_HEIGHT, pf_color_blend_alpha);
+    // NOTE: We use the 'PF_RENDERER_2D' flag to get the use of the color blending
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, PF_RENDERER_2D);
+    rn.conf2d->color_blend = pf_color_blend_alpha;
 
     Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
@@ -43,9 +45,9 @@ int main()
 
     while (!WindowShouldClose())
     {
-        pf_renderer2d_clear(&rn, PF_WHITE);
-        pf_renderer2d_texture2d_ex_tint(&rn, &pfTex, 800/2, 600/2, 0.65f, 0.65f, GetTime(), 256, 256, PF_GREEN);
-        pf_renderer2d_texture2d_ex_map(&rn, &pfTex, GetMouseX(), GetMouseY(), 0.45f, 0.45f, 0, 256, 256, frag_proc);
+        pf_renderer_clear2d(&rn, PF_WHITE);
+        pf_renderer_texture2d_ex_tint(&rn, &pfTex, 800/2, 600/2, 0.65f, 0.65f, GetTime(), 256, 256, PF_GREEN);
+        pf_renderer_texture2d_ex_map(&rn, &pfTex, GetMouseX(), GetMouseY(), 0.45f, 0.45f, 0, 256, 256, frag_proc);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -56,7 +58,7 @@ int main()
         EndDrawing();
     }
 
-    pf_renderer2d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
     UnloadImage(image);
 

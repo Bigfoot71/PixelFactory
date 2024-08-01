@@ -8,7 +8,8 @@ int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Rect 2D");
 
-    pf_renderer2d_t rn = pf_renderer2d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
+    // NOTE: We use the 'PF_RENDERER_2D' flag to get the use of the 2D view matrix
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, PF_RENDERER_2D);
 
     Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
@@ -27,7 +28,7 @@ int main()
 
     while (!WindowShouldClose())
     {
-        pf_renderer2d_clear(&rn, PF_BLACK);
+        pf_renderer_clear2d(&rn, PF_BLACK);
 
         //pf_renderer2d_rect_gradient(&rn, -500, -500, 1400, 1100,
         //    PF_RED, PF_BLUE, PF_GREEN, PF_YELLOW);
@@ -36,9 +37,9 @@ int main()
 
         pf_mat3_t mat;
         pf_camera2d_get_view_matrix(&cam, mat);
-        memcpy(rn.mat_view, mat, sizeof(pf_mat3_t));
+        memcpy(rn.conf2d->mat_view, mat, sizeof(pf_mat3_t));
 
-        pf_renderer2d_rect(&rn, 100, 100, 700, 500, PF_RED);
+        pf_renderer_rect2d(&rn, 100, 100, 700, 500, PF_RED);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -49,7 +50,7 @@ int main()
         EndDrawing();
     }
 
-    pf_renderer2d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     CloseWindow();

@@ -36,7 +36,7 @@ pf_proc2d_vertex_default(
 
 void
 pf_proc2d_fragment_default(
-    struct pf_renderer2d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms)
@@ -52,7 +52,7 @@ pf_proc2d_fragment_default(
 
 void
 pf_proc2d_fragment_texture_as_uniform(
-    struct pf_renderer2d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms)
@@ -116,7 +116,7 @@ pf_proc3d_vertex_normal_transform(
 
 void
 pf_proc3d_fragment_default(
-    struct pf_renderer3d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms)

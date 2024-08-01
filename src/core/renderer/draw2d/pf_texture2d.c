@@ -17,7 +17,7 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer2d.h"
+#include "pixelfactory/core/pf_renderer.h"
 #include <float.h>
 
 #define PF_TRAVEL_TEXTURE2D(PIXEL_CODE)                                             \
@@ -105,46 +105,48 @@
     PF_TRAVEL_TEXTURE2D_MAT(PIXEL_CODE)
 
 void
-pf_renderer2d_texture2d(
-    pf_renderer2d_t* rn,
+pf_renderer_texture2d(
+    pf_renderer_t* rn,
     const pf_texture2d_t* tex,
     int x, int y)
 {
-    if (rn->blend == NULL) {
+    if (rn->conf2d != NULL && rn->conf2d->color_blend) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRAVEL_TEXTURE2D({
-            fb->buffer[fb_offset] = tex->getter(tex->texels, t_offset);
+            pf_color_t* ptr = fb->buffer + fb_offset;
+            *ptr = blend(*ptr, tex->getter(tex->texels, t_offset));
         })
     } else {
         PF_TRAVEL_TEXTURE2D({
-            pf_color_t* ptr = fb->buffer + fb_offset;
-            *ptr = rn->blend(*ptr, tex->getter(tex->texels, t_offset));
+            fb->buffer[fb_offset] = tex->getter(tex->texels, t_offset);
         })
     }
 }
 
 void
-pf_renderer2d_texture2d_tint(
-    pf_renderer2d_t* rn,
+pf_renderer_texture2d_tint(
+    pf_renderer_t* rn,
     const pf_texture2d_t* tex,
     int x, int y, pf_color_t tint)
 {
-    if (rn->blend == NULL) {
+    if (rn->conf2d != NULL && rn->conf2d->color_blend) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
+        PF_TRAVEL_TEXTURE2D({
+            pf_color_t* ptr = fb->buffer + fb_offset;
+            pf_color_t texel = tex->getter(tex->texels, t_offset);
+            *ptr = blend(*ptr, pf_color_blend_mul(texel, tint));
+        })
+    } else {
         PF_TRAVEL_TEXTURE2D({
             pf_color_t texel = tex->getter(tex->texels, t_offset);
             fb->buffer[fb_offset] = pf_color_blend_mul(texel, tint);
         })
-    } else {
-        PF_TRAVEL_TEXTURE2D({
-            pf_color_t* ptr = fb->buffer + fb_offset;
-            pf_color_t texel = tex->getter(tex->texels, t_offset);
-            *ptr = rn->blend(*ptr, pf_color_blend_mul(texel, tint));
-        })
     }
 }
 
 void
-pf_renderer2d_texture2d_ex(
-    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+pf_renderer_texture2d_ex(
+    pf_renderer_t *rn, const pf_texture2d_t *tex,
     int x, int y, float sx, float sy,
     float r, int ox, int oy)
 {
@@ -177,12 +179,12 @@ pf_renderer2d_texture2d_ex(
     }
 
     // Calling the ex function with the full transformation matrix
-    pf_renderer2d_texture2d_mat(rn, tex, transform);
+    pf_renderer_texture2d_mat(rn, tex, transform);
 }
 
 void
-pf_renderer2d_texture2d_ex_tint(
-    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+pf_renderer_texture2d_ex_tint(
+    pf_renderer_t *rn, const pf_texture2d_t *tex,
     int x, int y, float sx, float sy,
     float r, int ox, int oy,
     pf_color_t tint)
@@ -216,12 +218,12 @@ pf_renderer2d_texture2d_ex_tint(
     }
 
     // Calling the ex function with the full transformation matrix
-    pf_renderer2d_texture2d_mat_tint(rn, tex, transform, tint);
+    pf_renderer_texture2d_mat_tint(rn, tex, transform, tint);
 }
 
 void
-pf_renderer2d_texture2d_ex_map(
-    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+pf_renderer_texture2d_ex_map(
+    pf_renderer_t *rn, const pf_texture2d_t *tex,
     int x, int y, float sx, float sy,
     float r, int ox, int oy,
     pf_proc2d_fragment_fn frag_proc)
@@ -255,13 +257,13 @@ pf_renderer2d_texture2d_ex_map(
     }
 
     // Calling the ex function with the full transformation matrix
-    pf_renderer2d_texture2d_mat_map(rn, tex, transform, frag_proc);
+    pf_renderer_texture2d_mat_map(rn, tex, transform, frag_proc);
 }
 
 // TODO: It would be more ideal if the function was implemented without having to render via vertexbuffers
 void
-pf_renderer2d_texture2d_rec(
-    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+pf_renderer_texture2d_rec(
+    pf_renderer_t *rn, const pf_texture2d_t *tex,
     const int* src_rect, const int* dst_rect,
     float r, int ox, int oy)
 {
@@ -354,15 +356,15 @@ pf_renderer2d_texture2d_rec(
     proc.fragment = pf_proc2d_fragment_texture_as_uniform;
     proc.uniforms = tex;
 
-    pf_renderer2d_vertexbuffer(rn,
+    pf_renderer_vertexbuffer2d(rn,
         (const pf_vertexbuffer_t*)(&vb),
-        rn->mat_view, &proc);
+        rn->conf2d ? rn->conf2d->mat_view : NULL, &proc);
 }
 
 // TODO: It would be more ideal if the function was implemented without having to render via vertexbuffers
 void
-pf_renderer2d_texture2d_rec_tint(
-    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+pf_renderer_texture2d_rec_tint(
+    pf_renderer_t *rn, const pf_texture2d_t *tex,
     const int* src_rect, const int* dst_rect,
     float r, int ox, int oy,
     pf_color_t tint)
@@ -463,15 +465,15 @@ pf_renderer2d_texture2d_rec_tint(
     proc.fragment = pf_proc2d_fragment_texture_as_uniform;
     proc.uniforms = tex;
 
-    pf_renderer2d_vertexbuffer(rn,
+    pf_renderer_vertexbuffer2d(rn,
         (const pf_vertexbuffer_t*)(&vb),
-        rn->mat_view, &proc);
+        rn->conf2d ? rn->conf2d->mat_view : NULL, &proc);
 }
 
 // TODO: It would be more ideal if the function was implemented without having to render via vertexbuffers
 void
-pf_renderer2d_texture2d_rec_map(
-    pf_renderer2d_t *rn, const pf_texture2d_t *tex,
+pf_renderer_texture2d_rec_map(
+    pf_renderer_t *rn, const pf_texture2d_t *tex,
     const int* src_rect, const int* dst_rect,
     float r, int ox, int oy,
     pf_proc2d_fragment_fn frag_proc)
@@ -565,51 +567,53 @@ pf_renderer2d_texture2d_rec_map(
     proc.fragment = frag_proc;
     proc.uniforms = tex;
 
-    pf_renderer2d_vertexbuffer(rn,
+    pf_renderer_vertexbuffer2d(rn,
         (const pf_vertexbuffer_t*)(&vb),
-        rn->mat_view, &proc);
+        rn->conf2d ? rn->conf2d->mat_view : NULL, &proc);
 }
 
 void
-pf_renderer2d_texture2d_mat(
-    pf_renderer2d_t* rn,
+pf_renderer_texture2d_mat(
+    pf_renderer_t* rn,
     const pf_texture2d_t* tex,
     pf_mat3_t transform)
 {
     PF_PREPARE_TEXTURE2D_MAT();
 
 #if defined(_OPENMP)
-    if (rn->blend == NULL) {
-        PF_TRAVEL_TEXTURE2D_MAT_OMP({
-            pf_color_t texel = tex->sampler(tex, u, v);
-            fb->buffer[y * fb->w + x] = texel;
-        })
-    } else {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRAVEL_TEXTURE2D_MAT_OMP({
             pf_color_t* ptr = fb->buffer + y * fb->w + x;
             pf_color_t texel = tex->sampler(tex, u, v);
-            *ptr = rn->blend(*ptr, texel);
+            *ptr = blend(*ptr, texel);
+        })
+    } else {
+        PF_TRAVEL_TEXTURE2D_MAT_OMP({
+            pf_color_t texel = tex->sampler(tex, u, v);
+            fb->buffer[y * fb->w + x] = texel;
         })
     }
 #else
-    if (rn->blend == NULL) {
-        PF_TRAVEL_TEXTURE2D_MAT({
-            pf_color_t texel = tex->sampler(tex, u, v);
-            fb->buffer[y * fb->w + x] = texel;
-        })
-    } else {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRAVEL_TEXTURE2D_MAT({
             pf_color_t* ptr = fb->buffer + y * fb->w + x;
             pf_color_t texel = tex->sampler(tex, u, v);
-            *ptr = rn->blend(*ptr, texel);
+            *ptr = blend(*ptr, texel);
+        })
+    } else {
+        PF_TRAVEL_TEXTURE2D_MAT({
+            pf_color_t texel = tex->sampler(tex, u, v);
+            fb->buffer[y * fb->w + x] = texel;
         })
     }
 #endif
 }
 
 void
-pf_renderer2d_texture2d_mat_tint(
-    pf_renderer2d_t* rn,
+pf_renderer_texture2d_mat_tint(
+    pf_renderer_t* rn,
     const pf_texture2d_t* tex,
     pf_mat3_t transform,
     pf_color_t tint)
@@ -617,37 +621,39 @@ pf_renderer2d_texture2d_mat_tint(
     PF_PREPARE_TEXTURE2D_MAT();
 
 #if defined(_OPENMP)
-    if (rn->blend == NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRAVEL_TEXTURE2D_MAT_OMP({
             pf_color_t texel = tex->sampler(tex, u, v);
-            fb->buffer[y * fb->w + x] = pf_color_blend_mul(texel, tint);
+            pf_color_t* ptr = fb->buffer + y * fb->w + x;
+            *ptr = blend(*ptr, pf_color_blend_mul(texel, tint));
         })
     } else {
         PF_TRAVEL_TEXTURE2D_MAT_OMP({
             pf_color_t texel = tex->sampler(tex, u, v);
-            pf_color_t* ptr = fb->buffer + y * fb->w + x;
-            *ptr = rn->blend(*ptr, pf_color_blend_mul(texel, tint));
+            fb->buffer[y * fb->w + x] = pf_color_blend_mul(texel, tint);
         })
     }
 #else
-    if (rn->blend == NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRAVEL_TEXTURE2D_MAT({
             pf_color_t texel = tex->sampler(tex, u, v);
-            fb->buffer[y * fb->w + x] = pf_color_blend_mul(texel, tint);
+            pf_color_t* ptr = fb->buffer + y * fb->w + x;
+            *ptr = blend(*ptr, pf_color_blend_mul(texel, tint));
         })
     } else {
         PF_TRAVEL_TEXTURE2D_MAT({
             pf_color_t texel = tex->sampler(tex, u, v);
-            pf_color_t* ptr = fb->buffer + y * fb->w + x;
-            *ptr = rn->blend(*ptr, pf_color_blend_mul(texel, tint));
+            fb->buffer[y * fb->w + x] = pf_color_blend_mul(texel, tint);
         })
     }
 #endif
 }
 
 void
-pf_renderer2d_texture2d_mat_map(
-    pf_renderer2d_t* rn,
+pf_renderer_texture2d_mat_map(
+    pf_renderer_t* rn,
     const pf_texture2d_t* tex,
     pf_mat3_t transform,
     pf_proc2d_fragment_fn frag_proc)
@@ -655,14 +661,15 @@ pf_renderer2d_texture2d_mat_map(
     PF_PREPARE_TEXTURE2D_MAT();
 
 #if defined(_OPENMP)
-    if (rn->blend != NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRAVEL_TEXTURE2D_MAT_OMP({
             pf_vertex_t vertex = pf_vertex_create_2d(x, y, u, v, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
             frag_proc(rn, &vertex, &final_color, tex);
-            *ptr = rn->blend(*ptr, final_color);
+            *ptr = blend(*ptr, final_color);
         })
     } else {
         PF_TRAVEL_TEXTURE2D_MAT_OMP({
@@ -675,14 +682,15 @@ pf_renderer2d_texture2d_mat_map(
         })
     }
 #else
-    if (rn->blend != NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRAVEL_TEXTURE2D_MAT({
             pf_vertex_t vertex = pf_vertex_create_2d(x, y, u, v, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + y * fb->w + x;
             pf_color_t final_color = *ptr;
 
             frag_proc(rn, &vertex, &final_color, tex);
-            *ptr = rn->blend(*ptr, final_color);
+            *ptr = blend(*ptr, final_color);
         })
     } else {
         PF_TRAVEL_TEXTURE2D_MAT({

@@ -17,7 +17,9 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer2d.h"
+#include "pixelfactory/core/pf_renderer.h"
+#include "pixelfactory/math/pf_mat3.h"
+#include <string.h>
 
 /* Internal Macros */
 
@@ -74,7 +76,7 @@
 /* Helper Function Declarations */
 
 void
-pf_renderer3d_triangle_interpolation_INTERNAL(
+pf_renderer_triangle_interpolation_INTERNAL(
     pf_vertex_t* out_vertex,
     pf_vertex_t* v1,
     pf_vertex_t* v2,
@@ -85,8 +87,8 @@ pf_renderer3d_triangle_interpolation_INTERNAL(
 /* Public API Functions */
 
 void
-pf_renderer2d_vertexbuffer(
-    pf_renderer2d_t* rn,
+pf_renderer_vertexbuffer2d(
+    pf_renderer_t* rn,
     const pf_vertexbuffer_t* vb,
     const pf_mat3_t transform,
     const pf_proc2d_t* proc)
@@ -94,10 +96,14 @@ pf_renderer2d_vertexbuffer(
     /* Preparation of matrices */
 
     pf_mat3_t mat;
-    if (transform != NULL) {
-        pf_mat3_mul_r(mat, rn->mat_view, transform);
-    } else {
-        memcpy(mat, rn->mat_view, sizeof(pf_mat3_t));
+    if (rn->conf2d != NULL) {
+        if (transform != NULL) {
+            pf_mat3_mul_r(mat, rn->conf2d->mat_view, transform);
+        } else {
+            pf_mat3_copy(mat, rn->conf2d->mat_view);
+        }
+    } else if (transform != NULL) {
+        pf_mat3_copy(mat, transform);
     }
 
     /* Setup processors */
@@ -221,22 +227,23 @@ pf_renderer2d_vertexbuffer(
         /* Rendering of the triangle */
 
 #if defined(_OPENMP)
-        if (rn->blend != NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
             PF_MESH_TRIANGLE_TRAVEL_OMP({
                 pf_vertex_t vertex;
-                pf_renderer3d_triangle_interpolation_INTERNAL(
+                pf_renderer_triangle_interpolation_INTERNAL(
                     &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
                 processor.fragment(rn, &vertex, &final_color, processor.uniforms);
-                *ptr = rn->blend(*ptr, final_color);
+                *ptr = blend(*ptr, final_color);
             })
         } else {
             PF_MESH_TRIANGLE_TRAVEL_OMP({
                 pf_vertex_t vertex;
-                pf_renderer3d_triangle_interpolation_INTERNAL(
+                pf_renderer_triangle_interpolation_INTERNAL(
                     &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
@@ -247,22 +254,23 @@ pf_renderer2d_vertexbuffer(
             })
         }
 #else
-        if (rn->blend != NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
             PF_MESH_TRIANGLE_TRAVEL({
                 pf_vertex_t vertex;
-                pf_renderer3d_triangle_interpolation_INTERNAL(
+                pf_renderer_triangle_interpolation_INTERNAL(
                     &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;
                 pf_color_t final_color = *ptr;
 
                 processor.fragment(rn, &vertex, &final_color, processor.uniforms);
-                *ptr = rn->blend(*ptr, final_color);
+                *ptr = blend(*ptr, final_color);
             })
         } else {
             PF_MESH_TRIANGLE_TRAVEL({
                 pf_vertex_t vertex;
-                pf_renderer3d_triangle_interpolation_INTERNAL(
+                pf_renderer_triangle_interpolation_INTERNAL(
                     &vertex, &v1, &v2, &v3, bary, 1);
 
                 pf_color_t* ptr = rn->fb.buffer + offset;

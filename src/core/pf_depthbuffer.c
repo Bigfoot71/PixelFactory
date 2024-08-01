@@ -64,8 +64,10 @@ void
 pf_depthbuffer_delete(
     pf_depthbuffer_t* zb)
 {
-    PF_FREE(zb->buffer);
-    zb->buffer = NULL;
+    if (zb->buffer != NULL) {
+        PF_FREE(zb->buffer);
+        zb->buffer = NULL;
+    }
     zb->w = zb->h = 0;
 }
 

@@ -1,3 +1,4 @@
+#include "pixelfactory/core/pf_renderer.h"
 #include "pixelfactory/pf.h"
 #include <raylib.h>
 #include <float.h>
@@ -21,7 +22,7 @@ int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Triangle 3D");
 
-    pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, NULL);
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, PF_RENDERER_3D);
 
     Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
@@ -36,12 +37,12 @@ int main()
 
     while (!WindowShouldClose())
     {
-        pf_mat4_look_at(rn.mat_view,
+        pf_mat4_look_at(rn.conf3d->mat_view,
             (float[3]) { 3.0f*cosf(GetTime()), 0, 3.0f*sinf(GetTime()) },
             (float[3]) { 0, 0, 0 }, (float[3]) { 0, 1, 0 });
 
-        pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
-        pf_renderer3d_vertexbuffer(&rn, &triangle, NULL, NULL);
+        pf_renderer_clear3d(&rn, PF_BLACK, FLT_MAX);
+        pf_renderer_vertexbuffer3d(&rn, &triangle, NULL, NULL);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -52,7 +53,7 @@ int main()
         EndDrawing();
     }
 
-    pf_renderer3d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     CloseWindow();

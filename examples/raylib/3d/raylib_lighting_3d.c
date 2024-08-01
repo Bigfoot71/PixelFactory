@@ -12,7 +12,7 @@ typedef struct {
 
 void
 model_frag_proc(
-    struct pf_renderer3d* rn,
+    pf_renderer_t* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms)
@@ -84,7 +84,8 @@ int main(void)
     SetTargetFPS(60);
 
     // Create a rendering buffer in RAM
-    pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, PF_RENDERER_3D);
+    rn.conf3d->depth_test = pf_depth_less;
 
     // Create a raylib raylib texture to render buffer
     Texture tex = LoadTextureFromImage((Image) {
@@ -141,11 +142,11 @@ int main(void)
         uniforms.cam_pos[0] = 8.0f*cosf(GetTime());
         uniforms.cam_pos[1] = 5.0f;
         uniforms.cam_pos[2] = 8.0f*sinf(GetTime());
-        pf_mat4_look_at(rn.mat_view, uniforms.cam_pos,
+        pf_mat4_look_at(rn.conf3d->mat_view, uniforms.cam_pos,
             (float[3]) { 0, 2.5f, 0 }, (float[3]) { 0, 1, 0 });
 
         // Clear the destination buffer (RAM)
-        pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
+        pf_renderer_clear3d(&rn, PF_BLACK, FLT_MAX);
 
         // Rendering vertex buffers
         for (int i = 0; i < model.meshCount; i++) {
@@ -154,7 +155,7 @@ int main(void)
             proc.vertex = pf_proc3d_vertex_normal_transform;
             uniforms.material = model.materials[model.meshMaterial[i]];
             proc.uniforms = &uniforms;
-            pf_renderer3d_vertexbuffer(&rn, &pfMeshes[i], NULL, &proc);
+            pf_renderer_vertexbuffer3d(&rn, &pfMeshes[i], NULL, &proc);
         }
 
         // Updating the texture with the new buffer content
@@ -173,7 +174,7 @@ int main(void)
     UnloadModelAnimations(modelAnimations, animsCount);
 
     // Unload the renderer and associated data
-    pf_renderer3d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     // Close raylib window

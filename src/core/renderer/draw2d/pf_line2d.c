@@ -17,12 +17,13 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer2d.h"
+#include "pixelfactory/components/pf_color.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Macros */
 
 #define PF_LINE_TRAVEL(PIXEL_CODE)                                                      \
-    if (pf_clip_line2d(&x1, &y1, &x2, &y2, 0, 0, rn->fb.w - 1, rn->fb.h - 1) == 0) {    \
+    if (pf_clip_line2d_INTERNAL(&x1, &y1, &x2, &y2, 0, 0, rn->fb.w - 1, rn->fb.h - 1) == 0) {    \
         return;                                                                         \
     }                                                                                   \
     int_fast8_t y_longer = 0;                                                           \
@@ -147,7 +148,7 @@ enum pf_clipcode {
 };
 
 static uint8_t
-pf_encode_point(int x, int y, int xmin, int ymin, int xmax, int ymax)
+pf_encode_point_INTERNAL(int x, int y, int xmin, int ymin, int xmax, int ymax)
 {
     uint8_t code = CLIP_INSIDE;
     if (x < xmin) code |= CLIP_LEFT;
@@ -158,12 +159,12 @@ pf_encode_point(int x, int y, int xmin, int ymin, int xmax, int ymax)
 }
 
 static int_fast8_t
-pf_clip_line2d(int* x1, int* y1, int* x2, int* y2, int xmin, int ymin, int xmax, int ymax)
+pf_clip_line2d_INTERNAL(int* x1, int* y1, int* x2, int* y2, int xmin, int ymin, int xmax, int ymax)
 {
     int_fast8_t accept = 0;  // Initialize accept flag to false
 
-    uint8_t code1 = pf_encode_point(*x1, *y1, xmin, ymin, xmax, ymax);
-    uint8_t code2 = pf_encode_point(*x2, *y2, xmin, ymin, xmax, ymax);
+    uint8_t code1 = pf_encode_point_INTERNAL(*x1, *y1, xmin, ymin, xmax, ymax);
+    uint8_t code2 = pf_encode_point_INTERNAL(*x2, *y2, xmin, ymin, xmax, ymax);
 
     int dx = *x2 - *x1;
     int dy = *y2 - *y1;
@@ -199,10 +200,10 @@ pf_clip_line2d(int* x1, int* y1, int* x2, int* y2, int xmin, int ymin, int xmax,
         }
 
         if (code_out == code1) {
-            code1 = pf_encode_point(x, y, xmin, ymin, xmax, ymax);
+            code1 = pf_encode_point_INTERNAL(x, y, xmin, ymin, xmax, ymax);
             *x1 = x, *y1 = y;
         } else {
-            code2 = pf_encode_point(x, y, xmin, ymin, xmax, ymax);
+            code2 = pf_encode_point_INTERNAL(x, y, xmin, ymin, xmax, ymax);
             *x2 = x, *y2 = y;
         }
     }
@@ -214,83 +215,92 @@ pf_clip_line2d(int* x1, int* y1, int* x2, int* y2, int xmin, int ymin, int xmax,
 /* Public API */
 
 void
-pf_renderer2d_line(
-    pf_renderer2d_t* rn,
+pf_renderer_line2d(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     pf_color_t color)
 {
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
+    // Transformation
+    if (rn->conf2d != NULL) {
+        pf_vec2_transform_i(&x1, &y1, x1, y1, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x2, &y2, x2, y2, rn->conf2d->mat_view);
+    }
 
-    if (rn->blend == NULL) {
+    // Rendering
+    if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_LINE_TRAVEL({
-            rn->fb.buffer[offset] = color;
+            pf_color_t* ptr = rn->fb.buffer + offset;
+            *ptr = blend(*ptr, color);
         })
     }
     else {
         PF_LINE_TRAVEL({
-            pf_color_t* ptr = rn->fb.buffer + offset;
-            *ptr = rn->blend(*ptr, color);
+            rn->fb.buffer[offset] = color;
         })
     }
 }
 
 void
-pf_renderer2d_line_gradient(
-    pf_renderer2d_t* rn,
+pf_renderer_line2d_gradient(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     pf_color_t c1,
     pf_color_t c2)
 {
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
+    // Transformation
+    if (rn->conf2d != NULL) {
+        pf_vec2_transform_i(&x1, &y1, x1, y1, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x2, &y2, x2, y2, rn->conf2d->mat_view);
+    }
 
-    if (rn->blend == NULL) {
+    // Rendering
+    if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_LINE_TRAVEL({
-            rn->fb.buffer[offset] = pf_color_lerpi(c1, c2, i, end);
+            pf_color_t* ptr = rn->fb.buffer + offset;
+            *ptr = blend(*ptr, pf_color_lerpi(c1, c2, i, end));
         })
     } else {
         PF_LINE_TRAVEL({
-            pf_color_t* ptr = rn->fb.buffer + offset;
-            *ptr = rn->blend(*ptr, pf_color_lerpi(c1, c2, i, end));
+            rn->fb.buffer[offset] = pf_color_lerpi(c1, c2, i, end);
         })
     }
 }
 
 void
-pf_renderer2d_line_map(
-    pf_renderer2d_t* rn,
+pf_renderer_line2d_map(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     const pf_proc2d_t* proc)
 {
-    /* Transformation */
+    // Transformation
+    if (rn->conf2d != NULL) {
+        pf_vec2_transform_i(&x1, &y1, x1, y1, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x2, &y2, x2, y2, rn->conf2d->mat_view);
+    }
 
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
-
-    /* Setup processor */
-
+    // Setup processor
     pf_proc2d_fragment_fn fragment = pf_proc2d_fragment_default;
     const void* uniforms = NULL;
-
     if (proc != NULL) {
         if (proc->fragment != NULL) fragment = proc->fragment;
         if (proc->uniforms != NULL) uniforms = proc->uniforms;
     }
 
-    /* Rendering */
-
-    if (rn->blend != NULL) {
+    // Rendering
+    if (rn->conf2d != NULL && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_LINE_TRAVEL({
             pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
             fragment(rn, &vertex, &final_color, uniforms);
-            *ptr = rn->blend(*ptr, final_color);
+            *ptr = blend(*ptr, final_color);
         })
     } else {
         PF_LINE_TRAVEL({
@@ -305,50 +315,41 @@ pf_renderer2d_line_map(
 }
 
 void
-pf_renderer2d_line_thick(
-    pf_renderer2d_t* rn,
+pf_renderer_line2d_thick(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int thick,
     pf_color_t color)
 {
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
-
     PF_LINE_THICK_TRAVEL({
-        pf_renderer2d_line(rn, x1, y1, x2, y2, color);
+        pf_renderer_line2d(rn, x1, y1, x2, y2, color);
     })
 }
 
 void
-pf_renderer2d_line_thick_gradient(
-    pf_renderer2d_t* rn,
+pf_renderer_line2d_thick_gradient(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int thick,
     pf_color_t c1,
     pf_color_t c2)
 {
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
-
     PF_LINE_THICK_TRAVEL({
-        pf_renderer2d_line_gradient(rn, x1, y1, x2, y2, c1, c2);
+        pf_renderer_line2d_gradient(rn, x1, y1, x2, y2, c1, c2);
     })
 }
 
 void
-pf_renderer2d_line_thick_map(
-    pf_renderer2d_t* rn,
+pf_renderer_line2d_thick_map(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int thick,
     const pf_proc2d_t* proc)
 {
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
-
     PF_LINE_THICK_TRAVEL({
-        pf_renderer2d_line_map(rn, x1, y1, x2, y2, proc);
+        pf_renderer_line2d_map(rn, x1, y1, x2, y2, proc);
     })
 }

@@ -9,7 +9,7 @@
 
 void
 model_frag_proc(
-    struct pf_renderer3d* rn,
+    pf_renderer_t* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms)
@@ -26,7 +26,8 @@ int main(void)
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Model 3D");
 
     // Create a rendering buffer in RAM
-    pf_renderer3d_t rn = pf_renderer3d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL, pf_depth_less);
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, PF_RENDERER_3D);
+    rn.conf3d->depth_test = pf_depth_less;
 
     // Create a raylib raylib texture to render buffer
     Texture tex = LoadTextureFromImage((Image) {
@@ -77,19 +78,19 @@ int main(void)
         UpdateModelAnimation(model, anim, animCurrentFrame);
 
         // Update camera position/diraction
-        pf_mat4_look_at(rn.mat_view,
+        pf_mat4_look_at(rn.conf3d->mat_view,
             (float[3]) { 10.0f*cosf(GetTime()), 5, 10.0f*sinf(GetTime()) },
             (float[3]) { 0, 2.5f, 0 }, (float[3]) { 0, 1, 0 });
 
         // Clear the destination buffer (RAM)
-        pf_renderer3d_clear(&rn, PF_BLACK, FLT_MAX);
+        pf_renderer_clear3d(&rn, PF_BLACK, FLT_MAX);
 
         // Rendering vertex buffers
         for (int i = 0; i < model.meshCount; i++) {
             pf_proc3d_t proc = { 0 };
             proc.fragment = model_frag_proc;
             proc.uniforms = &model.materials[model.meshMaterial[i]];
-            pf_renderer3d_vertexbuffer(&rn, &pfMeshes[i], NULL, &proc);
+            pf_renderer_vertexbuffer3d(&rn, &pfMeshes[i], NULL, &proc);
         }
 
         // Updating the texture with the new buffer content
@@ -108,7 +109,7 @@ int main(void)
     UnloadModelAnimations(modelAnimations, animsCount);
 
     // Unload the renderer and associated data
-    pf_renderer3d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     // Close raylib window

@@ -34,7 +34,7 @@ typedef struct {
 } PF_Material;
 
 void frag_proc(
-    struct pf_renderer2d* rn,
+    pf_renderer_t* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms)
@@ -52,7 +52,7 @@ int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Mesh 2D");
 
-    pf_renderer2d_t rn = pf_renderer2d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
     Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
@@ -75,8 +75,8 @@ int main()
 
     while (!WindowShouldClose())
     {
-        pf_renderer2d_clear(&rn, PF_BLACK);
-        pf_renderer2d_vertexbuffer(&rn, &mesh, NULL, &proc);
+        pf_renderer_clear2d(&rn, PF_BLACK);
+        pf_renderer_vertexbuffer2d(&rn, &mesh, NULL, &proc);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -87,7 +87,7 @@ int main()
         EndDrawing();
     }
 
-    pf_renderer2d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     CloseWindow();

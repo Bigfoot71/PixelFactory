@@ -24,8 +24,8 @@
 
 #include "pf_vertex.h"
 
-struct pf_renderer2d;
-struct pf_renderer3d;
+struct pf_renderer;
+struct pf_renderer;
 
 /* Processor 2D Prototypes */
 
@@ -35,7 +35,7 @@ typedef void (*pf_proc2d_vertex_fn)(
     const void* uniforms);
 
 typedef void (*pf_proc2d_fragment_fn)(
-    struct pf_renderer2d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms);
@@ -51,7 +51,7 @@ typedef void (*pf_proc3d_vertex_fn)(
     const void* uniforms);
 
 typedef void (*pf_proc3d_fragment_fn)(
-    struct pf_renderer3d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms);
@@ -82,14 +82,14 @@ pf_proc2d_vertex_default(
 
 PFAPI void
 pf_proc2d_fragment_default(
-    struct pf_renderer2d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms);
 
 void
 pf_proc2d_fragment_texture_as_uniform(
-    struct pf_renderer2d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms);
@@ -116,7 +116,7 @@ pf_proc3d_vertex_normal_transform(
 
 PFAPI void
 pf_proc3d_fragment_default(
-    struct pf_renderer3d* rn,
+    struct pf_renderer* rn,
     pf_vertex_t* vertex,
     pf_color_t* out_color,
     const void* uniforms);

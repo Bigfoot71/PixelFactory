@@ -17,7 +17,8 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer2d.h"
+#include "pixelfactory/components/pf_color.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Macros */
 
@@ -258,16 +259,19 @@
 /* Public API */
 
 void
-pf_renderer2d_triangle(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
     pf_color_t color)
 {
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
-    pf_vec2_transform_i(&x3, &y3, x3, y3, rn->mat_view);
+    // Transformation
+    if (rn->conf2d != NULL) {
+        pf_vec2_transform_i(&x1, &y1, x1, y1, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x2, &y2, x2, y2, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x3, &y3, x3, y3, rn->conf2d->mat_view);
+    }
 
     // Calculate the 2D bounding box of the triangle
     // Determine the minimum and maximum x and y coordinates of the triangle vertices
@@ -308,13 +312,12 @@ pf_renderer2d_triangle(
 
     // Rasterization loop
     // Iterate through each pixel in the bounding box
-    if (rn->blend == NULL) {
-        PF_FAST_TRIANGLE_FILLING()
-    } else {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
 #if defined(_OPENMP)
         PF_TRIANGLE_TRAVEL_OMP({
             pf_color_t* ptr = rn->fb.buffer + offset;
-            *ptr = rn->blend(*ptr, color);
+            *ptr = blend(*ptr, color);
         })
 #else
         PF_TRIANGLE_TRAVEL({
@@ -322,12 +325,14 @@ pf_renderer2d_triangle(
             *ptr = rn->blend(*ptr, color);
         })
 #endif
+    } else {
+        PF_FAST_TRIANGLE_FILLING()
     }
 }
 
 void
-pf_renderer2d_triangle_gradient(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_gradient(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
@@ -335,9 +340,12 @@ pf_renderer2d_triangle_gradient(
     pf_color_t c2,
     pf_color_t c3)
 {
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
-    pf_vec2_transform_i(&x3, &y3, x3, y3, rn->mat_view);
+    // Transformation
+    if (rn->conf2d != NULL) {
+        pf_vec2_transform_i(&x1, &y1, x1, y1, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x2, &y2, x2, y2, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x3, &y3, x3, y3, rn->conf2d->mat_view);
+    }
 
     // Calculate the 2D bounding box of the triangle
     // Determine the minimum and maximum x and y coordinates of the triangle vertices
@@ -391,42 +399,46 @@ pf_renderer2d_triangle_gradient(
     // Rasterization loop
     // Iterate through each pixel in the bounding box
 #if defined(_OPENMP)
-    if (rn->blend == NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRIANGLE_GRADIENT_TRAVEL_OMP({
-            rn->fb.buffer[offset] = color; 
+            pf_color_t* ptr = rn->fb.buffer + offset;
+            *ptr = blend(*ptr, color);
         })
     } else {
         PF_TRIANGLE_GRADIENT_TRAVEL_OMP({
-            pf_color_t* ptr = rn->fb.buffer + offset;
-            *ptr = rn->blend(*ptr, color);
+            rn->fb.buffer[offset] = color; 
         })
     }
 #else
-    if (rn->blend == NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRIANGLE_GRADIENT_TRAVEL({
-            rn->fb.buffer[offset] = color; 
+            pf_color_t* ptr = rn->fb.buffer + offset;
+            *ptr = blend(*ptr, color);
         })
     } else {
         PF_TRIANGLE_GRADIENT_TRAVEL({
-            pf_color_t* ptr = rn->fb.buffer + offset;
-            *ptr = rn->blend(*ptr, color);
+            rn->fb.buffer[offset] = color; 
         })
     }
 #endif
 }
 
 void
-pf_renderer2d_triangle_map(
-    pf_renderer2d_t *rn,
+pf_renderer_triangle2d_map(
+    pf_renderer_t *rn,
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
     const pf_proc2d_t* proc)
 {
     // Transformation
-    pf_vec2_transform_i(&x1, &y1, x1, y1, rn->mat_view);
-    pf_vec2_transform_i(&x2, &y2, x2, y2, rn->mat_view);
-    pf_vec2_transform_i(&x3, &y3, x3, y3, rn->mat_view);
+    if (rn->conf2d != NULL) {
+        pf_vec2_transform_i(&x1, &y1, x1, y1, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x2, &y2, x2, y2, rn->conf2d->mat_view);
+        pf_vec2_transform_i(&x3, &y3, x3, y3, rn->conf2d->mat_view);
+    }
 
     // Setup processor
     pf_proc2d_fragment_fn fragment = pf_proc2d_fragment_default;
@@ -474,14 +486,15 @@ pf_renderer2d_triangle_map(
     pf_simd_i_t w3_x_step_v = pf_simd_mullo_i32(pf_simd_set1_i32(w3_x_step), offset);
 
 #if defined(_OPENMP)
-    if (rn->blend != NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRIANGLE_TRAVEL_OMP({
             pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
             fragment(rn, &vertex, &final_color, uniforms);
-            *ptr = rn->blend(*ptr, final_color);
+            *ptr = blend(*ptr, final_color);
         })
     } else {
         PF_TRIANGLE_TRAVEL_OMP({
@@ -494,14 +507,15 @@ pf_renderer2d_triangle_map(
         })
     }
 #else
-    if (rn->blend != NULL) {
+    if (rn->conf2d && rn->conf2d->color_blend != NULL) {
+        pf_color_blend_fn blend = rn->conf2d->color_blend;
         PF_TRIANGLE_TRAVEL({
             pf_vertex_t vertex = pf_vertex_create_2d(x, y, 0, 0, PF_WHITE);
             pf_color_t *ptr = rn->fb.buffer + offset;
             pf_color_t final_color = *ptr;
 
             fragment(rn, &vertex, &final_color, uniforms);
-            *ptr = rn->blend(*ptr, final_color);
+            *ptr = blend(*ptr, final_color);
         })
     } else {
         PF_TRIANGLE_TRAVEL({
@@ -517,21 +531,21 @@ pf_renderer2d_triangle_map(
 }
 
 void
-pf_renderer2d_triangle_lines(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_lines(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
     pf_color_t color)
 {
-    pf_renderer2d_line(rn, x1, y1, x2, y2, color);
-    pf_renderer2d_line(rn, x2, y2, x3, y3, color);
-    pf_renderer2d_line(rn, x3, y3, x1, y1, color);
+    pf_renderer_line2d(rn, x1, y1, x2, y2, color);
+    pf_renderer_line2d(rn, x2, y2, x3, y3, color);
+    pf_renderer_line2d(rn, x3, y3, x1, y1, color);
 }
 
 void
-pf_renderer2d_triangle_lines_gradient(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_lines_gradient(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
@@ -539,33 +553,33 @@ pf_renderer2d_triangle_lines_gradient(
     pf_color_t c2,
     pf_color_t c3)
 {
-    pf_renderer2d_line_gradient(rn, x1, y1, x2, y2, c1, c2);
-    pf_renderer2d_line_gradient(rn, x2, y2, x3, y3, c2, c3);
-    pf_renderer2d_line_gradient(rn, x3, y3, x1, y1, c3, c1);
+    pf_renderer_line2d_gradient(rn, x1, y1, x2, y2, c1, c2);
+    pf_renderer_line2d_gradient(rn, x2, y2, x3, y3, c2, c3);
+    pf_renderer_line2d_gradient(rn, x3, y3, x1, y1, c3, c1);
 }
 
 void
-pf_renderer2d_triangle_lines_map(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_lines_map(
+    pf_renderer_t* rn,
     int x1, int y1,
     int x2, int y2,
     int x3, int y3,
     const pf_proc2d_t* proc)
 {
-    pf_renderer2d_line_map(rn, x1, y1, x2, y2, proc);
-    pf_renderer2d_line_map(rn, x2, y2, x3, y3, proc);
-    pf_renderer2d_line_map(rn, x3, y3, x1, y1, proc);
+    pf_renderer_line2d_map(rn, x1, y1, x2, y2, proc);
+    pf_renderer_line2d_map(rn, x2, y2, x3, y3, proc);
+    pf_renderer_line2d_map(rn, x3, y3, x1, y1, proc);
 }
 
 void
-pf_renderer2d_triangle_fan(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_fan(
+    pf_renderer_t* rn,
     int* points, int count,
     pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
-            pf_renderer2d_triangle(rn,
+            pf_renderer_triangle2d(rn,
                 points[0], points[1],
                 points[2 * i], points[2 * i + 1],
                 points[2 * (i + 1)], points[2 * (i + 1) + 1],
@@ -575,14 +589,14 @@ pf_renderer2d_triangle_fan(
 }
 
 void
-pf_renderer2d_triangle_fan_map(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_fan_map(
+    pf_renderer_t* rn,
     int* points, int count,
     const pf_proc2d_t* proc)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
-            pf_renderer2d_triangle_map(rn,
+            pf_renderer_triangle2d_map(rn,
                 points[0], points[1],
                 points[2 * i], points[2 * i + 1],
                 points[2 * (i + 1)], points[2 * (i + 1) + 1],
@@ -592,14 +606,14 @@ pf_renderer2d_triangle_fan_map(
 }
 
 void
-pf_renderer2d_triangle_fan_lines(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_fan_lines(
+    pf_renderer_t* rn,
     int* points, int count,
     pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 1; i < count - 1; ++i) {
-            pf_renderer2d_triangle_lines(rn,
+            pf_renderer_triangle2d_lines(rn,
                 points[0], points[1],
                 points[2 * i], points[2 * i + 1],
                 points[2 * (i + 1)], points[2 * (i + 1) + 1],
@@ -609,21 +623,21 @@ pf_renderer2d_triangle_fan_lines(
 }
 
 void
-pf_renderer2d_triangle_strip(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_strip(
+    pf_renderer_t* rn,
     int* points, int count,
     pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {
             if (i % 2 == 0) {
-                pf_renderer2d_triangle(rn,
+                pf_renderer_triangle2d(rn,
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],
                     color);
             } else {
-                pf_renderer2d_triangle(rn,
+                pf_renderer_triangle2d(rn,
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],
@@ -634,21 +648,21 @@ pf_renderer2d_triangle_strip(
 }
 
 void
-pf_renderer2d_triangle_strip_map(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_strip_map(
+    pf_renderer_t* rn,
     int* points, int count,
     const pf_proc2d_t* proc)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {
             if (i % 2 == 0) {
-                pf_renderer2d_triangle_map(rn,
+                pf_renderer_triangle2d_map(rn,
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],
                     proc);
             } else {
-                pf_renderer2d_triangle_map(rn,
+                pf_renderer_triangle2d_map(rn,
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],
@@ -659,21 +673,21 @@ pf_renderer2d_triangle_strip_map(
 }
 
 void
-pf_renderer2d_triangle_strip_lines(
-    pf_renderer2d_t* rn,
+pf_renderer_triangle2d_strip_lines(
+    pf_renderer_t* rn,
     int* points, int count,
     pf_color_t color)
 {
     if (count >= 3) {
         for (int i = 2; i < count; ++i) {
             if (i % 2 == 0) {
-                pf_renderer2d_triangle_lines(rn,
+                pf_renderer_triangle2d_lines(rn,
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],
                     color);
             } else {
-                pf_renderer2d_triangle_lines(rn,
+                pf_renderer_triangle2d_lines(rn,
                     points[2 * (i - 2)], points[2 * (i - 2) + 1],
                     points[2 * i], points[2 * i + 1],
                     points[2 * (i - 1)], points[2 * (i - 1) + 1],

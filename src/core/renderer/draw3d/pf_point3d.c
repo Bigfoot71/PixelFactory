@@ -17,13 +17,13 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer3d.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Functions Defintions */
 
 void
-pf_renderer3d_point_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
+pf_renderer_point3d_INTERNAL(
+    pf_renderer_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
@@ -31,11 +31,15 @@ pf_renderer3d_point_INTERNAL(
 /* Public API Functions */
 
 void
-pf_renderer3d_point(
-    pf_renderer3d_t* rn,
+pf_renderer_point(
+    pf_renderer_t* rn,
     const pf_vec3_t point,
     pf_color_t color)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     const float mat_identity[16] = {
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -44,7 +48,9 @@ pf_renderer3d_point(
     };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
+    pf_mat4_mul(mat_mvp,
+        rn->conf3d->mat_view,
+        rn->conf3d->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
@@ -68,16 +74,20 @@ pf_renderer3d_point(
         vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[i].v_uint8_t = color.a[i];
     }
 
-    pf_renderer3d_point_INTERNAL(rn, &vertex, 0, mat_identity, mat_identity, mat_mvp, &processor);
+    pf_renderer_point3d_INTERNAL(rn, &vertex, 0, mat_identity, mat_identity, mat_mvp, &processor);
 }
 
 void
-pf_renderer3d_point_thick(
-    pf_renderer3d_t* rn,
+pf_renderer_point_thick(
+    pf_renderer_t* rn,
     const pf_vec3_t point,
     float radius,
     pf_color_t color)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     const float mat_identity[16] = {
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -86,7 +96,9 @@ pf_renderer3d_point_thick(
     };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
+    pf_mat4_mul(mat_mvp,
+        rn->conf3d->mat_view,
+        rn->conf3d->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
@@ -110,5 +122,5 @@ pf_renderer3d_point_thick(
         vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[i].v_uint8_t = color.a[i];
     }
 
-    pf_renderer3d_point_INTERNAL(rn, &vertex, radius, mat_identity, mat_identity, mat_mvp, &processor);
+    pf_renderer_point3d_INTERNAL(rn, &vertex, radius, mat_identity, mat_identity, mat_mvp, &processor);
 }

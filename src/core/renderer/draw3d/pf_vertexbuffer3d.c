@@ -17,26 +17,26 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer3d.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Functions Declarations */
 
 void
-pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
+pf_renderer_triangle3d_INTERNAL(
+    pf_renderer_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc,
     bool parallelize);
 
 void
-pf_renderer3d_point_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* point, float radius,
+pf_renderer_point3d_INTERNAL(
+    pf_renderer_t* rn, const pf_vertex_t* point, float radius,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
 void
-pf_renderer3d_line_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
+pf_renderer_line3d_INTERNAL(
+    pf_renderer_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
@@ -44,18 +44,22 @@ pf_renderer3d_line_INTERNAL(
 /* Public API Functions */
 
 void
-pf_renderer3d_vertexbuffer(
-    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
+pf_renderer_vertexbuffer3d(
+    pf_renderer_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
-    pf_renderer3d_vertexbuffer_ex(rn, vb, transform, proc);
+    pf_renderer_vertexbuffer3d_ex(rn, vb, transform, proc);
 }
 
 void
-pf_renderer3d_vertexbuffer_ex(
-    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
+pf_renderer_vertexbuffer3d_ex(
+    pf_renderer_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     /* Preparation of matrices */
 
     pf_mat4_t mat_model;
@@ -70,8 +74,8 @@ pf_renderer3d_vertexbuffer_ex(
     }
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
+    pf_mat4_mul_r(mat_mvp, mat_model, rn->conf3d->mat_view);
+    pf_mat4_mul(mat_mvp, mat_mvp, rn->conf3d->mat_proj);
 
     /* Setup processors */
 
@@ -128,25 +132,29 @@ pf_renderer3d_vertexbuffer_ex(
             }
         }
 
-        pf_renderer3d_triangle_INTERNAL(
+        pf_renderer_triangle3d_INTERNAL(
             rn, vertices, mat_model, mat_normal,
             mat_mvp, &processor, true);
     }
 }
 
 void
-pf_renderer3d_vertexbuffer_points(
-    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
+pf_renderer_vertexbuffer3d_points(
+    pf_renderer_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
-    pf_renderer3d_vertexbuffer_points_thick(rn, vb, 0, transform, proc);
+    pf_renderer_vertexbuffer3d_points_thick(rn, vb, 0, transform, proc);
 }
 
 void
-pf_renderer3d_vertexbuffer_points_thick(
-    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb, float radius,
+pf_renderer_vertexbuffer3d_points_thick(
+    pf_renderer_t* rn, const pf_vertexbuffer_t* vb, float radius,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     /* Preparation of matrices */
 
     pf_mat4_t mat_model;
@@ -161,8 +169,8 @@ pf_renderer3d_vertexbuffer_points_thick(
     }
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
+    pf_mat4_mul_r(mat_mvp, mat_model, rn->conf3d->mat_view);
+    pf_mat4_mul(mat_mvp, mat_mvp, rn->conf3d->mat_proj);
 
     /* Setup processors */
 
@@ -194,24 +202,28 @@ pf_renderer3d_vertexbuffer_points_thick(
             }
         }
 
-        pf_renderer3d_point_INTERNAL(
+        pf_renderer_point3d_INTERNAL(
             rn, &vertex, radius, mat_model, mat_normal, mat_mvp, &processor);
     }
 }
 
 void
-pf_renderer3d_vertexbuffer_lines(
-    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb,
+pf_renderer_vertexbuffer3d_lines(
+    pf_renderer_t* rn, const pf_vertexbuffer_t* vb,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
-    pf_renderer3d_vertexbuffer_lines_thick(rn, vb, 0, transform, proc);
+    pf_renderer_vertexbuffer3d_lines_thick(rn, vb, 0, transform, proc);
 }
 
 void
-pf_renderer3d_vertexbuffer_lines_thick(
-    pf_renderer3d_t* rn, const pf_vertexbuffer_t* vb, float thick,
+pf_renderer_vertexbuffer3d_lines_thick(
+    pf_renderer_t* rn, const pf_vertexbuffer_t* vb, float thick,
     const pf_mat4_t transform, const pf_proc3d_t* proc)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     /* Preparation of matrices */
 
     pf_mat4_t mat_model;
@@ -226,8 +238,8 @@ pf_renderer3d_vertexbuffer_lines_thick(
     }
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul_r(mat_mvp, mat_model, rn->mat_view);
-    pf_mat4_mul(mat_mvp, mat_mvp, rn->mat_proj);
+    pf_mat4_mul_r(mat_mvp, mat_model, rn->conf3d->mat_view);
+    pf_mat4_mul(mat_mvp, mat_mvp, rn->conf3d->mat_proj);
 
     /* Setup processors */
 
@@ -275,7 +287,7 @@ pf_renderer3d_vertexbuffer_lines_thick(
                 }
             }
 
-            pf_renderer3d_line_INTERNAL(
+            pf_renderer_line3d_INTERNAL(
                 rn, &v1, &v2, thick, mat_model, mat_normal, mat_mvp, &processor);
         }
     }

@@ -30,8 +30,7 @@
 
 #include "core/pf_depthbuffer.h"
 #include "core/pf_framebuffer.h"
-#include "core/pf_renderer2d.h"
-#include "core/pf_renderer3d.h"
+#include "core/pf_renderer.h"
 #include "core/pf_texture2d.h"
 #include "core/pf_vertexbuffer.h"
 

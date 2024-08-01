@@ -17,13 +17,13 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer3d.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Functions Declarations */
 
 void
-pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
+pf_renderer_triangle3d_INTERNAL(
+    pf_renderer_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc,
     bool parallelize);
@@ -31,13 +31,17 @@ pf_renderer3d_triangle_INTERNAL(
 /* Triangle rasterization functions */
 
 void
-pf_renderer3d_triangle(
-    pf_renderer3d_t* rn,
+pf_renderer_triangle(
+    pf_renderer_t* rn,
     const pf_vec3_t p1,
     const pf_vec3_t p2,
     const pf_vec3_t p3,
     pf_color_t color)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     const float mat_identity[16] = {
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -46,7 +50,9 @@ pf_renderer3d_triangle(
     };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
+    pf_mat4_mul(mat_mvp,
+        rn->conf3d->mat_view,
+        rn->conf3d->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
@@ -78,6 +84,6 @@ pf_renderer3d_triangle(
     vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p3[1];
     vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p3[2];
 
-    pf_renderer3d_triangle_INTERNAL(
+    pf_renderer_triangle3d_INTERNAL(
         rn, vertices, mat_identity, mat_identity, mat_mvp, &processor, true);
 }

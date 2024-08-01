@@ -63,8 +63,10 @@ void
 pf_framebuffer_delete(
     pf_framebuffer_t* fb)
 {
-    PF_FREE(fb->buffer);
-    fb->buffer = NULL;
+    if (fb->buffer != NULL) {
+        PF_FREE(fb->buffer);
+        fb->buffer = NULL;
+    }
     fb->w = fb->h = 0;
 }
 

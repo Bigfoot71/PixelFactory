@@ -8,7 +8,7 @@ int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Triangle 2D");
 
-    pf_renderer2d_t rn = pf_renderer2d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
     Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
@@ -20,10 +20,10 @@ int main()
 
     while (!WindowShouldClose())
     {
-        pf_renderer2d_clear(&rn, PF_BLACK);
+        pf_renderer_clear2d(&rn, PF_BLACK);
 
-        pf_renderer2d_triangle_gradient(&rn, 400, 0, 800, 600, 0, 600, PF_RED, PF_GREEN, PF_BLUE);
-        //pf_renderer2d_triangle(&rn, 400, 0, 800, 600, 0, 600, PF_RED);
+        pf_renderer_triangle2d_gradient(&rn, 400, 0, 800, 600, 0, 600, PF_RED, PF_GREEN, PF_BLUE);
+        //pf_renderer_triangle(&rn, 400, 0, 800, 600, 0, 600, PF_RED);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -34,7 +34,7 @@ int main()
         EndDrawing();
     }
 
-    pf_renderer2d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     CloseWindow();

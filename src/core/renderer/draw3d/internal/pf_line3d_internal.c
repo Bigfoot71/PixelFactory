@@ -17,7 +17,8 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer3d.h"
+#include "pixelfactory/components/pf_depth.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Rasterization Macros */
 
@@ -118,7 +119,7 @@
             size_t offset = y * rn->fb.w + x;                                           \
             float t = (float)i * inv_end;                                               \
             float z = z1 + t * (z2 - z1);                                               \
-            if (rn->test(rn->zb.buffer[offset], z)) {                                   \
+            if (test(rn->zb.buffer[offset], z)) {                                       \
                 rn->zb.buffer[offset] = z;                                              \
                 PIXEL_CODE                                                              \
             }                                                                           \
@@ -132,7 +133,7 @@
             size_t offset = y * rn->fb.w + x;                                           \
             float t = (float)i * inv_end;                                               \
             float z = z1 + t * (z2 - z1);                                               \
-            if (rn->test(rn->zb.buffer[offset], z)) {                                   \
+            if (test(rn->zb.buffer[offset], z)) {                                       \
                 rn->zb.buffer[offset] = z;                                              \
                 PIXEL_CODE                                                              \
             }                                                                           \
@@ -216,13 +217,13 @@
     pf_color_t *ptr = rn->fb.buffer + offset;                           \
     pf_color_t final_color = *ptr;                                      \
     proc->fragment(rn, &vertex, &final_color, proc->uniforms);          \
-    *ptr = rn->blend(*ptr, final_color);
+    *ptr = blend(*ptr, final_color);
 
 /* Helper Function Declarations */
 
 void
-pf_renderer3d_screen_projection_INTERNAL(
-    const pf_renderer3d_t* rn,
+pf_renderer_screen_projection_INTERNAL(
+    const pf_renderer_t* rn,
     pf_vec4_t* homogeneous,
     pf_vertex_t* vertices,
     size_t vertices_count,
@@ -254,7 +255,7 @@ pf_clip3_coord_line_INTERNAL(float q, float p, float* t1, float* t2)
 
 void
 pf_clip3d_line_INTERNAL(
-    const struct pf_renderer3d* rn,
+    const struct pf_renderer* rn,
     pf_vertex_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count)
@@ -296,8 +297,8 @@ pf_clip3d_line_INTERNAL(
 /* Internal Rendering Functions */
 
 void
-pf_renderer3d_line_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
+pf_renderer_line3d_INTERNAL(
+    pf_renderer_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc)
 {
@@ -312,7 +313,7 @@ pf_renderer3d_line_INTERNAL(
     pf_clip3d_line_INTERNAL(rn, vertices, homogens, &num);
     if (num != 2) return;
 
-    pf_renderer3d_screen_projection_INTERNAL(
+    pf_renderer_screen_projection_INTERNAL(
         rn, homogens, vertices, num, screen_pos);
 
     int x1 = screen_pos[0][0];
@@ -322,9 +323,12 @@ pf_renderer3d_line_INTERNAL(
     float z1 = homogens[0][2];
     float z2 = homogens[1][2];
 
+    pf_color_blend_fn blend = rn->conf3d->color_blend;
+    pf_depth_test_fn test = rn->conf3d->depth_test;
+
     if (fabsf(thick) > 1) {
-        if (rn->test != NULL) {
-            if (rn->blend != NULL) {
+        if (test != NULL) {
+            if (blend != NULL) {
                 PF_LINE_THICK_TRAVEL({
                     PF_LINE_TRAVEL_DEPTH({
                         PF_PIXEL_CODE_BLEND()
@@ -338,7 +342,7 @@ pf_renderer3d_line_INTERNAL(
                 })
             }
         } else {
-            if (rn->blend != NULL) {
+            if (blend != NULL) {
                 PF_LINE_THICK_TRAVEL({
                     PF_LINE_TRAVEL_NODEPTH({
                         PF_PIXEL_CODE_BLEND()
@@ -353,8 +357,8 @@ pf_renderer3d_line_INTERNAL(
             }
         }
     } else {
-        if (rn->test != NULL) {
-            if (rn->blend != NULL) {
+        if (test != NULL) {
+            if (blend != NULL) {
                 PF_LINE_TRAVEL_DEPTH({
                     PF_PIXEL_CODE_BLEND()
                 })
@@ -364,7 +368,7 @@ pf_renderer3d_line_INTERNAL(
                 })
             }
         } else {
-            if (rn->blend != NULL) {
+            if (blend != NULL) {
                 PF_LINE_TRAVEL_NODEPTH({
                     PF_PIXEL_CODE_BLEND()
                 })

@@ -19,13 +19,13 @@
 
 #include "pixelfactory/components/pf_processors.h"
 #include "pixelfactory/components/pf_vertex.h"
-#include "pixelfactory/core/pf_renderer3d.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Functions Defintions */
 
 void
-pf_renderer3d_line_INTERNAL(
-    pf_renderer3d_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
+pf_renderer_line3d_INTERNAL(
+    pf_renderer_t* rn, const pf_vertex_t* v1, const pf_vertex_t* v2, float thick,
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc);
 
@@ -33,12 +33,16 @@ pf_renderer3d_line_INTERNAL(
 /* Public API Functions */
 
 void
-pf_renderer3d_line(
-    pf_renderer3d_t* rn,
+pf_renderer_line(
+    pf_renderer_t* rn,
     const pf_vec3_t p1,
     const pf_vec3_t p2,
     pf_color_t color)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     const float mat_identity[16] = {
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -47,7 +51,9 @@ pf_renderer3d_line(
     };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
+    pf_mat4_mul(mat_mvp,
+        rn->conf3d->mat_view,
+        rn->conf3d->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
@@ -75,17 +81,21 @@ pf_renderer3d_line(
     vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p2[1];
     vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p2[2];
 
-    pf_renderer3d_line_INTERNAL(rn, &vertices[0], &vertices[1], 0, mat_identity, mat_identity, mat_mvp, &processor);
+    pf_renderer_line3d_INTERNAL(rn, &vertices[0], &vertices[1], 0, mat_identity, mat_identity, mat_mvp, &processor);
 }
 
 void
-pf_renderer3d_line_thick(
-    pf_renderer3d_t* rn,
+pf_renderer_line_thick(
+    pf_renderer_t* rn,
     const pf_vec3_t p1,
     const pf_vec3_t p2,
     float thickness,
     pf_color_t color)
 {
+    if (rn->conf3d == NULL) {
+        return;
+    }
+
     const float mat_identity[16] = {
         1, 0, 0, 0,
         0, 1, 0, 0,
@@ -94,7 +104,9 @@ pf_renderer3d_line_thick(
     };
 
     pf_mat4_t mat_mvp;
-    pf_mat4_mul(mat_mvp, rn->mat_view, rn->mat_proj);
+    pf_mat4_mul(mat_mvp,
+        rn->conf3d->mat_view,
+        rn->conf3d->mat_proj);
 
     pf_proc3d_t processor = { 0 };
     processor.vertex = pf_proc3d_vertex_default;
@@ -122,5 +134,5 @@ pf_renderer3d_line_thick(
     vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p2[1];
     vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p2[2];
 
-    pf_renderer3d_line_INTERNAL(rn, &vertices[0], &vertices[1], thickness, mat_identity, mat_identity, mat_mvp, &processor);
+    pf_renderer_line3d_INTERNAL(rn, &vertices[0], &vertices[1], thickness, mat_identity, mat_identity, mat_mvp, &processor);
 }

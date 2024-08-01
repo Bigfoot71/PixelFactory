@@ -8,7 +8,7 @@ int main()
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PixelFactory - Raylib - Lines 2D");
 
-    pf_renderer2d_t rn = pf_renderer2d_create(SCREEN_WIDTH, SCREEN_HEIGHT, NULL);
+    pf_renderer_t rn = pf_renderer_load(SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
     Texture tex = LoadTextureFromImage((Image) {
         .data = rn.fb.buffer,
@@ -20,22 +20,22 @@ int main()
 
     while (!WindowShouldClose())
     {
-        pf_renderer2d_clear(&rn, PF_BLACK);
+        pf_renderer_clear2d(&rn, PF_BLACK);
 
         for (int x = 0; x <= 800; x += 20)
         {
-            if ((x/20)%2) pf_renderer2d_line_thick_gradient(&rn, x, -100, x, 700, 4, PF_YELLOW, PF_BLUE);
-            else pf_renderer2d_line_thick_gradient(&rn, x, 700, x, -100, 4, PF_YELLOW, PF_BLUE);
+            if ((x/20)%2) pf_renderer_line2d_thick_gradient(&rn, x, -100, x, 700, 4, PF_YELLOW, PF_BLUE);
+            else pf_renderer_line2d_thick_gradient(&rn, x, 700, x, -100, 4, PF_YELLOW, PF_BLUE);
         }
 
         for (int y = 0; y <= 600; y += 20)
         {
-            if ((y/20)%2) pf_renderer2d_line_thick_gradient(&rn, -100, y, 900, y, 4, PF_CYAN, PF_RED);
-            else pf_renderer2d_line_thick_gradient(&rn, 900, y, -100, y, 4, PF_CYAN, PF_RED);
+            if ((y/20)%2) pf_renderer_line2d_thick_gradient(&rn, -100, y, 900, y, 4, PF_CYAN, PF_RED);
+            else pf_renderer_line2d_thick_gradient(&rn, 900, y, -100, y, 4, PF_CYAN, PF_RED);
         }
 
-        pf_renderer2d_line_thick_gradient(&rn, -800, -600, 800, 600, 32, PF_RED, PF_BLUE);
-        pf_renderer2d_line_thick_gradient(&rn, 800, 0, 0, 600, 32, PF_RED, PF_BLUE);
+        pf_renderer_line2d_thick_gradient(&rn, -800, -600, 800, 600, 32, PF_RED, PF_BLUE);
+        pf_renderer_line2d_thick_gradient(&rn, 800, 0, 0, 600, 32, PF_RED, PF_BLUE);
 
         UpdateTexture(tex, rn.fb.buffer);
 
@@ -45,7 +45,7 @@ int main()
         EndDrawing();
     }
 
-    pf_renderer2d_delete(&rn);
+    pf_renderer_delete(&rn);
     UnloadTexture(tex);
 
     CloseWindow();

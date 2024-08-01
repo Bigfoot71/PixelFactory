@@ -17,7 +17,7 @@
  *   3. This notice may not be removed or altered from any source distribution.
  */
 
-#include "pixelfactory/core/pf_renderer3d.h"
+#include "pixelfactory/core/pf_renderer.h"
 
 /* Internal Rasterization Macros */
 
@@ -323,7 +323,7 @@
     pf_color_t* ptr = rn->fb.buffer + offset;                                   \
     pf_color_t final_color = *ptr;                                              \
     pf_vertex_t vertex;                                                         \
-    pf_renderer3d_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);\
+    pf_renderer_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);  \
     fragment(rn, &vertex, &final_color, uniforms);                              \
     *ptr = final_color;
 
@@ -331,22 +331,22 @@
     pf_color_t* ptr = rn->fb.buffer + offset;                                   \
     pf_color_t final_color = *ptr;                                              \
     pf_vertex_t vertex;                                                         \
-    pf_renderer3d_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);\
+    pf_renderer_triangle_interpolation_INTERNAL(&vertex, v1, v2, v3, bary, z);  \
     fragment(rn, &vertex, &final_color, uniforms);                              \
-    *ptr = rn->blend(*ptr, final_color);
+    *ptr = blend(*ptr, final_color);
 
 /* Helper Function Declarations */
 
 void
-pf_renderer3d_screen_projection_INTERNAL(
-    const pf_renderer3d_t* rn,
+pf_renderer_screen_projection_INTERNAL(
+    const pf_renderer_t* rn,
     pf_vec4_t* homogeneous,
     pf_vertex_t* vertices,
     size_t vertices_count,
     int screen_pos[][2]);
 
 void
-pf_renderer3d_triangle_interpolation_INTERNAL(
+pf_renderer_triangle_interpolation_INTERNAL(
     pf_vertex_t* out_vertex,
     pf_vertex_t* v1,
     pf_vertex_t* v2,
@@ -360,8 +360,8 @@ pf_renderer3d_triangle_interpolation_INTERNAL(
 // NOTE: To avoid this problem of deformation, it is currently advisable
 //       to apply the smallest "near" value possible in your projection matrix.
 static void
-pf_clip3d_triangle_INTERNAL(
-    const pf_renderer3d_t* rn,
+pf_clip3d_triangle3d_INTERNAL(
+    const pf_renderer_t* rn,
     pf_vertex_t* out_vertices,
     pf_vec4_t out_homogeneous[],
     size_t* out_vertices_count)
@@ -490,8 +490,8 @@ pf_clip3d_triangle_INTERNAL(
 /* Internal Rendering Functions */
 
 void
-pf_renderer3d_triangle_INTERNAL(
-    pf_renderer3d_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
+pf_renderer_triangle3d_INTERNAL(
+    pf_renderer_t* rn, pf_vertex_t vertices[PF_MAX_CLIPPED_POLYGON_VERTICES],
     const pf_mat4_t mat_model, const pf_mat4_t mat_normal,
     const pf_mat4_t mat_mvp, const pf_proc3d_t* proc,
     bool parallelize)
@@ -513,21 +513,21 @@ pf_renderer3d_triangle_INTERNAL(
 
     /* Clip triangle */
 
-    pf_clip3d_triangle_INTERNAL(rn, vertices, homogens, &vertices_count);
+    pf_clip3d_triangle3d_INTERNAL(rn, vertices, homogens, &vertices_count);
     if (vertices_count < 3) return;
 
     /* Projection to screen */
 
     int screen_pos[PF_MAX_CLIPPED_POLYGON_VERTICES][2] = { 0 };
-    pf_renderer3d_screen_projection_INTERNAL(rn, homogens, vertices, vertices_count, screen_pos);
+    pf_renderer_screen_projection_INTERNAL(rn, homogens, vertices, vertices_count, screen_pos);
 
     /* Get often used data */
 
     const pf_proc3d_fragment_fn fragment = proc->fragment;
     const void* uniforms = proc->uniforms;
 
-    const pf_color_blend_fn blend = rn->blend;
-    const pf_depth_test_fn test = rn->test;
+    const pf_color_blend_fn blend = rn->conf3d->color_blend;
+    const pf_depth_test_fn test = rn->conf3d->depth_test;
 
     /* Rasterize triangles */
 
@@ -558,8 +558,8 @@ pf_renderer3d_triangle_INTERNAL(
             int signed_area = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1);
             pf_face_e face = (signed_area <= 0); // false == PF_BACK | true == PF_FRONT
 
-            if ((rn->cull_mode == PF_CULL_BACK && face == PF_BACK)
-            || (rn->cull_mode == PF_CULL_FRONT && face == PF_FRONT)) {
+            if ((rn->conf3d->cull_mode == PF_CULL_BACK && face == PF_BACK)
+            || (rn->conf3d->cull_mode == PF_CULL_FRONT && face == PF_FRONT)) {
                 continue;
             }
 
