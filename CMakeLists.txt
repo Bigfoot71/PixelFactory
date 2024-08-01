@@ -14,9 +14,11 @@ option(PF_BUILD_SHARED "Build PixelFactory as a shared library" OFF)
 
 # Set extensions
 option(PF_EXT_TEXTURE2D "Enables the texture2d extension allowing images loading via stbi and generation" OFF)
+option(PF_EXT_VERTEXBUFFER "Enables the vertexbuffer extension allowing OBJ/GLTF loading and mesh generation" OFF)
 
 # Set example builds
 option(PF_BUILD_EXAMPLES_RAYLIB "Build PixelFactory examples for raylib" OFF)
+option(PF_BUILD_EXAMPLES_SDL2 "Build PixelFactory examples for SDL2" OFF)
 
 # Defining source files
 file(GLOB_RECURSE SRCS ${PF_ROOT_PATH}/src/*.c)

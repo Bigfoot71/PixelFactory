@@ -131,7 +131,7 @@ Before you start, make sure you have [CMake](https://cmake.org/install/) and a C
 If you want to build the examples provided with PixelFactory, enable the corresponding option in CMake:
 
 ```bash
-cmake -DPF_BUILD_EXAMPLES_RAYLIB=ON ..
+cmake -DPF_BUILD_EXAMPLES_RAYLIB=ON -DPF_BUILD_EXAMPLES_SDL2=ON ..
 ```
 
 Then build the examples as described above.
