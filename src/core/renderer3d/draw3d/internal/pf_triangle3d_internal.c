@@ -235,11 +235,7 @@
         for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y_offset + x;                                                 \
-                pf_vec3_t bary = {                                                              \
-                    w1 * inv_w_sum,                                                             \
-                    w2 * inv_w_sum,                                                             \
-                    w3 * inv_w_sum                                                              \
-                };                                                                              \
+                pf_vec3_t bary = { w1 * inv_w_sum, w2 * inv_w_sum, w3 * inv_w_sum };            \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
                 rn->zb.buffer[offset] = z;                                                      \
                 PIXEL_CODE                                                                      \
@@ -261,11 +257,7 @@
         for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y_offset + x;                                                 \
-                pf_vec3_t bary = {                                                              \
-                    w1 * inv_w_sum,                                                             \
-                    w2 * inv_w_sum,                                                             \
-                    w3 * inv_w_sum                                                              \
-                };                                                                              \
+                pf_vec3_t bary = { w1 * inv_w_sum, w2 * inv_w_sum, w3 * inv_w_sum };            \
                 float z = 1.0f/(bary[0]*z1 + bary[1]*z2 + bary[2]*z3);                          \
                 if (test(rn->zb.buffer[offset], z)) {                                           \
                     rn->zb.buffer[offset] = z;                                                  \
@@ -283,20 +275,15 @@
 
 #define PF_TRIANGLE_TRAVEL_NODEPTH_OMP(PIXEL_CODE)                                              \
     _Pragma("omp parallel for schedule(dynamic)                                                 \
-        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                  \
+        if (((xmax - xmin) * (ymax - ymin)) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                \
     for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
         int w1 = w1_row + (y - ymin) * w1_y_step;                                               \
         int w2 = w2_row + (y - ymin) * w2_y_step;                                               \
         int w3 = w3_row + (y - ymin) * w3_y_step;                                               \
-        const uint32_t y_offset = y * rn->fb.w;                                                 \
         for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
-                uint32_t offset = y_offset + x;                                                 \
-                pf_vec3_t bary = {                                                              \
-                    w1 * inv_w_sum,                                                             \
-                    w2 * inv_w_sum,                                                             \
-                    w3 * inv_w_sum                                                              \
-                };                                                                              \
+                uint32_t offset = y * rn->fb.w + x;                                             \
+                pf_vec3_t bary = { w1 * inv_w_sum, w2 * inv_w_sum, w3 * inv_w_sum };            \
                 float z = 1.0f / (bary[0] * z1 + bary[1] * z2 + bary[2] * z3);                  \
                 rn->zb.buffer[offset] = z;                                                      \
                 PIXEL_CODE                                                                      \
@@ -309,7 +296,7 @@
 
 #define PF_TRIANGLE_TRAVEL_DEPTH_OMP(PIXEL_CODE)                                                \
     _Pragma("omp parallel for schedule(dynamic)                                                 \
-        if ((xmax - xmin) * (ymax - ymin) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                  \
+        if (((xmax - xmin) * (ymax - ymin)) >= PF_OMP_TRIANGLE_AABB_THRESHOLD)")                \
     for (uint32_t y = ymin; y <= ymax; ++y) {                                                   \
         int w1 = w1_row + (y - ymin) * w1_y_step;                                               \
         int w2 = w2_row + (y - ymin) * w2_y_step;                                               \
@@ -317,11 +304,7 @@
         for (uint32_t x = xmin; x <= xmax; ++x) {                                               \
             if ((w1 | w2 | w3) >= 0) {                                                          \
                 uint32_t offset = y * rn->fb.w + x;                                             \
-                pf_vec3_t bary = {                                                              \
-                    w1 * inv_w_sum,                                                             \
-                    w2 * inv_w_sum,                                                             \
-                    w3 * inv_w_sum                                                              \
-                };                                                                              \
+                pf_vec3_t bary = { w1 * inv_w_sum, w2 * inv_w_sum, w3 * inv_w_sum };            \
                 float z = 1.0f / (bary[0] * z1 + bary[1] * z2 + bary[2] * z3);                  \
                 if (test(rn->zb.buffer[offset], z)) {                                           \
                     rn->zb.buffer[offset] = z;                                                  \
