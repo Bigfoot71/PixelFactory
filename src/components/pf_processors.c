@@ -19,6 +19,7 @@
 
 #include "pixelfactory/components/pf_processors.h"
 #include "pixelfactory/core/pf_texture2d.h"
+#include "pixelfactory/math/pf_vec2.h"
 
 /* Default Processor 2D Functions */
 

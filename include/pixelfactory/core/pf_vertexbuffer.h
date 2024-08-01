@@ -3,7 +3,6 @@
 
 #include "../components/pf_attribute.h"
 #include "../components/pf_color.h"
-#include "../misc/pf_stdinc.h"
 
 /* Vertex Buffer Types */
 

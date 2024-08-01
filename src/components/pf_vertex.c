@@ -18,6 +18,7 @@
  */
 
 #include "pixelfactory/components/pf_vertex.h"
+#include "pixelfactory/math/pf_vec2.h"
 
 pf_vertex_t
 pf_vertex_create_2d(
