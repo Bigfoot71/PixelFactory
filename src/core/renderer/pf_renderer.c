@@ -298,3 +298,45 @@ pf_renderer_viewport(
         rn->conf3d->viewport_dim[1] = h - 1;
     }
 }
+
+void
+pf_renderer_apply_camera2d(
+    pf_renderer_t* rn,
+    pf_camera2d_t* cam)
+{
+    if (rn->conf2d != NULL) {
+        pf_camera2d_get_view_matrix(cam, rn->conf2d->mat_view);
+    }
+}
+
+void
+pf_renderer_apply_camera3d(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam)
+{
+    if (rn->conf2d != NULL) {
+        pf_camera3d_get_view_matrix(cam, rn->conf3d->mat_view);
+    }
+}
+
+void
+pf_renderer_apply_camera3d_orthographic(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam)
+{
+    if (rn->conf2d != NULL) {
+        pf_camera3d_get_view_matrix(cam, rn->conf3d->mat_view);
+        pf_camera3d_get_orthographic_matrix(cam, rn->conf3d->mat_view);
+    }
+}
+
+void
+pf_renderer_apply_camera3d_perspective(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam)
+{
+    if (rn->conf2d != NULL) {
+        pf_camera3d_get_view_matrix(cam, rn->conf3d->mat_view);
+        pf_camera3d_get_perspective_matrix(cam, rn->conf3d->mat_view);
+    }
+}

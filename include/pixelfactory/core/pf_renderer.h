@@ -23,6 +23,8 @@
 #include "../components/pf_processors.h"
 #include "../core/pf_vertexbuffer.h"
 #include "../core/pf_texture2d.h"
+#include "../utils/pf_camera2d.h"
+#include "../utils/pf_camera3d.h"
 #include "pf_framebuffer.h"
 #include "pf_depthbuffer.h"
 #include <stdint.h>
@@ -122,6 +124,26 @@ PFAPI void
 pf_renderer_viewport(
     pf_renderer_t* rn,
     int x, int y, int w, int h);
+
+PFAPI void
+pf_renderer_apply_camera2d(
+    pf_renderer_t* rn,
+    pf_camera2d_t* cam);
+
+PFAPI void
+pf_renderer_apply_camera3d(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam);
+
+PFAPI void
+pf_renderer_apply_camera3d_orthographic(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam);
+
+PFAPI void
+pf_renderer_apply_camera3d_perspective(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam);
 
 /* Renderer 2D Buffer Drawing */
 
