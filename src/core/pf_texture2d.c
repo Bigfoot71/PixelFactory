@@ -50,6 +50,8 @@ pf_texture2d_create(
     texture.tx = 1.0f/w;
     texture.ty = 1.0f/h;
 
+    texture.format = format;
+
     return texture;
 }
 
@@ -85,6 +87,8 @@ pf_texture2d_create_with_copy(
     texture.tx = 1.0f/w;
     texture.ty = 1.0f/h;
 
+    texture.format = format;
+
     return texture;
 }
 
@@ -93,7 +97,7 @@ pf_texture2d_delete(
     pf_texture2d_t* tex)
 {
     PF_FREE(tex->texels);
-    memset(tex, 0, sizeof(pf_texture2d_t));
+    *tex = (pf_texture2d_t) { 0 };
 }
 
 /* Map Functions */

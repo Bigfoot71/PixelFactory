@@ -34,15 +34,14 @@ typedef pf_color_t(*pf_texture2d_sampler_fn)(
     float u, float v);
 
 typedef struct pf_texture2d {
-    void* texels;
+    void*                   texels;
     pf_texture2d_sampler_fn sampler;
-    pf_texture2d_mapper_fn mapper;
-    pf_pixel_getter_fn getter;
-    pf_pixel_setter_fn setter;
-    uint32_t w;
-    uint32_t h;
-    float tx;
-    float ty;
+    pf_texture2d_mapper_fn  mapper;
+    pf_pixel_getter_fn      getter;
+    pf_pixel_setter_fn      setter;
+    uint32_t                w, h;
+    float                   tx, ty;
+    pf_pixelformat_e        format;
 } pf_texture2d_t;
 
 
