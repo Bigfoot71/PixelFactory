@@ -300,7 +300,7 @@ pf_renderer_viewport(
 }
 
 void
-pf_renderer_apply_camera2d(
+pf_renderer_apply_camera2d_view(
     pf_renderer_t* rn,
     pf_camera2d_t* cam)
 {
@@ -310,32 +310,53 @@ pf_renderer_apply_camera2d(
 }
 
 void
-pf_renderer_apply_camera3d(
+pf_renderer_apply_camera3d_view(
     pf_renderer_t* rn,
     pf_camera3d_t* cam)
 {
-    if (rn->conf2d != NULL) {
+    if (rn->conf3d != NULL) {
         pf_camera3d_get_view_matrix(cam, rn->conf3d->mat_view);
     }
 }
 
 void
-pf_renderer_apply_camera3d_orthographic(
+pf_renderer_apply_camera3d_proj_ortho(
     pf_renderer_t* rn,
     pf_camera3d_t* cam)
 {
-    if (rn->conf2d != NULL) {
+    if (rn->conf3d != NULL) {
+        pf_camera3d_get_orthographic_matrix(cam, rn->conf3d->mat_view);
+    }
+}
+
+void
+pf_renderer_apply_camera3d_proj_perspective(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam)
+{
+    if (rn->conf3d != NULL) {
+        pf_camera3d_get_perspective_matrix(cam, rn->conf3d->mat_view);
+    }
+}
+
+
+void
+pf_renderer_apply_camera3d_view_proj_ortho(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam)
+{
+    if (rn->conf3d != NULL) {
         pf_camera3d_get_view_matrix(cam, rn->conf3d->mat_view);
         pf_camera3d_get_orthographic_matrix(cam, rn->conf3d->mat_view);
     }
 }
 
 void
-pf_renderer_apply_camera3d_perspective(
+pf_renderer_apply_camera3d_view_proj_perspective(
     pf_renderer_t* rn,
     pf_camera3d_t* cam)
 {
-    if (rn->conf2d != NULL) {
+    if (rn->conf3d != NULL) {
         pf_camera3d_get_view_matrix(cam, rn->conf3d->mat_view);
         pf_camera3d_get_perspective_matrix(cam, rn->conf3d->mat_view);
     }

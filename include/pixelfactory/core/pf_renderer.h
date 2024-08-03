@@ -125,23 +125,33 @@ pf_renderer_viewport(
     pf_renderer_t* rn,
     int x, int y, int w, int h);
 
-PFAPI void
-pf_renderer_apply_camera2d(
+void
+pf_renderer_apply_camera2d_view(
     pf_renderer_t* rn,
     pf_camera2d_t* cam);
 
-PFAPI void
-pf_renderer_apply_camera3d(
+void
+pf_renderer_apply_camera3d_view(
     pf_renderer_t* rn,
     pf_camera3d_t* cam);
 
-PFAPI void
-pf_renderer_apply_camera3d_orthographic(
+void
+pf_renderer_apply_camera3d_proj_ortho(
     pf_renderer_t* rn,
     pf_camera3d_t* cam);
 
-PFAPI void
-pf_renderer_apply_camera3d_perspective(
+void
+pf_renderer_apply_camera3d_proj_perspective(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam);
+
+void
+pf_renderer_apply_camera3d_view_proj_ortho(
+    pf_renderer_t* rn,
+    pf_camera3d_t* cam);
+
+void
+pf_renderer_apply_camera3d_view_proj_perspective(
     pf_renderer_t* rn,
     pf_camera3d_t* cam);
 
