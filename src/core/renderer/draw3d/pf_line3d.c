@@ -60,8 +60,8 @@ pf_renderer_line(
     pf_vertex_t vertices[3] = { 0 };
 
     for (int_fast8_t i = 0; i < 2; ++i) {
-        pf_attrib_elem_t* pos = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
-        pf_attrib_elem_t* col = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+        pf_attrib_elem_t* pos = &vertices[i].elements[PF_ATTRIB_POSITION];
+        pf_attrib_elem_t* col = &vertices[i].elements[PF_ATTRIB_COLOR];
 
         pos->used = true, pos->comp = 3, pos->type = PF_ATTRIB_FLOAT;
         col->used = true, col->comp = 4, col->type = PF_ATTRIB_UBYTE;
@@ -71,13 +71,13 @@ pf_renderer_line(
         }
     }
 
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p1[0];
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p1[1];
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p1[2];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[0].v_float = p1[0];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[1].v_float = p1[1];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[2].v_float = p1[2];
 
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p2[0];
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p2[1];
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p2[2];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[0].v_float = p2[0];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[1].v_float = p2[1];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[2].v_float = p2[2];
 
     pf_renderer_line3d_INTERNAL(rn, &vertices[0], &vertices[1], 0, mat_identity, mat_identity, mat_mvp, &processor);
 }
@@ -113,8 +113,8 @@ pf_renderer_line_thick(
     pf_vertex_t vertices[3] = { 0 };
 
     for (int_fast8_t i = 0; i < 2; ++i) {
-        pf_attrib_elem_t* pos = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
-        pf_attrib_elem_t* col = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+        pf_attrib_elem_t* pos = &vertices[i].elements[PF_ATTRIB_POSITION];
+        pf_attrib_elem_t* col = &vertices[i].elements[PF_ATTRIB_COLOR];
 
         pos->used = true, pos->comp = 3, pos->type = PF_ATTRIB_FLOAT;
         col->used = true, col->comp = 4, col->type = PF_ATTRIB_UBYTE;
@@ -124,13 +124,13 @@ pf_renderer_line_thick(
         }
     }
 
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p1[0];
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p1[1];
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p1[2];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[0].v_float = p1[0];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[1].v_float = p1[1];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[2].v_float = p1[2];
 
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p2[0];
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p2[1];
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p2[2];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[0].v_float = p2[0];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[1].v_float = p2[1];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[2].v_float = p2[2];
 
     pf_renderer_line3d_INTERNAL(rn, &vertices[0], &vertices[1], thickness, mat_identity, mat_identity, mat_mvp, &processor);
 }

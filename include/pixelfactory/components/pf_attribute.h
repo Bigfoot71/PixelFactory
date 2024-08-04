@@ -25,10 +25,12 @@
 
 /* Helper Definitions */
 
-#define PF_DEFAULT_ATTRIBUTE_POSITION_INDEX     0
-#define PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX     1
-#define PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX       2
-#define PF_DEFAULT_ATTRIBUTE_COLOR_INDEX        3
+typedef enum {
+    PF_ATTRIB_POSITION = 0,
+    PF_ATTRIB_TEXCOORD,
+    PF_ATTRIB_NORMAL,
+    PF_ATTRIB_COLOR
+} pf_attrib_default_e;
 
 /* Attribute Type */
 

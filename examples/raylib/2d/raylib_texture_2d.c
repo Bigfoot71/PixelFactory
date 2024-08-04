@@ -9,7 +9,7 @@ void frag_proc(pf_renderer_t* rn, pf_vertex_t* vertex, pf_color_t* out_color, co
     (void)rn;
 
     pf_vec2_t texcoord;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_TEXCOORD, texcoord);
 
     float u = 0.5f + (texcoord[0] - 0.5f) * 1.5f;
     float v = 0.5f + (texcoord[1] - 0.5f) * 1.5f;

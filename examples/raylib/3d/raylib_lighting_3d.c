@@ -22,13 +22,13 @@ model_frag_proc(
     const uniforms_t* u = uniforms;
 
     pf_vec3_t position;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, position);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_POSITION, position);
 
     pf_vec2_t texcoord;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_TEXCOORD, texcoord);
 
     pf_vec3_t normal;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX, normal);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_NORMAL, normal);
 
     // constants
     const pf_vec3_t light_pos = { 10.0f, 10.0f, 10.0f };

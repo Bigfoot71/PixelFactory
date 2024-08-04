@@ -58,20 +58,20 @@ pf_renderer_point(
 
     pf_vertex_t vertex = { 0 };
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_ATTRIB_FLOAT;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
+    vertex.elements[PF_ATTRIB_POSITION].type = PF_ATTRIB_FLOAT;
+    vertex.elements[PF_ATTRIB_POSITION].used = true;
+    vertex.elements[PF_ATTRIB_POSITION].comp = 3;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_ATTRIB_UBYTE;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
+    vertex.elements[PF_ATTRIB_COLOR].type = PF_ATTRIB_UBYTE;
+    vertex.elements[PF_ATTRIB_COLOR].used = true;
+    vertex.elements[PF_ATTRIB_COLOR].comp = 4;
 
     for (int_fast8_t i = 0; i < 3; ++i) {
-        vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[i].v_float = point[i];
+        vertex.elements[PF_ATTRIB_POSITION].value[i].v_float = point[i];
     }
 
     for (int_fast8_t i = 0; i < 4; ++i) {
-        vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[i].v_uint8_t = color.a[i];
+        vertex.elements[PF_ATTRIB_COLOR].value[i].v_uint8_t = color.a[i];
     }
 
     pf_renderer_point3d_INTERNAL(rn, &vertex, 0, mat_identity, mat_identity, mat_mvp, &processor);
@@ -106,20 +106,20 @@ pf_renderer_point_thick(
 
     pf_vertex_t vertex = { 0 };
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_ATTRIB_FLOAT;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
+    vertex.elements[PF_ATTRIB_POSITION].type = PF_ATTRIB_FLOAT;
+    vertex.elements[PF_ATTRIB_POSITION].used = true;
+    vertex.elements[PF_ATTRIB_POSITION].comp = 3;
 
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_ATTRIB_UBYTE;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
-    vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
+    vertex.elements[PF_ATTRIB_COLOR].type = PF_ATTRIB_UBYTE;
+    vertex.elements[PF_ATTRIB_COLOR].used = true;
+    vertex.elements[PF_ATTRIB_COLOR].comp = 4;
 
     for (int_fast8_t i = 0; i < 3; ++i) {
-        vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[i].v_float = point[i];
+        vertex.elements[PF_ATTRIB_POSITION].value[i].v_float = point[i];
     }
 
     for (int_fast8_t i = 0; i < 4; ++i) {
-        vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[i].v_uint8_t = color.a[i];
+        vertex.elements[PF_ATTRIB_COLOR].value[i].v_uint8_t = color.a[i];
     }
 
     pf_renderer_point3d_INTERNAL(rn, &vertex, radius, mat_identity, mat_identity, mat_mvp, &processor);

@@ -29,7 +29,7 @@ pf_vertex_create_2d(
     pf_vertex_t vertex = { 0 };
 
     // Position
-    pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+    pf_attrib_elem_t* pos = &vertex.elements[PF_ATTRIB_POSITION];
     pos->used = true;
     pos->comp = 2;
     pos->type = PF_ATTRIB_FLOAT;
@@ -37,7 +37,7 @@ pf_vertex_create_2d(
     pos->value[1].v_float = y;
 
     // TexCoord
-    pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
+    pf_attrib_elem_t* tex = &vertex.elements[PF_ATTRIB_TEXCOORD];
     tex->used = true;
     tex->comp = 2;
     tex->type = PF_ATTRIB_FLOAT;
@@ -45,7 +45,7 @@ pf_vertex_create_2d(
     tex->value[1].v_float = v;
 
     // Color
-    pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+    pf_attrib_elem_t* col = &vertex.elements[PF_ATTRIB_COLOR];
     col->used = true;
     col->comp = 4;
     col->type = PF_ATTRIB_UBYTE;
@@ -65,7 +65,7 @@ pf_vertex_create_3d(
     pf_vertex_t vertex = { 0 };
 
     // Position
-    pf_attrib_elem_t* pos = &vertex.elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+    pf_attrib_elem_t* pos = &vertex.elements[PF_ATTRIB_POSITION];
     pos->used = true;
     pos->comp = 3;
     pos->type = PF_ATTRIB_FLOAT;
@@ -74,7 +74,7 @@ pf_vertex_create_3d(
     pos->value[2].v_float = z;
 
     // TexCoord
-    pf_attrib_elem_t* tex = &vertex.elements[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
+    pf_attrib_elem_t* tex = &vertex.elements[PF_ATTRIB_TEXCOORD];
     tex->used = true;
     tex->comp = 2;
     tex->type = PF_ATTRIB_FLOAT;
@@ -82,7 +82,7 @@ pf_vertex_create_3d(
     tex->value[1].v_float = v;
 
     // Color
-    pf_attrib_elem_t* col = &vertex.elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+    pf_attrib_elem_t* col = &vertex.elements[PF_ATTRIB_COLOR];
     col->used = true;
     col->comp = 4;
     col->type = PF_ATTRIB_UBYTE;

@@ -164,9 +164,9 @@ pf_renderer_vertexbuffer2d(
         */
 
         pf_vec3_t p1, p2, p3;
-        pf_vertex_get_vec(&v1, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, p1);
-        pf_vertex_get_vec(&v2, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, p2);
-        pf_vertex_get_vec(&v3, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, p3);
+        pf_vertex_get_vec(&v1, PF_ATTRIB_POSITION, p1);
+        pf_vertex_get_vec(&v2, PF_ATTRIB_POSITION, p2);
+        pf_vertex_get_vec(&v3, PF_ATTRIB_POSITION, p3);
 
         int xmin = (int)PF_MAX(PF_MIN(p1[0], PF_MIN(p2[0], p3[0])), 0);
         int ymin = (int)PF_MAX(PF_MIN(p1[1], PF_MIN(p2[1], p3[1])), 0);

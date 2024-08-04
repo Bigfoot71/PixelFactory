@@ -61,8 +61,8 @@ pf_renderer_triangle(
     pf_vertex_t vertices[12] = { 0 };
 
     for (int_fast8_t i = 0; i < 3; ++i) {
-        pf_attrib_elem_t* pos = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
-        pf_attrib_elem_t* col = &vertices[i].elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+        pf_attrib_elem_t* pos = &vertices[i].elements[PF_ATTRIB_POSITION];
+        pf_attrib_elem_t* col = &vertices[i].elements[PF_ATTRIB_COLOR];
 
         pos->used = true, pos->comp = 3, pos->type = PF_ATTRIB_FLOAT;
         col->used = true, col->comp = 4, col->type = PF_ATTRIB_UBYTE;
@@ -72,17 +72,17 @@ pf_renderer_triangle(
         }
     }
 
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p1[0];
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p1[1];
-    vertices[0].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p1[2];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[0].v_float = p1[0];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[1].v_float = p1[1];
+    vertices[0].elements[PF_ATTRIB_POSITION].value[2].v_float = p1[2];
 
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p2[0];
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p2[1];
-    vertices[1].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p2[2];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[0].v_float = p2[0];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[1].v_float = p2[1];
+    vertices[1].elements[PF_ATTRIB_POSITION].value[2].v_float = p2[2];
 
-    vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[0].v_float = p3[0];
-    vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[1].v_float = p3[1];
-    vertices[2].elements[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].value[2].v_float = p3[2];
+    vertices[2].elements[PF_ATTRIB_POSITION].value[0].v_float = p3[0];
+    vertices[2].elements[PF_ATTRIB_POSITION].value[1].v_float = p3[1];
+    vertices[2].elements[PF_ATTRIB_POSITION].value[2].v_float = p3[2];
 
     pf_renderer_triangle3d_INTERNAL(
         rn, vertices, mat_identity, mat_identity, mat_mvp, &processor, true);

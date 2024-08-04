@@ -206,7 +206,7 @@ void FragProcModel(pf_renderer_t* rn, pf_vertex_t* vertex, pf_color_t* outColor,
     const Uniforms* u = uniforms;
 
     pf_vec2_t texcoord;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_TEXCOORD, texcoord);
 
     *outColor = u->texture.sampler(&u->texture, texcoord[0], texcoord[1]);
 }

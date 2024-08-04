@@ -12,27 +12,27 @@ pf_vertexbuffer_create_2d(
     pf_vertexbuffer_t vb = { 0 };
 
     if (positions != NULL) {
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].buffer = positions;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].size = num_vertices;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_ATTRIB_FLOAT;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 2;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
+        vb.attributes[PF_ATTRIB_POSITION].buffer = positions;
+        vb.attributes[PF_ATTRIB_POSITION].size = num_vertices;
+        vb.attributes[PF_ATTRIB_POSITION].type = PF_ATTRIB_FLOAT;
+        vb.attributes[PF_ATTRIB_POSITION].comp = 2;
+        vb.attributes[PF_ATTRIB_POSITION].used = true;
     }
 
     if (texcoords != NULL) {
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].buffer = texcoords;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].size = num_vertices;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_ATTRIB_FLOAT;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = true;
+        vb.attributes[PF_ATTRIB_TEXCOORD].buffer = texcoords;
+        vb.attributes[PF_ATTRIB_TEXCOORD].size = num_vertices;
+        vb.attributes[PF_ATTRIB_TEXCOORD].type = PF_ATTRIB_FLOAT;
+        vb.attributes[PF_ATTRIB_TEXCOORD].comp = 2;
+        vb.attributes[PF_ATTRIB_TEXCOORD].used = true;
     }
 
     if (colors != NULL) {
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].buffer = colors;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].size = num_vertices;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_ATTRIB_UBYTE;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
+        vb.attributes[PF_ATTRIB_COLOR].buffer = colors;
+        vb.attributes[PF_ATTRIB_COLOR].size = num_vertices;
+        vb.attributes[PF_ATTRIB_COLOR].type = PF_ATTRIB_UBYTE;
+        vb.attributes[PF_ATTRIB_COLOR].comp = 4;
+        vb.attributes[PF_ATTRIB_COLOR].used = true;
     }
 
     vb.num_vertices = num_vertices;
@@ -51,35 +51,35 @@ pf_vertexbuffer_create_3d(
     pf_vertexbuffer_t vb = { 0 };
 
     if (positions != NULL) {
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].buffer = positions;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].size = num_vertices;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_ATTRIB_FLOAT;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
+        vb.attributes[PF_ATTRIB_POSITION].buffer = positions;
+        vb.attributes[PF_ATTRIB_POSITION].size = num_vertices;
+        vb.attributes[PF_ATTRIB_POSITION].type = PF_ATTRIB_FLOAT;
+        vb.attributes[PF_ATTRIB_POSITION].comp = 3;
+        vb.attributes[PF_ATTRIB_POSITION].used = true;
     }
 
     if (texcoords != NULL) {
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].buffer = texcoords;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].size = num_vertices;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_ATTRIB_FLOAT;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = true;
+        vb.attributes[PF_ATTRIB_TEXCOORD].buffer = texcoords;
+        vb.attributes[PF_ATTRIB_TEXCOORD].size = num_vertices;
+        vb.attributes[PF_ATTRIB_TEXCOORD].type = PF_ATTRIB_FLOAT;
+        vb.attributes[PF_ATTRIB_TEXCOORD].comp = 2;
+        vb.attributes[PF_ATTRIB_TEXCOORD].used = true;
     }
 
     if (normals != NULL) {
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].buffer = normals;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].size = num_vertices;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].type = PF_ATTRIB_FLOAT;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].comp = 3;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].used = true;
+        vb.attributes[PF_ATTRIB_NORMAL].buffer = normals;
+        vb.attributes[PF_ATTRIB_NORMAL].size = num_vertices;
+        vb.attributes[PF_ATTRIB_NORMAL].type = PF_ATTRIB_FLOAT;
+        vb.attributes[PF_ATTRIB_NORMAL].comp = 3;
+        vb.attributes[PF_ATTRIB_NORMAL].used = true;
     }
 
     if (colors != NULL) {
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].buffer = colors;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].size = num_vertices;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].type = PF_ATTRIB_UBYTE;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].comp = 4;
-        vb.attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].used = true;
+        vb.attributes[PF_ATTRIB_COLOR].buffer = colors;
+        vb.attributes[PF_ATTRIB_COLOR].size = num_vertices;
+        vb.attributes[PF_ATTRIB_COLOR].type = PF_ATTRIB_UBYTE;
+        vb.attributes[PF_ATTRIB_COLOR].comp = 4;
+        vb.attributes[PF_ATTRIB_COLOR].used = true;
     }
 
     vb.num_vertices = num_vertices;
@@ -190,7 +190,7 @@ pfext_vertexbuffer_load_obj(
     vertexbuffer.num_indices = attrib.num_face_num_verts;
 
     // Load vertex positions
-    pf_attribute_t* position_attr = &vertexbuffer.attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+    pf_attribute_t* position_attr = &vertexbuffer.attributes[PF_ATTRIB_POSITION];
     position_attr->type = PF_ATTRIB_FLOAT;
     position_attr->comp = 3; // x, y, z
     position_attr->size = vertexbuffer.num_vertices * 3 * sizeof(float);
@@ -204,7 +204,7 @@ pfext_vertexbuffer_load_obj(
 
     // Load texture coordinates, if present
     if (attrib.num_texcoords > 0) {
-        pf_attribute_t* texcoord_attr = &vertexbuffer.attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
+        pf_attribute_t* texcoord_attr = &vertexbuffer.attributes[PF_ATTRIB_TEXCOORD];
         texcoord_attr->type = PF_ATTRIB_FLOAT;
         texcoord_attr->comp = 2; // u, v
         texcoord_attr->size = vertexbuffer.num_vertices * 2 * sizeof(float);
@@ -219,7 +219,7 @@ pfext_vertexbuffer_load_obj(
 
     // Load normals, if present
     if (attrib.num_normals > 0) {
-        pf_attribute_t* normal_attr = &vertexbuffer.attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX];
+        pf_attribute_t* normal_attr = &vertexbuffer.attributes[PF_ATTRIB_NORMAL];
         normal_attr->type = PF_ATTRIB_FLOAT;
         normal_attr->comp = 3; // nx, ny, nz
         normal_attr->size = vertexbuffer.num_vertices * 3 * sizeof(float);
@@ -310,7 +310,7 @@ pfext_vertexbuffer_load_gltf(
 
             switch (attribute->type) {
                 case cgltf_attribute_type_position: {
-                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX];
+                    pf_attribute_t* attr = &vb->attributes[PF_ATTRIB_POSITION];
                     pfext_cgltf_copy_accessor_data_INTERNAL(&attr->buffer, attribute->data);
                     vb->num_vertices = attribute->data->count;
                     attr->size = attribute->data->count;
@@ -319,7 +319,7 @@ pfext_vertexbuffer_load_gltf(
                     attr->comp = 3;
                 } break;
                 case cgltf_attribute_type_texcoord: {
-                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX];
+                    pf_attribute_t* attr = &vb->attributes[PF_ATTRIB_TEXCOORD];
                     pfext_cgltf_copy_accessor_data_INTERNAL(&attr->buffer, attribute->data);
                     attr->size = attribute->data->count;
                     attr->type = PF_ATTRIB_FLOAT;
@@ -327,7 +327,7 @@ pfext_vertexbuffer_load_gltf(
                     attr->comp = 2;
                 } break;
                 case cgltf_attribute_type_normal: {
-                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX];
+                    pf_attribute_t* attr = &vb->attributes[PF_ATTRIB_NORMAL];
                     pfext_cgltf_copy_accessor_data_INTERNAL(&attr->buffer, attribute->data);
                     attr->size = attribute->data->count;
                     attr->type = PF_ATTRIB_FLOAT;
@@ -335,7 +335,7 @@ pfext_vertexbuffer_load_gltf(
                     attr->comp = 3;
                 } break;
                 case cgltf_attribute_type_color: {
-                    pf_attribute_t* attr = &vb->attributes[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX];
+                    pf_attribute_t* attr = &vb->attributes[PF_ATTRIB_COLOR];
                     attr->buffer = PF_MALLOC(attribute->data->count * sizeof(pf_color_t));
                     cgltf_accessor_unpack_floats(attribute->data, (float*)attr->buffer, attribute->data->count * 4);
                     attr->size = attribute->data->count;
@@ -400,23 +400,23 @@ pfext_set_vb_from_par_shapes_mesh_INTERNAL(pf_vertexbuffer_t* vb, par_shapes_mes
 {
     vb->num_vertices = mesh->npoints;
 
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].buffer = mesh->points;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].size = mesh->npoints;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].type = PF_ATTRIB_FLOAT;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].used = true;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_POSITION_INDEX].comp = 3;
+    vb->attributes[PF_ATTRIB_POSITION].buffer = mesh->points;
+    vb->attributes[PF_ATTRIB_POSITION].size = mesh->npoints;
+    vb->attributes[PF_ATTRIB_POSITION].type = PF_ATTRIB_FLOAT;
+    vb->attributes[PF_ATTRIB_POSITION].used = true;
+    vb->attributes[PF_ATTRIB_POSITION].comp = 3;
 
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].buffer = mesh->tcoords;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].size = mesh->npoints;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].type = PF_ATTRIB_FLOAT;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].used = true;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX].comp = 2;
+    vb->attributes[PF_ATTRIB_TEXCOORD].buffer = mesh->tcoords;
+    vb->attributes[PF_ATTRIB_TEXCOORD].size = mesh->npoints;
+    vb->attributes[PF_ATTRIB_TEXCOORD].type = PF_ATTRIB_FLOAT;
+    vb->attributes[PF_ATTRIB_TEXCOORD].used = true;
+    vb->attributes[PF_ATTRIB_TEXCOORD].comp = 2;
 
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].buffer = mesh->normals;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].size = mesh->npoints;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].type = PF_ATTRIB_FLOAT;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].used = true;
-    vb->attributes[PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX].comp = 3;
+    vb->attributes[PF_ATTRIB_NORMAL].buffer = mesh->normals;
+    vb->attributes[PF_ATTRIB_NORMAL].size = mesh->npoints;
+    vb->attributes[PF_ATTRIB_NORMAL].type = PF_ATTRIB_FLOAT;
+    vb->attributes[PF_ATTRIB_NORMAL].used = true;
+    vb->attributes[PF_ATTRIB_NORMAL].comp = 3;
 
     vb->indices = mesh->triangles;
     vb->num_indices = mesh->ntriangles;

@@ -44,7 +44,7 @@ void frag_proc(
     const PF_Material* material = uniforms;
 
     pf_vec2_t texcoord;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_TEXCOORD, texcoord);
     *out_color = material->texture.sampler(&material->texture, texcoord[0], texcoord[1]);
 }
 

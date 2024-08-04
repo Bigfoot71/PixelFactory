@@ -32,7 +32,7 @@ pf_proc2d_vertex_default(
     (void)uniforms;
 
     pf_vertex_transform_vec_mat3(out_vertex,
-        PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, transform);
+        PF_ATTRIB_POSITION, transform);
 }
 
 void
@@ -45,10 +45,10 @@ pf_proc2d_fragment_default(
     (void)rn;
     (void)uniforms;
 
-    out_color->a[0] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[0].v_uint8_t;
-    out_color->a[1] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[1].v_uint8_t;
-    out_color->a[2] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[2].v_uint8_t;
-    out_color->a[3] = vertex->elements[PF_DEFAULT_ATTRIBUTE_COLOR_INDEX].value[3].v_uint8_t;
+    out_color->a[0] = vertex->elements[PF_ATTRIB_COLOR].value[0].v_uint8_t;
+    out_color->a[1] = vertex->elements[PF_ATTRIB_COLOR].value[1].v_uint8_t;
+    out_color->a[2] = vertex->elements[PF_ATTRIB_COLOR].value[2].v_uint8_t;
+    out_color->a[3] = vertex->elements[PF_ATTRIB_COLOR].value[3].v_uint8_t;
 }
 
 void
@@ -64,10 +64,10 @@ pf_proc2d_fragment_texture_as_uniform(
     const pf_texture2d_t* tex = uniforms;
 
     pf_vec2_t texcoord;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_TEXCOORD_INDEX, texcoord);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_TEXCOORD, texcoord);
 
     pf_color_t color;
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, color.a);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_COLOR, color.a);
 
     *out_color = tex->sampler(tex, texcoord[0], texcoord[1]);
     *out_color = pf_color_blend_mul(*out_color, color);
@@ -89,10 +89,10 @@ pf_proc3d_vertex_default(
 
     pf_vec4_t position;
     position[3] = 1.0f;
-    pf_vertex_get_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, position);
+    pf_vertex_get_vec(out_vertex, PF_ATTRIB_POSITION, position);
     pf_vec4_transform(out_homogeneous, position, mat_mvp);
 
-    pf_vertex_transform_vec_mat4(out_vertex, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, mat_model);
+    pf_vertex_transform_vec_mat4(out_vertex, PF_ATTRIB_POSITION, mat_model);
 }
 
 void
@@ -108,11 +108,11 @@ pf_proc3d_vertex_normal_transform(
 
     pf_vec4_t position;
     position[3] = 1.0f;
-    pf_vertex_get_vec(out_vertex, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, position);
+    pf_vertex_get_vec(out_vertex, PF_ATTRIB_POSITION, position);
     pf_vec4_transform(out_homogeneous, position, mat_mvp);
 
-    pf_vertex_transform_vec_mat4(out_vertex, PF_DEFAULT_ATTRIBUTE_POSITION_INDEX, mat_model);
-    pf_vertex_transform_vec_mat4(out_vertex, PF_DEFAULT_ATTRIBUTE_NORMAL_INDEX, mat_normal);
+    pf_vertex_transform_vec_mat4(out_vertex, PF_ATTRIB_POSITION, mat_model);
+    pf_vertex_transform_vec_mat4(out_vertex, PF_ATTRIB_NORMAL, mat_normal);
 }
 
 void
@@ -125,5 +125,5 @@ pf_proc3d_fragment_default(
     (void)rn;
     (void)uniforms;
 
-    pf_vertex_get_vec(vertex, PF_DEFAULT_ATTRIBUTE_COLOR_INDEX, out_color);
+    pf_vertex_get_vec(vertex, PF_ATTRIB_COLOR, out_color);
 }
